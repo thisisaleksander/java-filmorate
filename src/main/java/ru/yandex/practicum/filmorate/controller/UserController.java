@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -15,7 +15,7 @@ public class UserController {
     @PostMapping
     public void createUser(@RequestBody User user) {
         if(users.containsKey(user.getId())) {
-            throw new UserAlreadyExistException(String.format(
+            throw new AlreadyExistException(String.format(
                     "Пользователь указанным id [id = %s] уже зарегистрирован.",
                     user.getId()
             ));
