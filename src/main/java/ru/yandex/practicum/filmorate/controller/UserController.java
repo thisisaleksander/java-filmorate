@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PutMapping
-    public void updateUser(@RequestBody User user) {
+    public void updateUser(@RequestBody @Valid User user) {
         validateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Обновлен пользователь с id = {}", user.getId());

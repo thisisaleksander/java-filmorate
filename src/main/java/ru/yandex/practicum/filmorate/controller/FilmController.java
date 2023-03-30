@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -18,6 +20,7 @@ public class FilmController {
     ValidateService validateService = new ValidateService();
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public void addNewFilm(@RequestBody Film film) {
         if(films.containsKey(film.getId())) {
             throw new AlreadyExistException(String.format(
@@ -31,7 +34,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public void updateFilm(@RequestBody Film film) {
+    public void updateFilm(@RequestBody @Valid Film film) {
         validateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Обновлен фильм с id = {}", film.getId());
