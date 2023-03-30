@@ -10,9 +10,17 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 public class Film {
-    private final int id;
-    private final String name;
+    @NonNull
+    private int id;
+    private String name;
     private String description;
-    private final Date releaseDate;
-    private final Duration duration;
+    private Date releaseDate;
+    private Duration duration;
+
+    public Film (String name, String description, Date releaseDate, Duration duration) {
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+    }
 }

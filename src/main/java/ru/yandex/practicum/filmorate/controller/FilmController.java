@@ -18,10 +18,13 @@ import java.util.Map;
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     ValidateService validateService = new ValidateService();
+    private int filmId = 0;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void addNewFilm(@RequestBody Film film) {
+        filmId++;
+        film.setId(filmId);
         if(films.containsKey(film.getId())) {
             throw new AlreadyExistException(String.format(
                     "Фильм указанным id [id = %s] уже существует.",
