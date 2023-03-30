@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.servise.ValidateService;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.Map;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
+    ValidateService validateService = new ValidateService();
 
     @PostMapping
     public void addNewFilm(@RequestBody Film film) {
@@ -23,12 +25,14 @@ public class FilmController {
                     film.getId()
             ));
         }
+        validateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Добавлен новый фильм, id = {}", film.getId());
     }
 
     @PutMapping
     public void updateFilm(@RequestBody Film film) {
+        validateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Обновлен фильм с id = {}", film.getId());
     }

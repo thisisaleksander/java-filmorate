@@ -11,7 +11,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class Film {
     private final int id;
-    @NonNull
     private final String name;
     private String description;
     private final Date releaseDate;
