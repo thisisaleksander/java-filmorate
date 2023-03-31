@@ -24,7 +24,7 @@ public class FilmController {
     public void addNewFilm(@RequestBody Film film) {
         filmId++;
         film.setId(filmId);
-        if(films.containsKey(film.getId())) {
+        if (films.containsKey(film.getId())) {
             throw new AlreadyExistException(String.format(
                     "Фильм указанным id [id = %s] уже существует.",
                     film.getId()
