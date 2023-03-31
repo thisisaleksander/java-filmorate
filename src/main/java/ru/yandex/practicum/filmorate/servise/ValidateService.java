@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class ValidateService {
     public static boolean isValid;
     public static void validateUser(User user) {
+
         isValid = true;
         if (user.getEmail().isBlank() || user.getEmail() == null) {
             log.info("Электронная почта нового пользователя с id = {} пустая", user.getId());
