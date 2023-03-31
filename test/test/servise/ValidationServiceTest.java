@@ -34,6 +34,7 @@ public class ValidationServiceTest {
                 Duration.ofMinutes(120)
         );
     }
+
     @Test
     public void shouldNotThrowOnUserValidationTest() {
         ValidateService.validateUser(testUser);
