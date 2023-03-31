@@ -17,11 +17,12 @@ import java.util.Map;
 public class UserController {
     private static final Map<Integer, User> users = new HashMap<>();
     private int userId = 0;
+
     @PostMapping
     public void createUser(@RequestBody @Valid User user) {
         userId++;
         user.setId(userId);
-        if(users.containsKey(user.getId())) {
+        if (users.containsKey(user.getId())) {
             throw new AlreadyExistException(String.format(
                     "Пользователь указанным id [id = %s] уже зарегистрирован.",
                     user.getId()
