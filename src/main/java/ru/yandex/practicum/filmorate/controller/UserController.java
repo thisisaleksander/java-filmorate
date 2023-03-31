@@ -15,11 +15,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    ValidateService validateService = new ValidateService();
-    private final Map<Integer, User> users = new HashMap<>();
+    private static final Map<Integer, User> users = new HashMap<>();
     private int userId = 0;
     @PostMapping
-    public void createUser(@RequestBody User user) {
+    public void createUser(@RequestBody @Valid User user) {
         userId++;
         user.setId(userId);
         if(users.containsKey(user.getId())) {
@@ -28,14 +27,14 @@ public class UserController {
                     user.getId()
             ));
         }
-        validateService.validateUser(user);
+        ValidateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Зарегистрирован пользователь, id = {}", user.getId());
     }
 
     @PutMapping
     public void updateUser(@RequestBody @Valid User user) {
-        validateService.validateUser(user);
+        ValidateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Обновлен пользователь с id = {}", user.getId());
     }

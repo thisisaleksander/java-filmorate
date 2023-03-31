@@ -16,8 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    ValidateService validateService = new ValidateService();
+    private static final Map<Integer, Film> films = new HashMap<>();
     private int filmId = 0;
 
     @PostMapping
@@ -31,14 +30,14 @@ public class FilmController {
                     film.getId()
             ));
         }
-        validateService.validateFilm(film);
+        ValidateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Добавлен новый фильм, id = {}", film.getId());
     }
 
     @PutMapping
     public void updateFilm(@RequestBody @Valid Film film) {
-        validateService.validateFilm(film);
+        ValidateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Обновлен фильм с id = {}", film.getId());
     }
