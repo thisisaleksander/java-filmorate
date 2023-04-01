@@ -41,12 +41,9 @@ public class UserController {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("Обновлен пользователь с id = {}", user.getId());
-            return users.get(user.getId()); 
+            return users.get(user.getId());
         }
-        throw new DoNotExistException(String.format(
-                "Пользователь указанным id [id = %s] не зарегистрирован.",
-                user.getId()
-        ));
+        return null;
     }
 
     @GetMapping
