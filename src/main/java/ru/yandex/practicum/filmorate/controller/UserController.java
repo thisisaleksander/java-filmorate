@@ -19,7 +19,7 @@ public class UserController {
     private int userId = 0;
 
     @PostMapping
-    public void createUser(@RequestBody @Valid User user) {
+    public User createUser(@RequestBody @Valid User user) {
         userId++;
         user.setId(userId);
         if (users.containsKey(user.getId())) {
@@ -31,13 +31,15 @@ public class UserController {
         ValidateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Зарегистрирован пользователь, id = {}", user.getId());
+        return users.get(user.getId());
     }
 
     @PutMapping
-    public void updateUser(@RequestBody @Valid User user) {
+    public User updateUser(@RequestBody @Valid User user) {
         ValidateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Обновлен пользователь с id = {}", user.getId());
+        return users.get(user.getId());
     }
 
     @GetMapping
