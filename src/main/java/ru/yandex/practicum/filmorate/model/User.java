@@ -13,10 +13,12 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-
+    /*
     public User(String login, String email, LocalDate birthday) {
         this.email = email;
         this.login = login;
         this.birthday = birthday;
     }
+
+     */
 }
