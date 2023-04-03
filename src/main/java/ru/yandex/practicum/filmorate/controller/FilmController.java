@@ -23,6 +23,7 @@ public class FilmController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Film addNewFilm(@RequestBody Film film) {
+        ValidateService.validateFilm(film);
         filmId++;
         film.setId(filmId);
         if (films.containsKey(film.getId())) {
@@ -31,7 +32,6 @@ public class FilmController {
                     film.getId()
             ));
         }
-        ValidateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Добавлен новый фильм, id = {}", film.getId());
         return films.get(film.getId());
