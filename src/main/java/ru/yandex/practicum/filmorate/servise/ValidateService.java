@@ -46,13 +46,13 @@ public class ValidateService {
 
     public static void validateFilm(Film film) {
         isValid = true;
-        if (film.getName().isBlank() || film.getName() == null) {
+        if (film.getName() == null || film.getName().isBlank()) {
             log.info("Название нового фильма с id = {} пустое", film.getId());
             isValid = false;
             throw new FilmValidationFailedException("Название не может быть пустым");
         }
         if (film.getDescription().length() > 200) {
-            log.info("Описание нового фильма с id = {} не корректно", film.getId());
+            log.info("Описание нового фильма с id = {} слишком длинное", film.getId());
             isValid = false;
             throw new FilmValidationFailedException("Максимальная длина описания — 200 символов");
         }
