@@ -38,11 +38,12 @@ public class FilmController {
     }
 
     @PutMapping
-    public void updateFilm(@RequestBody @Valid Film film) {
+    public Film updateFilm(@RequestBody @Valid Film film) {
         ValidateService.validateFilm(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Обновлен фильм с id = {}", film.getId());
+            return films.get(film.getId());
         } else {
             throw new DoNotExistException(String.format(
                     "Фильм указанным id [id = %s] не существует.",
@@ -53,7 +54,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAllFilms() {
-        log.debug("Текущее количество постов: {}", films.size());
+        log.info("Текущее количество постов: {}", films.size());
         return films.values();
     }
 }

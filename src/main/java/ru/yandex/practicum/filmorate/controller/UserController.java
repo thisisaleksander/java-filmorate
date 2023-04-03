@@ -36,25 +36,23 @@ public class UserController {
     }
 
     @PutMapping
-    public void updateUser(@RequestBody @Valid User user) {
+    public User updateUser(@RequestBody @Valid User user) {
         ValidateService.validateUser(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("Обновлен пользователь с id = {}", user.getId());
-            //return users.get(user.getId());
+            return users.get(user.getId());
         } else {
             throw new DoNotExistException(String.format(
                     "Фильм указанным id [id = %s] не существует.",
                     user.getId()
             ));
         }
-
-        //return null;
     }
 
     @GetMapping
     public Collection<User> findAllUsers() {
-        log.debug("Текущее количество пользователей: {}", users.size());
+        log.info("Текущее количество пользователей: {}", users.size());
         return users.values();
     }
 }
