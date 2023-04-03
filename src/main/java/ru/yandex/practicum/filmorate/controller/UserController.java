@@ -21,6 +21,7 @@ public class UserController {
 
     @PostMapping
     public User createUser(@RequestBody @Valid User user) {
+        ValidateService.validateUser(user);
         userId++;
         user.setId(userId);
         if (users.containsKey(user.getId())) {
@@ -29,7 +30,6 @@ public class UserController {
                     user.getId()
             ));
         }
-        ValidateService.validateUser(user);
         users.put(user.getId(), user);
         log.info("Зарегистрирован пользователь, id = {}", user.getId());
         return users.get(user.getId());
