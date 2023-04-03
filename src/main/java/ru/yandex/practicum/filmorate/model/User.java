@@ -20,4 +20,11 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
+
+    public User(String login, String email, LocalDate birthday) {
+        this.email = email;
+        this.login = login;
+        this.name = login;
+        this.birthday = birthday;
+    }
 }
