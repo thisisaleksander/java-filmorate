@@ -61,7 +61,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException("Дата релиза должна быть не раньше 28 декабря 1895 года");
         }
-        if (film.getDuration().isNegative()) {
+        if (film.getDuration() < 0) {
             log.info("Продолжительность нового фильма с id = {} указана не корректно", film.getId());
             isValid = false;
             throw new FilmValidationFailedException("Продолжительность фильма должна быть положительной");
