@@ -31,7 +31,7 @@ public class ValidateService {
             isValid = false;
             throw new UserValidationFailedException("Логин не может содержать пробелы");
         }
-        if (user.getName().isBlank() || user.getName() == null) {
+        if (user.getName() == null) {
             user.setName(user.getLogin());
             log.info("Имя пользователя с id = {} пустое, вместо него записан логин", user.getId());
             isValid = true;
