@@ -34,7 +34,7 @@ public class FilmController {
         ValidateService.validateFilm(film);
         films.put(film.getId(), film);
         log.info("Добавлен новый фильм, id = {}", film.getId());
-        return film;
+        return films.get(film.getId());
     }
 
     @PutMapping
