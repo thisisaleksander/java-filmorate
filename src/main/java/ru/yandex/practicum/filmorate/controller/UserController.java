@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.servise.ValidateService;
 
@@ -35,14 +36,20 @@ public class UserController {
     }
 
     @PutMapping
-    public User updateUser(@RequestBody @Valid User user) {
+    public void updateUser(@RequestBody @Valid User user) {
         ValidateService.validateUser(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
             log.info("Обновлен пользователь с id = {}", user.getId());
-            return users.get(user.getId());
+            //return users.get(user.getId());
+        } else {
+            throw new DoNotExistException(String.format(
+                    "Фильм указанным id [id = %s] не существует.",
+                    user.getId()
+            ));
         }
-        return null;
+
+        //return null;
     }
 
     @GetMapping
