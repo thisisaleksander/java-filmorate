@@ -56,7 +56,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException("Максимальная длина описания — 200 символов");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1985, 12, 28))) {
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.info("Дата релиза нового фильма с id = {} указана не корректно", film.getId());
             isValid = false;
             throw new FilmValidationFailedException("Дата релиза должна быть не раньше 28 декабря 1895 года");
