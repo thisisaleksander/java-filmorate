@@ -44,7 +44,7 @@ public class UserController {
             return users.get(user.getId());
         } else {
             throw new DoNotExistException(String.format(
-                    "Фильм указанным id [id = %s] не существует.",
+                    "Пользователь с указанным id [id = %s] не существует.",
                     user.getId()
             ));
         }
