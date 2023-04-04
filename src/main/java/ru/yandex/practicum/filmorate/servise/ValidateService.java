@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.servise;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmValidationFailedException;
 import ru.yandex.practicum.filmorate.exception.UserValidationFailedException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
-@Component
 @Slf4j
 public class ValidateService {
     public static boolean isValid;
