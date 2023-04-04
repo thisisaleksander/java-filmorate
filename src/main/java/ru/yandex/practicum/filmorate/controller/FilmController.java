@@ -30,7 +30,7 @@ public class FilmController {
         film.setId(filmId);
         if (films.containsKey(film.getId())) {
             throw new AlreadyExistException(String.format(
-                    "Фильм указанным id [id = %s] уже существует.",
+                    "Film with id = %s already exists",
                     film.getId()
             ));
         }
@@ -48,7 +48,7 @@ public class FilmController {
             return films.get(film.getId());
         } else {
             throw new DoNotExistException(String.format(
-                    "Фильм указанным id [id = %s] не существует.",
+                    "Film with id = %s do not exists",
                     film.getId()
             ));
         }

@@ -28,7 +28,7 @@ public class UserController {
         user.setId(userId);
         if (users.containsKey(user.getId())) {
             throw new AlreadyExistException(String.format(
-                    "Пользователь указанным id [id = %s] уже зарегистрирован.",
+                    "User with id = %s already exists",
                     user.getId()
             ));
         }
@@ -46,7 +46,7 @@ public class UserController {
             return users.get(user.getId());
         } else {
             throw new DoNotExistException(String.format(
-                    "Пользователь с указанным id [id = %s] не существует.",
+                    "User with id = %s do not exists",
                     user.getId()
             ));
         }

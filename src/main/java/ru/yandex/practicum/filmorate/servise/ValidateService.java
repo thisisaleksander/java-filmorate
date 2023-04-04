@@ -20,17 +20,14 @@ public class ValidateService {
         if (user.getEmail().isBlank() || user.getEmail() == null) {
             log.info(USER_LOG + "invalid email", LocalDateTime.now());
             isValid = false;
-            throw new UserValidationFailedException("Электронная почта пользователя должна быть заполнена");
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.info(USER_LOG + "invalid birthday", LocalDateTime.now());
             isValid = false;
-            throw new UserValidationFailedException("Дата рождения не может быть в будущем");
         }
         if (user.getLogin().contains(" ")) {
             log.info(USER_LOG + "invalid login", LocalDateTime.now());
             isValid = false;
-            throw new UserValidationFailedException("Логин не может содержать пробелы");
         }
         if (user.getName() == null) {
             user.setName(user.getLogin());
@@ -40,9 +37,13 @@ public class ValidateService {
         if (!user.getEmail().contains("@")) {
             log.info(USER_LOG + "invalid email", LocalDateTime.now());
             isValid = false;
-            throw new UserValidationFailedException("Электронная почта должна содержат @");
         }
-        isValid = true;
+        if (!isValid) {
+            throw new UserValidationFailedException(String.format(
+                    "Invalid user with id = %s",
+                    user.getId()
+            ));
+        }
     }
 
     public static void validateFilm(Film film) {
@@ -50,23 +51,24 @@ public class ValidateService {
         if (film.getName() == null || film.getName().isBlank()) {
             log.info(FILM_LOG + "title is empty", LocalDateTime.now());
             isValid = false;
-            throw new FilmValidationFailedException("Название не может быть пустым");
         }
         if (film.getDescription().length() > 200) {
             log.info(FILM_LOG + "too long description", LocalDateTime.now());
             isValid = false;
-            throw new FilmValidationFailedException("Максимальная длина описания — 200 символов");
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.info(FILM_LOG + "invalid release date", LocalDateTime.now());
             isValid = false;
-            throw new FilmValidationFailedException("Дата релиза должна быть не раньше 28 декабря 1895 года");
         }
         if (film.getDuration() < 0) {
             log.info(FILM_LOG + "invalid duration", LocalDateTime.now());
             isValid = false;
-            throw new FilmValidationFailedException("Продолжительность фильма должна быть положительной");
         }
-        isValid = true;
+        if (!isValid) {
+            throw new FilmValidationFailedException(String.format(
+                    "Invalid film with id = %s",
+                    film.getId()
+            ));
+        }
     }
 }
