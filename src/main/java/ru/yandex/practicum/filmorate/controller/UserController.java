@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.servise.ValidateService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class UserController {
     private static final Map<Integer, User> users = new HashMap<>();
     private int userId = 0;
+    private static final String USER_LOG = "USER - {} : {}, user id = {}";
 
     @PostMapping
     public User createUser(@RequestBody @Valid User user) {
@@ -31,7 +33,7 @@ public class UserController {
             ));
         }
         users.put(user.getId(), user);
-        log.info("Зарегистрирован пользователь, id = {}", user.getId());
+        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getId());
         return users.get(user.getId());
     }
 
@@ -40,7 +42,7 @@ public class UserController {
         ValidateService.validateUser(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
-            log.info("Обновлен пользователь с id = {}", user.getId());
+            log.info(USER_LOG, LocalDateTime.now(), "updated", user.getId());
             return users.get(user.getId());
         } else {
             throw new DoNotExistException(String.format(
@@ -52,7 +54,7 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAllUsers() {
-        log.info("Текущее количество пользователей: {}", users.size());
+        log.info("USER - {}, total amount of users: {}", LocalDateTime.now(), users.size());
         return users.values();
     }
 }

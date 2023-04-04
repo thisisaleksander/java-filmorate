@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.servise.ValidateService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class FilmController {
     private static final Map<Integer, Film> films = new HashMap<>();
     private int filmId = 0;
+    private static final String FILM_LOG = "USER - {} : {}, film id = {}";
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -33,7 +35,7 @@ public class FilmController {
             ));
         }
         films.put(film.getId(), film);
-        log.info("Добавлен новый фильм, id = {}", film.getId());
+        log.info(FILM_LOG, LocalDateTime.now(), "added", film.getId());
         return films.get(film.getId());
     }
 
@@ -42,7 +44,7 @@ public class FilmController {
         ValidateService.validateFilm(film);
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            log.info("Обновлен фильм с id = {}", film.getId());
+            log.info(FILM_LOG, LocalDateTime.now(), "updated", film.getId());
             return films.get(film.getId());
         } else {
             throw new DoNotExistException(String.format(
@@ -54,7 +56,7 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAllFilms() {
-        log.info("Текущее количество постов: {}", films.size());
+        log.info("FILM - {}, total amount of films: {}", LocalDateTime.now(), films.size());
         return films.values();
     }
 }
