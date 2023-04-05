@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.exception.FilmValidationFailedException;
 import ru.yandex.practicum.filmorate.exception.UserValidationFailedException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.servise.ValidateService;
+import ru.yandex.practicum.filmorate.service.ValidateService;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;

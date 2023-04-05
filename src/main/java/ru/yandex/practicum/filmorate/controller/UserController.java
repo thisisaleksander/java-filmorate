@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.servise.ValidateService;
+import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
