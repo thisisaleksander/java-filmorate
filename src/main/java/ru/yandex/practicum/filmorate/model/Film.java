@@ -16,7 +16,7 @@ public class Film {
     private int duration;
     Set<Long> likes;
 
-    public int countLikes() {
+    private int countLikes() {
         return likes.size();
     }
 
