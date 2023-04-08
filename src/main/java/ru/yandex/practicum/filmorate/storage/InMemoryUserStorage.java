@@ -17,8 +17,8 @@ import java.util.Set;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private static final Map<Integer, User> users = new HashMap<>();
-    private int userId = 0;
+    private static final Map<Long, User> users = new HashMap<>();
+    private long userId = 0;
     private static final String USER_LOG = "USER - {} : {}, user id = {}";
 
     @Override
@@ -38,7 +38,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User update(@NonNull int id, @NonNull User user) {
+    public User update(@NonNull long id, @NonNull User user) {
         ValidateService.validateUser(user);
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
@@ -53,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User get(@NonNull int id) {
+    public User get(@NonNull long id) {
         return users.get(id);
     }
 
