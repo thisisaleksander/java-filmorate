@@ -21,18 +21,18 @@ public class FilmController {
         this.filmService = filmService;
     }
 
-    @PostMapping
+    @PostMapping("/films")
     @ResponseStatus(HttpStatus.CREATED)
     public Film addNewFilm(@RequestBody @Valid Film film) {
         return filmStorage.add(film);
     }
 
-    @PutMapping
+    @PutMapping("/films")
     public Film updateFilm(@RequestBody @Valid Film film) {
         return filmStorage.update(film.getId(), film);
     }
 
-    @GetMapping
+    @GetMapping("/films")
     public Set<Film> findAllFilms() {
         return filmStorage.getAll();
     }
