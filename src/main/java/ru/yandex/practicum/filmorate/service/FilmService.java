@@ -47,6 +47,7 @@ public class FilmService {
         List<Film> sortedList = new ArrayList<>(filmStorage.getAll());
         return sortedList.stream()
                 .sorted(Film::compareByLikes)
+                .limit(count)
                 .collect(Collectors.toList());
     }
 }
