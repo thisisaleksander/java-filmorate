@@ -54,7 +54,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User get(@NonNull long id) {
-        return users.get(id);
+        if (users.containsKey(id)) {
+            return users.get(id);
+        } else {
+            throw new DoNotExistException(String.format(
+                    "User with id = %s do not exists",
+                    id
+            ));
+        }
     }
 
     @Override

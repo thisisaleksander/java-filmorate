@@ -39,7 +39,7 @@ public class ValidateService {
                     user.getId()
             ));
         }
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.info(USER_LOG + "empty name, name = login", LocalDateTime.now());
             isValid = true;
