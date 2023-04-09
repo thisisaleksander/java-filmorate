@@ -22,18 +22,18 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/users")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public User createUser(@RequestBody @Valid User user) {
         return userStorage.add(user);
     }
 
-    @PutMapping("/users")
+    @PutMapping
     public User updateUser(@RequestBody @Valid User user) {
         return userStorage.update(user.getId(), user);
     }
 
-    @GetMapping("/users")
+    @GetMapping
     public Set<User> findAllUsers() {
         return userStorage.getAll();
     }
