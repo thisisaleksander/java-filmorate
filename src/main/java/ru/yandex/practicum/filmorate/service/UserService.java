@@ -20,33 +20,33 @@ public class UserService {
     }
 
     public User addFriend(long id, long friendId) {
-        Set<Long> friends_1 = new HashSet<>();
-        Set<Long> friends_2 = new HashSet<>();
-        User user_1 = userStorage.get(id);
-        User user_2 = userStorage.get(friendId);
-        if (user_1.getFriends() == null) {
-            friends_1.add(friendId);
-            user_1.setFriends(friends_1);
+        Set<Long> friendsOfUserOne = new HashSet<>();
+        Set<Long> friendsOfUserTwo = new HashSet<>();
+        User userOne = userStorage.get(id);
+        User userTwo = userStorage.get(friendId);
+        if (userOne.getFriends() == null) {
+            friendsOfUserOne.add(friendId);
+            userOne.setFriends(friendsOfUserOne);
         }
-        if (user_2.getFriends() == null) {
-            friends_2.add(id);
-            user_2.setFriends(friends_2);
+        if (userTwo.getFriends() == null) {
+            friendsOfUserTwo.add(id);
+            userTwo.setFriends(friendsOfUserTwo);
         }
-        if (user_1.getFriends().contains(friendId) || user_2.getFriends().contains(id)) {
+        if (userOne.getFriends().contains(friendId) || userTwo.getFriends().contains(id)) {
             throw new AlreadyExistException(String.format(
                     "User with id = %s is already friend of user with id = %s",
                     id,
                     friendId
             ));
         } else {
-            friends_1 = user_1.getFriends();
-            friends_2 = user_2.getFriends();
-            friends_1.add(friendId);
-            friends_2.add(id);
-            user_1.setFriends(friends_1);
-            user_2.setFriends(friends_2);
+            friendsOfUserOne = userOne.getFriends();
+            friendsOfUserTwo = userTwo.getFriends();
+            friendsOfUserOne.add(friendId);
+            friendsOfUserTwo.add(id);
+            userOne.setFriends(friendsOfUserOne);
+            userTwo.setFriends(friendsOfUserTwo);
         }
-        return user_1;
+        return userOne;
     }
 
     public User removeFriend(long id, long friendId) {
