@@ -20,6 +20,7 @@ public class UserService {
     public User addFriend(long id, long friendId) {
         Set<Long> friends = new HashSet<>();
         User userX = userStorage.get(id);
+        User userX2 = userStorage.get(friendId);
         if (userX.getFriends() == null) {
             friends.add(friendId);
             userX.setFriends(friends);
