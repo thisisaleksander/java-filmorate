@@ -4,7 +4,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,9 +14,11 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private final InMemoryFilmStorage filmStorage;
+    private final InMemoryUserStorage userStorage;
 
-    public FilmService(InMemoryFilmStorage filmStorage) {
+    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film setLike(int id, long userId) {
@@ -32,6 +36,7 @@ public class FilmService {
 
     public Film deleteLike(int id, long userId) {
         Film film = filmStorage.get(id);
+        userStorage.get(userId);
         if (!film.getLikes().contains(userId)) {
             throw new DoNotExistException(String.format(
                     "Film with id = %s do not have like from user with id = %s",
