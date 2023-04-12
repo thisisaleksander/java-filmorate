@@ -52,6 +52,11 @@ public class FilmController {
         return filmService.getTopFilms(count);
     }
 
+    @GetMapping("/popular")
+    public List<Film> getTopFilms() {
+        return filmService.getTopFilms(10);
+    }
+
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable("id") Integer id) {
         return filmStorage.get(id);
