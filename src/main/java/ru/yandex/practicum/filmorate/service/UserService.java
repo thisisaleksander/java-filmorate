@@ -56,11 +56,15 @@ public class UserService {
         Set<Long> s1 = userStorage.get(id).getFriends();
         Set<Long> s2 = userStorage.get(otherId).getFriends();
         Set<User> commonFriends = new HashSet<>();
-        for (Long friendId : s1) {
-            if (s2.contains(friendId)) {
-                commonFriends.add(userStorage.get(friendId));
+        if (s1 == null || s2 == null) {
+            return commonFriends;
+        } else {
+            for (Long friendId : s1) {
+                if (s2.contains(friendId)) {
+                    commonFriends.add(userStorage.get(friendId));
+                }
             }
+            return commonFriends;
         }
-        return commonFriends;
     }
 }
