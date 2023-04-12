@@ -18,7 +18,13 @@ public class UserService {
     }
 
     public User addFriend(long id, long friendId) {
+        Set<Long> friends = new HashSet<>();
         User userX = userStorage.get(id);
+        if (userX.getFriends() == null) {
+            friends.add(friendId);
+            userX.setFriends(friends);
+            return userX;
+        }
         if (userX.getFriends().contains(friendId)) {
             throw new AlreadyExistException(String.format(
                     "User with id = %s is already friend of user with id = %s",
@@ -26,7 +32,9 @@ public class UserService {
                     friendId
             ));
         }
-        userX.getFriends().add(friendId);
+        friends = userX.getFriends();
+        friends.add(friendId);
+        userX.setFriends(friends);
         return userX;
     }
 
@@ -39,7 +47,10 @@ public class UserService {
                     friendId
             ));
         }
-        userX.getFriends().remove(friendId);
+        Set<Long> friends = new HashSet<>();
+        friends = userX.getFriends();
+        friends.remove(friendId);
+        userX.setFriends(friends);
         return userX;
     }
 
