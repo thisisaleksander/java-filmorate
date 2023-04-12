@@ -46,9 +46,13 @@ public class UserService {
     public Set<User> getFriends(long id) {
         Set<User> friends = new HashSet<>();
         Set<Long> friendsId = userStorage.get(id).getFriends();
-        friendsId.forEach(
-                value -> friends.add(userStorage.get(value))
-        );
+        if (friendsId == null) {
+            return friends;
+        } else {
+            friendsId.forEach(
+                    value -> friends.add(userStorage.get(value))
+            );
+        }
         return friends;
     }
 
