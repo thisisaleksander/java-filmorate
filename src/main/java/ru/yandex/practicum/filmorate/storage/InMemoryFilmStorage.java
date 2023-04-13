@@ -64,4 +64,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.forEach((key, value) -> setOfFilms.add(value));
         return setOfFilms;
     }
+
+    public Map<Integer, Film> getFilmsMap() {
+        return films;
+    }
 }

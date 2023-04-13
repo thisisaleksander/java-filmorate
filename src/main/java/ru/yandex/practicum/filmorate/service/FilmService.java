@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -51,10 +50,20 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(int count) {
-        List<Film> sortedList = new ArrayList<>(filmStorage.getAll());
-        return sortedList.stream()
-                .sorted(Film::compareByLikes)
-                .limit(count)
-                .collect(Collectors.toList());
+        Map<Integer, Film> map = filmStorage.getFilmsMap();
+        List<Film> sortedList = new ArrayList<>();
+        ArrayList<Integer> list = new ArrayList<>();
+        for (Map.Entry<Integer, Film> entry : map.entrySet()) {
+            list.add(entry.getValue().getLikes().size());
+        }
+        Collections.sort(list);
+        for (int num : list) {
+            for (Map.Entry<Integer, Film> entry : map.entrySet()) {
+                if (entry.getValue().getLikes().size() == num) {
+                    sortedList.add(entry.getValue());
+                }
+            }
+        }
+        return sortedList;
     }
 }
