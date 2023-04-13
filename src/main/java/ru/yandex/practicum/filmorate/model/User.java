@@ -17,12 +17,8 @@ public class User {
     private LocalDate birthday;
     Set<Long> friends = new HashSet<>();
 
-    private int countFriends() {
+    public int countFriends() {
         return friends.size();
-    }
-
-    public int compareByFriends(User o1, User o2) {
-        return o1.countFriends() - o2.countFriends();
     }
 
     public void addFriend(long id) {
