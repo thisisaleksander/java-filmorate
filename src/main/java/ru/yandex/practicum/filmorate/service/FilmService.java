@@ -22,29 +22,32 @@ public class FilmService {
 
     public Film setLike(int id, long userId) {
         Film film = filmStorage.get(id);
-        if (film.getLikes().contains(userId)) {
+        userStorage.get(userId);
+        if (film.isAlreadyLikedBy(userId)) {
             throw new AlreadyExistException(String.format(
                     "Film with id = %s already has like from user with id = %s",
                     id,
                     userId
             ));
+        } else {
+            film.addLike(userId);
+            return film;
         }
-        film.getLikes().add(userId);
-        return film;
     }
 
     public Film deleteLike(int id, long userId) {
         Film film = filmStorage.get(id);
         userStorage.get(userId);
-        if (!film.getLikes().contains(userId)) {
+        if (film.isAlreadyLikedBy(userId)) {
+            film.removeLike(userId);
+            return film;
+        } else {
             throw new DoNotExistException(String.format(
                     "Film with id = %s do not have like from user with id = %s",
                     id,
                     userId
             ));
         }
-        film.getLikes().remove(userId);
-        return film;
     }
 
     public List<Film> getTopFilms(int count) {

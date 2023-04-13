@@ -20,49 +20,35 @@ public class UserService {
     }
 
     public User addFriend(long id, long friendId) {
-        Set<Long> friendsOfUserOne = new HashSet<>();
-        Set<Long> friendsOfUserTwo = new HashSet<>();
         User userOne = userStorage.get(id);
         User userTwo = userStorage.get(friendId);
-        if (userOne.getFriends() == null) {
-            friendsOfUserOne.add(friendId);
-            userOne.setFriends(friendsOfUserOne);
-        }
-        if (userTwo.getFriends() == null) {
-            friendsOfUserTwo.add(id);
-            userTwo.setFriends(friendsOfUserTwo);
-        }
-        if (userOne.getFriends().contains(friendId) || userTwo.getFriends().contains(id)) {
+        if (userOne.isAlreadyFriendWith(friendId) || userTwo.isAlreadyFriendWith(id)) {
             throw new AlreadyExistException(String.format(
                     "User with id = %s is already friend of user with id = %s",
                     id,
                     friendId
             ));
         } else {
-            friendsOfUserOne = userOne.getFriends();
-            friendsOfUserTwo = userTwo.getFriends();
-            friendsOfUserOne.add(friendId);
-            friendsOfUserTwo.add(id);
-            userOne.setFriends(friendsOfUserOne);
-            userTwo.setFriends(friendsOfUserTwo);
+            userOne.addFriend(friendId);
+            userTwo.addFriend(id);
+            return userOne;
         }
-        return userOne;
     }
 
     public User removeFriend(long id, long friendId) {
-        User userX = userStorage.get(id);
-        if (!userX.getFriends().contains(friendId)) {
+        User userOne = userStorage.get(id);
+        User userTwo = userStorage.get(friendId);
+        if (userOne.isAlreadyFriendWith(friendId) || userTwo.isAlreadyFriendWith(id)) {
+            userOne.removeFriend(friendId);
+            userTwo.removeFriend(id);
+            return userOne;
+        } else {
             throw new DoNotExistException(String.format(
                     "User with id = %s is not friend of user with id = %s",
                     id,
                     friendId
             ));
         }
-        Set<Long> friends = new HashSet<>();
-        friends = userX.getFriends();
-        friends.remove(friendId);
-        userX.setFriends(friends);
-        return userX;
     }
 
     public List<User> getFriends(long id) {

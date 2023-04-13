@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -14,7 +15,7 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-    Set<Long> friends;
+    Set<Long> friends = new HashSet<>();
 
     private int countFriends() {
         return friends.size();
@@ -22,5 +23,17 @@ public class User {
 
     public int compareByFriends(User o1, User o2) {
         return o1.countFriends() - o2.countFriends();
+    }
+
+    public void addFriend(long id) {
+        this.friends.add(id);
+    }
+
+    public void removeFriend(long id) {
+        this.friends.remove(id);
+    }
+
+    public boolean isAlreadyFriendWith(long id) {
+        return friends.contains(id);
     }
 }
