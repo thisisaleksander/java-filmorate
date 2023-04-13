@@ -52,6 +52,6 @@ public class FilmService {
     public List<Film> getTopFilms(int count) {
         List<Film> filmsList = new ArrayList<>(filmStorage.getAll());
         filmsList.sort(Comparator.comparingInt(Film::countLikes));
-        return filmsList;
+        return filmsList.subList(filmsList.size() - count, filmsList.size());
     }
 }
