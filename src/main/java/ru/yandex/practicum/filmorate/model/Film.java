@@ -17,12 +17,8 @@ public class Film {
     private int duration;
     Set<Long> likes = new HashSet<>();
 
-    private int countLikes() {
+    public int countLikes() {
         return likes.size();
-    }
-
-    public static int compareByLikes(Film o1, Film o2) {
-        return o1.countLikes() - o2.countLikes();
     }
 
     public void addLike(long id) {

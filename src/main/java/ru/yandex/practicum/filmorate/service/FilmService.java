@@ -51,10 +51,8 @@ public class FilmService {
     }
 
     public List<Film> getTopFilms(int count) {
-        List<Film> sortedList = new ArrayList<>(filmStorage.getAll());
-        return sortedList.stream()
-                .sorted(Film::compareByLikes)
-                .limit(count)
-                .collect(Collectors.toList());
+        List<Film> filmsList = new ArrayList<>(filmStorage.getAll());
+        filmsList.sort(Comparator.comparingInt(Film::countLikes));
+        return filmsList;
     }
 }
