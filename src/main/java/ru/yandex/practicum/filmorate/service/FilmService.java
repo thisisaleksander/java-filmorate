@@ -19,7 +19,7 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
-    public Film setLike(int id, long userId) {
+    public Film addLike(int id, long userId) {
         Film film = filmStorage.get(id);
         userStorage.get(userId);
         if (film.isAlreadyLikedBy(userId)) {

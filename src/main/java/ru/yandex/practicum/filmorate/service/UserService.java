@@ -53,7 +53,7 @@ public class UserService {
 
     public List<User> getFriends(long id) {
         List<User> friends = new ArrayList<>();
-        Set<Long> friendsId = userStorage.get(id).getFriends();
+        Set<Long> friendsId = userStorage.get(id).getFriendIds();
         if (friendsId == null) {
             return friends;
         } else {
@@ -65,8 +65,8 @@ public class UserService {
     }
 
     public Set<User> getMutualFriends(long id, long otherId) {
-        Set<Long> s1 = userStorage.get(id).getFriends();
-        Set<Long> s2 = userStorage.get(otherId).getFriends();
+        Set<Long> s1 = userStorage.get(id).getFriendIds();
+        Set<Long> s2 = userStorage.get(otherId).getFriendIds();
         Set<User> commonFriends = new HashSet<>();
         if (s1 == null || s2 == null) {
             return commonFriends;

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
@@ -15,21 +16,18 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-    Set<Long> friends = new HashSet<>();
-
-    public int countFriends() {
-        return friends.size();
-    }
+    @JsonIgnore
+    private transient Set<Long> friendIds = new HashSet<>();
 
     public void addFriend(long id) {
-        this.friends.add(id);
+        this.friendIds.add(id);
     }
 
     public void removeFriend(long id) {
-        this.friends.remove(id);
+        this.friendIds.remove(id);
     }
 
     public boolean isAlreadyFriendWith(long id) {
-        return friends.contains(id);
+        return friendIds.contains(id);
     }
 }
