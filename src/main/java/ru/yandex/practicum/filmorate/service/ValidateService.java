@@ -1,10 +1,8 @@
-package ru.yandex.practicum.filmorate.servise;
+package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.yandex.practicum.filmorate.exception.FilmValidationFailedException;
-import ru.yandex.practicum.filmorate.exception.UserValidationFailedException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.model.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,7 +39,7 @@ public class ValidateService {
                     user.getId()
             ));
         }
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
             log.info(USER_LOG + "empty name, name = login", LocalDateTime.now());
             isValid = true;
