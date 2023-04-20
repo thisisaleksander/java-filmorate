@@ -6,15 +6,16 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
 
 @Service
 public class FilmService {
     private final InMemoryFilmStorage filmStorage;
-    private final InMemoryUserStorage userStorage;
+    private final UserDbStorage userStorage;
 
-    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
+    public FilmService(InMemoryFilmStorage filmStorage, UserDbStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
