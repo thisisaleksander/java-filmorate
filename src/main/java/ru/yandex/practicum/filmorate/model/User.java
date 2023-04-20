@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -11,6 +13,8 @@ import java.util.Set;
 
 @Data
 @Entity
+@Builder
+@Component
 @Table(name = "USERS")
 public class User {
     @Id

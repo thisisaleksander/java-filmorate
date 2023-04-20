@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
@@ -11,9 +12,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
+
 @Data
 @Entity
+@Builder
+@Component
 @Table(name = "FILMS")
 public class Film {
     @Id
