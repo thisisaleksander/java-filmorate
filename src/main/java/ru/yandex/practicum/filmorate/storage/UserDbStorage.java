@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -49,7 +47,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> update(@NonNull long id, @NonNull User user) {
         ValidateService.validateUser(user);
-        String sqlQuery = "update users set +" +
+        String sqlQuery = "update users set " +
                 "email = ?, login = ?, name = ?, birthday = ?" +
                 " where user_id = ?";
         jdbcTemplate.update(sqlQuery,
@@ -76,7 +74,7 @@ public class UserDbStorage implements UserStorage {
         }
     }
 
-    private User mapRowToUser(SqlRowSet resultSet) {
+    public User mapRowToUser(SqlRowSet resultSet) {
         return User.builder()
                 .userId(resultSet.getLong("user_id"))
                 .email(resultSet.getString("email"))
