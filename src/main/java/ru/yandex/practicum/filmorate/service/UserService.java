@@ -197,7 +197,8 @@ public class UserService {
                         id + "or friend_id = " + id + ") and (status = 2)" +
                         "left join (select distinct user_id, friend from friends where (user_id = " +
                         otherId + " or friend_id = " + otherId + ") and (status = 2)) as f2" +
-                        "on f2.user_id = f2.user_id or f1.friend_id = f2.friend_id"
+                        "on f2.user_id = f2.user_id or f1.friend_id = f2.friend_id" +
+                        "where f2.user_id is not null"
         );
         if(resultSet.next()) {
             while (resultSet.next()) {
