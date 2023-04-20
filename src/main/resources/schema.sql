@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS films (
   release_date timestamp,
   duration integer,
   rate integer,
-  raiting varchar(5)
+  rating varchar(5)
 );
 
 CREATE TABLE IF NOT EXISTS friends (

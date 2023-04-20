@@ -1,62 +1,139 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
+import java.time.Instant;
 import java.util.*;
 
+@Slf4j
 @Service
 public class FilmService {
-    private final InMemoryFilmStorage filmStorage;
+    private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
+    private final JdbcTemplate jdbcTemplate;
 
-    public FilmService(InMemoryFilmStorage filmStorage, UserDbStorage userStorage) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Film addLike(int id, long userId) {
-        Film film = filmStorage.get(id);
-        userStorage.get(userId);
-        if (film.isAlreadyLikedBy(userId)) {
-            throw new AlreadyExistException(String.format(
-                    "Film with id = %s already has like from user with id = %s",
-                    id,
-                    userId
-            ));
-        } else {
-            film.addLike(userId);
-            return film;
-        }
-    }
-
-    public Film deleteLike(int id, long userId) {
-        Film film = filmStorage.get(id);
-        userStorage.get(userId);
-        if (film.isAlreadyLikedBy(userId)) {
-            film.removeLike(userId);
-            return film;
+    public Optional<Film> addLike(long id, long userId) {
+        Optional<Film> optionalFilm = filmStorage.get(id);
+        Optional<User> optionalUser = userStorage.get(userId);
+        Film film = null;
+        if (optionalUser.isPresent() && optionalFilm.isPresent()) {
+            film = optionalFilm.get();
         } else {
             throw new DoNotExistException(String.format(
-                    "Film with id = %s do not have like from user with id = %s",
+                    "Film with id %s or user %s do not exist",
                     id,
                     userId
             ));
         }
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
+                "select * from likes " +
+                        "where (film_id = ? and user_id = ?) " +
+                        "and (status = 2)",
+                id,
+                userId
+        );
+        if (resultSet.next()) {
+            throw new AlreadyExistException(String.format(
+                    "Like from user id %s to film %s already exist",
+                    userId,
+                    id
+            ));
+        } else {
+            String sqlQuery = "insert into likes (film_id, user_id, status, status_start, status_end) " +
+                    "values (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sqlQuery,
+                    id,
+                    userId,
+                    2,
+                    Instant.now(),
+                    Instant.parse("9999-12-31")
+            );
+            log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
+            if (film == null) {
+                return Optional.empty();
+            } else {
+                return Optional.of(film);
+            }
+        }
     }
 
-    public List<Film> getTopFilms(int count) {
-        List<Film> filmsList = new ArrayList<>(filmStorage.getAll());
-        filmsList.sort(Comparator.comparingInt(Film::countLikes));
-        if (count >= filmsList.size()) {
-            return filmsList;
+    public Optional<Film> deleteLike(long id, long userId) {
+        Optional<Film> optionalFilm = filmStorage.get(id);
+        Optional<User> optionalUser = userStorage.get(userId);
+        Film film = null;
+        if (optionalUser.isPresent() && optionalFilm.isPresent()) {
+            film = optionalFilm.get();
         } else {
-            return filmsList.subList(filmsList.size() - count, filmsList.size());
+            throw new DoNotExistException(String.format(
+                    "Film with id %s or user %s do not exist",
+                    id,
+                    userId
+            ));
         }
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
+                "select * from likes " +
+                        "where (film_id = ? and user_id = ?) " +
+                        "and (status = 2)",
+                id,
+                userId
+        );
+        if (resultSet.next()) {
+            String sqlQueryOne = "update likes set " +
+                    "status_end = ?" +
+                    "where (film_id = ? and user_id = ?) " +
+                    "and (status = 2)";
+            jdbcTemplate.update(sqlQueryOne,
+                    Instant.now(),
+                    id,
+                    userId
+            );
+            String sqlQueryTwo = "insert into likes (film_id, user_id, status, status_start, status_end) " +
+                    "values (?, ?, ?, ?, ?)";
+            jdbcTemplate.update(sqlQueryTwo,
+                    id,
+                    userId,
+                    3,
+                    Instant.now(),
+                    Instant.parse("9999-12-31")
+            );
+            log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
+            if (film == null) {
+                return Optional.empty();
+            } else {
+                return Optional.of(film);
+            }
+        } else {
+            throw new DoNotExistException(String.format(
+                    "Like from user id %s to film %s do not exist",
+                    userId,
+                    id
+            ));
+        }
+    }
+
+    public List<Film> getTopFilms(long count) {
+        List<Film> filmsList = new ArrayList<>();
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
+                "select distinct * from films order by rate desc limit" + count
+        );
+        while (resultSet.next()) {
+            filmsList.add(filmStorage.mapRowToFilm(resultSet));
+        }
+        return filmsList;
     }
 }

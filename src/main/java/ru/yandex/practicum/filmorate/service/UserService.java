@@ -111,7 +111,11 @@ public class UserService {
                     Instant.parse("9999-12-31")
             );
             log.info("Add friend request from user {} to user {} with status {}", friendId, id, 1);
-            return Optional.of(user);
+            if (user == null) {
+                return Optional.empty();
+            } else {
+                return Optional.of(user);
+            }
         }
     }
 

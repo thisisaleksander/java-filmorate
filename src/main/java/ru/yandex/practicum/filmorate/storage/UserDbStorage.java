@@ -48,8 +48,8 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> update(@NonNull long id, @NonNull User user) {
         ValidateService.validateUser(user);
         String sqlQuery = "update users set " +
-                "email = ?, login = ?, name = ?, birthday = ?" +
-                " where user_id = ?";
+                "email = ?, login = ?, name = ?, birthday = ? " +
+                "where user_id = ?";
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
@@ -63,7 +63,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> get(@NonNull long id) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from employees where id = ?", id);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where user_id = ?", id);
         if(resultSet.next()) {
             User user = mapRowToUser(resultSet);
             log.info("Found user with id = {}", user.getUserId());

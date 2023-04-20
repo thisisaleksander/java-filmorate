@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -9,8 +8,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 
 @Data
@@ -21,7 +18,7 @@ import java.util.Set;
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int filmId;
+    private Long filmId;
     private String name;
     @Size(max = 200)
     private String description;
@@ -32,7 +29,7 @@ public class Film {
     //private Set<Long> userIds = new HashSet<>();
     //@JsonIgnore
     private long rate;
-    private String raiting;
+    private String rating;
 
 
     public void addLike(long userId) {
