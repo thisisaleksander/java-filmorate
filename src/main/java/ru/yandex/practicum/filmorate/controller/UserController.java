@@ -52,6 +52,12 @@ public class UserController {
         return userService.addFriend(id, friendId);
     }
 
+    @PutMapping("/{id}/friends-accept/{friendId}")
+    public Optional<User> acceptFriend(@PathVariable long id, @PathVariable long friendId) {
+        log.info("Received PUT request");
+        return userService.acceptFriend(id, friendId);
+    }
+
     @DeleteMapping("/{id}/friends/{friendId}")
     public Optional<User> removeFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Received DELETE request");
