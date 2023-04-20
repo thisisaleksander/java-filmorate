@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -17,18 +19,18 @@ import java.util.Set;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final InMemoryUserStorage userStorage;
+    private final UserDbStorage userStorage;
     private final UserService userService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public User createUser(@RequestBody @Valid User user) {
+    public Optional<User> createUser(@RequestBody @Valid User user) {
         log.info("Received POST request");
         return userStorage.add(user);
     }
 
     @PutMapping
-    public User updateUser(@RequestBody @Valid User user) {
+    public Optional<User> updateUser(@RequestBody @Valid User user) {
         log.info("Received PUT request");
         return userStorage.update(user.getUserId(), user);
     }
@@ -40,7 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") long id) {
+    public Optional<User> getUserById(@PathVariable("id") long id) {
         log.info("Received GET request");
         return userStorage.get(id);
     }
