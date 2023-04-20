@@ -20,7 +20,7 @@ public class ValidateService {
             isValid = false;
             throw new UserValidationFailedException(String.format(
                     "Invalid user with id = %s",
-                    user.getId()
+                    user.getUserId()
             ));
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
@@ -28,7 +28,7 @@ public class ValidateService {
             isValid = false;
             throw new UserValidationFailedException(String.format(
                     "Invalid user with id = %s",
-                    user.getId()
+                    user.getUserId()
             ));
         }
         if (user.getLogin().contains(" ")) {
@@ -36,7 +36,7 @@ public class ValidateService {
             isValid = false;
             throw new UserValidationFailedException(String.format(
                     "Invalid user with id = %s",
-                    user.getId()
+                    user.getUserId()
             ));
         }
         if (user.getName() == null || user.getName().isBlank()) {
@@ -49,7 +49,7 @@ public class ValidateService {
             isValid = false;
             throw new UserValidationFailedException(String.format(
                     "Invalid user with id = %s",
-                    user.getId()
+                    user.getUserId()
             ));
         }
     }
@@ -61,7 +61,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException(String.format(
                     "Invalid film with id = %s",
-                    film.getId()
+                    film.getFilmId()
             ));
         }
         if (film.getDescription().length() > 200) {
@@ -69,7 +69,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException(String.format(
                     "Invalid film with id = %s",
-                    film.getId()
+                    film.getFilmId()
             ));
         }
         if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
@@ -77,7 +77,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException(String.format(
                     "Invalid film with id = %s",
-                    film.getId()
+                    film.getFilmId()
             ));
         }
         if (film.getDuration() < 0) {
@@ -85,7 +85,7 @@ public class ValidateService {
             isValid = false;
             throw new FilmValidationFailedException(String.format(
                     "Invalid film with id = %s",
-                    film.getId()
+                    film.getFilmId()
             ));
         }
     }

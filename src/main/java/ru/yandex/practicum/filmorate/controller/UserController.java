@@ -30,7 +30,7 @@ public class UserController {
     @PutMapping
     public User updateUser(@RequestBody @Valid User user) {
         log.info("Received PUT request");
-        return userStorage.update(user.getId(), user);
+        return userStorage.update(user.getUserId(), user);
     }
 
     @GetMapping

@@ -25,29 +25,29 @@ public class InMemoryUserStorage implements UserStorage {
     public User add(@NonNull User user) {
         ValidateService.validateUser(user);
         userId++;
-        user.setId(userId);
-        if (users.containsKey(user.getId())) {
+        user.setUserId(userId);
+        if (users.containsKey(user.getUserId())) {
             throw new AlreadyExistException(String.format(
                     "User with id = %s already exists",
-                    user.getId()
+                    user.getUserId()
             ));
         }
-        users.put(user.getId(), user);
-        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getId());
-        return users.get(user.getId());
+        users.put(user.getUserId(), user);
+        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getUserId());
+        return users.get(user.getUserId());
     }
 
     @Override
     public User update(@NonNull long id, @NonNull User user) {
         ValidateService.validateUser(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info(USER_LOG, LocalDateTime.now(), "updated", user.getId());
-            return users.get(user.getId());
+        if (users.containsKey(user.getUserId())) {
+            users.put(user.getUserId(), user);
+            log.info(USER_LOG, LocalDateTime.now(), "updated", user.getUserId());
+            return users.get(user.getUserId());
         } else {
             throw new DoNotExistException(String.format(
                     "User with id = %s do not exists",
-                    user.getId()
+                    user.getUserId()
             ));
         }
     }

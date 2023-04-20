@@ -30,7 +30,7 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
         log.info("Received PUT request");
-        return filmStorage.update(film.getId(), film);
+        return filmStorage.update(film.getFilmId(), film);
     }
 
     @GetMapping
