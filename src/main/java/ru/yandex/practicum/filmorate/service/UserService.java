@@ -8,12 +8,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j

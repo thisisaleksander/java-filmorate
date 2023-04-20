@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import javax.validation.Valid;
@@ -60,13 +59,13 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public List<User> getFriends(@PathVariable long id) {
+    public List<Optional<User>> getFriends(@PathVariable long id) {
         log.info("Received GET request");
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User> getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
+    public Set<Optional<User>>  getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
         log.info("Received GET request");
         return userService.getMutualFriends(id, otherId);
     }
