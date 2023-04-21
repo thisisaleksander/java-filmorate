@@ -10,18 +10,15 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.storage.Constants.*;
 
 @Slf4j
 @Service
 public class UserService {
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
-    String END_DATE = "9999-12-31";
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Autowired
     public UserService(UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
@@ -44,26 +41,19 @@ public class UserService {
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from friends " +
                         "where (user_id = ? and friend_id = ?) " +
-                        "and (status_id = 1)",
+                        "and (status_id = ?)",
                 friendId,
-                id);
+                id,
+                STATUS_REQUEST
+        );
         if (resultSet.next()) {
-            String sqlQuery1 = "update friends set " +
-                    "status_end = ?" +
-                    " where (user_id = ? and friend_id = ?) and (status_id = 1)";
-            jdbcTemplate.update(sqlQuery1,
+            String sqlQuery = "update friends set " +
+                    "status_id = ?" +
+                    " where user_id = ? and friend_id = ?";
+            jdbcTemplate.update(sqlQuery,
+                    STATUS_ACTIVE,
                     friendId,
-                    id,
-                    Instant.now()
-            );
-            String sqlQuery2 = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
-                    "values (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sqlQuery2,
-                    friendId,
-                    id,
-                    2,
-                    Instant.now(),
-                    LocalDate.parse(END_DATE, formatter)
+                    id
             );
             log.info("Add friend {} to user {} with status {}", friendId, id, 2);
             return Optional.of(user);
@@ -91,13 +81,16 @@ public class UserService {
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from friends " +
-                        "where (user_id = ? and friend_id = ?) " +
-                        "or (user_id = ? and friend_id = ?) " +
-                        "and (status_id = 1)",
+                        "where ((user_id = ? and friend_id = ?) " +
+                        "or (user_id = ? and friend_id = ?)) " +
+                        "and (status_id = ? or status_id = ?)",
                 friendId,
                 id,
                 id,
-                friendId);
+                friendId,
+                STATUS_REQUEST,
+                STATUS_ACTIVE
+        );
         if (resultSet.next()) {
             throw new AlreadyExistException(String.format(
                     "Friend request from user id %s to user %s already exist",
@@ -105,16 +98,13 @@ public class UserService {
                     friendId
             ));
         } else {
-            String sqlQuery = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
-                    "values (?, ?, ?, ?, ?)";
+            String sqlQuery = "insert into friends (user_id, friend_id, status_id) values (?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     friendId,
-                    1,
-                    Instant.now(),
-                    LocalDate.parse(END_DATE, formatter)
+                    STATUS_REQUEST
             );
-            log.info("Add friend request from user {} to user {} with status {}", friendId, id, 1);
+            log.info("Add friend request from user {} to user {} with status {}", friendId, id, STATUS_REQUEST);
             return Optional.of(user);
         }
     }
@@ -134,34 +124,26 @@ public class UserService {
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from friends " +
-                        "where (user_id = ? and friend_id = ?) " +
-                        "or (user_id = ? and friend_id = ?) " +
-                        "and (status_id = 2)",
+                        "where ((user_id = ? and friend_id = ?) " +
+                        "or (user_id = ? and friend_id = ?)) " +
+                        "and (status_id = ?)",
                 friendId,
                 id,
                 id,
-                friendId);
+                friendId,
+                STATUS_ACTIVE
+        );
         if (resultSet.next()) {
             String sqlQuery1 = "update friends set " +
-                    "status_end = ?" +
+                    "status_id = ?" +
                     "where (user_id = ? and friend_id = ?) " +
-                    "or (user_id = ? and friend_id = ?) " +
-                    "and (status_id = 2)";
+                    "or (user_id = ? and friend_id = ?)";
             jdbcTemplate.update(sqlQuery1,
-                    Instant.now(),
+                    STATUS_DELETED,
                     id,
                     friendId,
                     friendId,
                     id
-            );
-            String sqlQuery2 = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
-                    "values (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sqlQuery2,
-                    id,
-                    friendId,
-                    3,
-                    Instant.now(),
-                    LocalDate.parse(END_DATE, formatter)
             );
             return Optional.of(user);
         } else {
@@ -177,7 +159,7 @@ public class UserService {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend from friends where (user_id = " +
-                id + "or friend_id = " + id + ") and (status_id = 2)");
+                id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")");
         if(resultSet.next()) {
             while (resultSet.next()) {
                 friendsIds.add(resultSet.getInt("user_id"));
@@ -196,19 +178,29 @@ public class UserService {
     public Set<Optional<User>> getMutualFriends(Integer id, Integer otherId) {
         Set<Optional<User>> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select f1.user_id, f1.friend_id, f2.user_id, f2.friend_id from friends as f1 where (f1.user_id = " +
-                        id + " or f1.friend_id = " + id + ") and (status_id = 2) and f2.user_id is not null" +
-                        "left join (select distinct user_id, friend from friends where (user_id = " +
-                        otherId + " or friend_id = " + otherId + ") and (status_id = 2)) as f2" +
-                        "on f2.user_id = f2.user_id or f1.friend_id = f2.friend_id"
+        Set<Integer> friendsOfUserOne = new HashSet<>();
+        Set<Integer> friendsOfUserTwo = new HashSet<>();
+        SqlRowSet resultSetOfUserOne = jdbcTemplate.queryForRowSet(
+                "select user_id, friend_id from friends where (user_id = " + id + " or friend_id = " +
+                        id + ") and status_id = " + STATUS_ACTIVE
         );
-        if(resultSet.next()) {
-            while (resultSet.next()) {
-                commonFriendsIds.add(resultSet.getInt("f1.user_id"));
-                commonFriendsIds.add(resultSet.getInt("f1.friend_id"));
-                commonFriendsIds.add(resultSet.getInt("f2.user_id"));
-                commonFriendsIds.add(resultSet.getInt("f2.friend_id"));
+        SqlRowSet resultSetOfUserTwo = jdbcTemplate.queryForRowSet(
+                "select user_id, friend_id from friends where (user_id = " + otherId + " or friend_id = " +
+                        otherId + ") and status_id = " + STATUS_ACTIVE
+        );
+        if(resultSetOfUserOne.next() && resultSetOfUserTwo.next()) {
+            while (resultSetOfUserOne.next()) {
+                friendsOfUserOne.add(resultSetOfUserOne.getInt("user_id"));
+                friendsOfUserOne.add(resultSetOfUserOne.getInt("friend_id"));
+            }
+            while (resultSetOfUserTwo.next()) {
+                friendsOfUserTwo.add(resultSetOfUserTwo.getInt("user_id"));
+                friendsOfUserTwo.add(resultSetOfUserTwo.getInt("friend_id"));
+            }
+            for (Integer someId : friendsOfUserOne) {
+                if (friendsOfUserTwo.contains(someId)) {
+                    commonFriendsIds.add(someId);
+                }
             }
             commonFriendsIds.remove(id);
             commonFriendsIds.remove(otherId);

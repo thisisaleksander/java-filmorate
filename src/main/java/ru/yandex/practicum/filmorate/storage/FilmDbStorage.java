@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -41,7 +40,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRating()
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
-        return Optional.empty();
+        return Optional.of(film);
     }
 
     @Override
@@ -60,7 +59,7 @@ public class FilmDbStorage implements FilmStorage {
                 id
         );
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
-        return Optional.empty();
+        return Optional.of(film);
     }
 
     @Override

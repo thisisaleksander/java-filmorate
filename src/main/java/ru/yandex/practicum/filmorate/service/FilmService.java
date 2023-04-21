@@ -13,8 +13,10 @@ import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
+import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 
 @Slf4j
 @Service
@@ -22,8 +24,6 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
-    String END_DATE = "9999-12-31";
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
@@ -47,9 +47,10 @@ public class FilmService {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from likes " +
                         "where (film_id = ? and user_id = ?) " +
-                        "and (status_id = 2)",
+                        "and (status_id = ?)",
                 id,
-                userId
+                userId,
+                STATUS_ACTIVE
         );
         if (resultSet.next()) {
             throw new AlreadyExistException(String.format(
@@ -58,16 +59,14 @@ public class FilmService {
                     id
             ));
         } else {
-            String sqlQuery = "insert into likes (film_id, user_id, status_id, status_start, status_end) " +
-                    "values (?, ?, ?, ?, ?)";
+            String sqlQuery = "insert into likes (film_id, user_id, status_id) " +
+                    "values (?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     userId,
-                    2,
-                    Instant.now(),
-                    LocalDate.parse(END_DATE, formatter)
+                    STATUS_ACTIVE
             );
-            log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
+            log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
             film.setRate(film.getRate() + 1);
             filmStorage.update(film.getId(), film);
             log.info("Film rate updated");
@@ -91,30 +90,22 @@ public class FilmService {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from likes " +
                         "where (film_id = ? and user_id = ?) " +
-                        "and (status_id = 2)",
+                        "and (status_id = ?)",
                 id,
-                userId
+                userId,
+                STATUS_ACTIVE
         );
         if (resultSet.next()) {
-            String sqlQueryOne = "update likes set " +
-                    "status_end = ?" +
-                    "where (film_id = ? and user_id = ?) " +
-                    "and (status_id = 2)";
-            jdbcTemplate.update(sqlQueryOne,
+            String sqlQuery = "update likes set " +
+                    "status_id = ?" +
+                    "where film_id = ? and user_id = ?";
+            jdbcTemplate.update(sqlQuery,
                     Instant.now(),
-                    id,
-                    userId
-            );
-            String sqlQueryTwo = "insert into likes (film_id, user_id, status_id, status_start, status_end) " +
-                    "values (?, ?, ?, ?, ?)";
-            jdbcTemplate.update(sqlQueryTwo,
                     id,
                     userId,
-                    3,
-                    Instant.now(),
-                    LocalDate.parse(END_DATE, formatter)
+                    STATUS_DELETED
             );
-            log.info("Add like from user {} to film {} with status {}", userId, id, 2);
+            log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
             film.setRate(film.getRate() - 1);
             filmStorage.update(film.getId(), film);
             log.info("Film rate updated");
