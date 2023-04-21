@@ -85,7 +85,7 @@ public class FilmDbStorage implements FilmStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(LocalDate.ofEpochDay(resultSet.getLong("release_date")))
                 .duration(resultSet.getInt("duration"))
-                .rate(resultSet.getInt("rate"))
+                .rate(resultSet.getLong("rate"))
                 .rating(resultSet.getString("rating"))
                 .build();
     }

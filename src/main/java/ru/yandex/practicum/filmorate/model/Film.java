@@ -25,30 +25,6 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
-    //@JsonIgnore
-    //private Set<Long> userIds = new HashSet<>();
-    //@JsonIgnore
-    private long rate;
+    private Long rate;
     private String rating;
-
-
-    public void addLike(long userId) {
-        //userIds.add(userId);
-        //rate = userIds.size();
-    }
-
-    public void removeLike(long userId) {
-        //userIds.remove(userId);
-        //rate = userIds.size();
-    }
-
-    public int countLikes() {
-        //return userIds.size();
-        return 1;
-    }
-
-    public boolean isAlreadyLikedBy(long id) {
-        //return userIds.contains(id);
-        return true;
-    }
 }
