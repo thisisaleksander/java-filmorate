@@ -12,17 +12,14 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
 @Repository
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private static final String USER_LOG = "USER - {} : {}, user id = {}";
+    private static final String USER_LOG = "USER - {} : {}";
 
     @Autowired
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -40,7 +37,7 @@ public class UserDbStorage implements UserStorage {
                 user.getName(),
                 user.getBirthday()
         );
-        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getId());
+        log.info(USER_LOG, LocalDateTime.now(), "registered");
         return Optional.of(user);
     }
 
@@ -49,7 +46,7 @@ public class UserDbStorage implements UserStorage {
         ValidateService.validateUser(user);
         String sqlQuery = "update users set " +
                 "email = ?, login = ?, name = ?, birthday = ? " +
-                "where user_id = ?";
+                "where id = ?";
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
@@ -57,13 +54,13 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 id
         );
-        log.info(USER_LOG, LocalDateTime.now(), "updated", user.getId());
+        log.info(USER_LOG, LocalDateTime.now(), "updated");
         return Optional.empty();
     }
 
     @Override
     public Optional<User> get(@NonNull Integer id) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where user_id = ?", id);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
         if(resultSet.next()) {
             User user = mapRowToUser(resultSet);
             log.info("Found user with id = {}", user.getId());
@@ -80,7 +77,7 @@ public class UserDbStorage implements UserStorage {
                 .email(resultSet.getString("email"))
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
-                .birthday(LocalDate.ofEpochDay(resultSet.getLong("birthday")))
+                .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("birthday"))))
                 .build();
     }
 

@@ -12,17 +12,15 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Slf4j
 @Component
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private static final String FILM_LOG = "FILM - {} : {}, film id = {}";
+    private static final String FILM_LOG = "FILM - {} : {}";
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate) {
@@ -42,7 +40,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate(),
                 film.getRating()
         );
-        log.info(FILM_LOG, LocalDateTime.now(), "added", film.getId());
+        log.info(FILM_LOG, LocalDateTime.now(), "added");
         return Optional.empty();
     }
 
@@ -61,7 +59,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRating(),
                 id
         );
-        log.info(FILM_LOG, LocalDateTime.now(), "updated", film.getId());
+        log.info(FILM_LOG, LocalDateTime.now(), "updated");
         return Optional.empty();
     }
 
@@ -83,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
                 .id(resultSet.getInt("id"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
-                .releaseDate(LocalDate.ofEpochDay(resultSet.getLong("release_date")))
+                .releaseDate(LocalDate.parse(Objects.requireNonNull(resultSet.getString("release_date"))))
                 .duration(resultSet.getInt("duration"))
                 .rate(resultSet.getInt("rate"))
                 .rating(resultSet.getString("rating"))

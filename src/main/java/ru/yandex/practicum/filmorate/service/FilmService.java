@@ -12,6 +12,8 @@ import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -20,6 +22,8 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
+    String END_DATE = "9999-12-31";
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
@@ -43,7 +47,7 @@ public class FilmService {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from likes " +
                         "where (film_id = ? and user_id = ?) " +
-                        "and (status = 2)",
+                        "and (status_id = 2)",
                 id,
                 userId
         );
@@ -54,16 +58,19 @@ public class FilmService {
                     id
             ));
         } else {
-            String sqlQuery = "insert into likes (film_id, user_id, status, status_start, status_end) " +
+            String sqlQuery = "insert into likes (film_id, user_id, status_id, status_start, status_end) " +
                     "values (?, ?, ?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     userId,
                     2,
                     Instant.now(),
-                    Instant.parse("9999-12-31")
+                    LocalDate.parse(END_DATE, formatter)
             );
             log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
+            film.setRate(film.getRate() + 1);
+            filmStorage.update(film.getId(), film);
+            log.info("Film rate updated");
             return Optional.of(film);
         }
     }
@@ -84,7 +91,7 @@ public class FilmService {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select * from likes " +
                         "where (film_id = ? and user_id = ?) " +
-                        "and (status = 2)",
+                        "and (status_id = 2)",
                 id,
                 userId
         );
@@ -92,22 +99,25 @@ public class FilmService {
             String sqlQueryOne = "update likes set " +
                     "status_end = ?" +
                     "where (film_id = ? and user_id = ?) " +
-                    "and (status = 2)";
+                    "and (status_id = 2)";
             jdbcTemplate.update(sqlQueryOne,
                     Instant.now(),
                     id,
                     userId
             );
-            String sqlQueryTwo = "insert into likes (film_id, user_id, status, status_start, status_end) " +
+            String sqlQueryTwo = "insert into likes (film_id, user_id, status_id, status_start, status_end) " +
                     "values (?, ?, ?, ?, ?)";
             jdbcTemplate.update(sqlQueryTwo,
                     id,
                     userId,
                     3,
                     Instant.now(),
-                    Instant.parse("9999-12-31")
+                    LocalDate.parse(END_DATE, formatter)
             );
             log.info("Add like from user {} to film {} with status {}", userId, id, 2);
+            film.setRate(film.getRate() - 1);
+            filmStorage.update(film.getId(), film);
+            log.info("Film rate updated");
             return Optional.of(film);
         } else {
             throw new DoNotExistException(String.format(

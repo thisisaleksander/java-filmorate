@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Slf4j
@@ -18,6 +20,8 @@ import java.util.*;
 public class UserService {
     private final UserDbStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
+    String END_DATE = "9999-12-31";
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     @Autowired
     public UserService(UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
@@ -40,26 +44,26 @@ public class UserService {
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from friends " +
                         "where (user_id = ? and friend_id = ?) " +
-                        "and (status = 1)",
+                        "and (status_id = 1)",
                 friendId,
                 id);
         if (resultSet.next()) {
             String sqlQuery1 = "update friends set " +
                     "status_end = ?" +
-                    " where (user_id = ? and friend_id = ?) and (status = 1)";
+                    " where (user_id = ? and friend_id = ?) and (status_id = 1)";
             jdbcTemplate.update(sqlQuery1,
                     friendId,
                     id,
                     Instant.now()
             );
-            String sqlQuery2 = "insert into friends (user_id, friend_id, status, status_start, status_end) " +
+            String sqlQuery2 = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
                     "values (?, ?, ?, ?, ?)";
             jdbcTemplate.update(sqlQuery2,
                     friendId,
                     id,
                     2,
                     Instant.now(),
-                    Instant.parse("9999-12-31")
+                    LocalDate.parse(END_DATE, formatter)
             );
             log.info("Add friend {} to user {} with status {}", friendId, id, 2);
             return Optional.of(user);
@@ -89,7 +93,7 @@ public class UserService {
                 "select * from friends " +
                         "where (user_id = ? and friend_id = ?) " +
                         "or (user_id = ? and friend_id = ?) " +
-                        "and (status = 1)",
+                        "and (status_id = 1)",
                 friendId,
                 id,
                 id,
@@ -101,14 +105,14 @@ public class UserService {
                     friendId
             ));
         } else {
-            String sqlQuery = "insert into friends (user_id, friend_id, status, status_start, status_end) " +
+            String sqlQuery = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
                     "values (?, ?, ?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     friendId,
                     1,
                     Instant.now(),
-                    Instant.parse("9999-12-31")
+                    LocalDate.parse(END_DATE, formatter)
             );
             log.info("Add friend request from user {} to user {} with status {}", friendId, id, 1);
             return Optional.of(user);
@@ -132,7 +136,7 @@ public class UserService {
                 "select * from friends " +
                         "where (user_id = ? and friend_id = ?) " +
                         "or (user_id = ? and friend_id = ?) " +
-                        "and (status = 2)",
+                        "and (status_id = 2)",
                 friendId,
                 id,
                 id,
@@ -142,7 +146,7 @@ public class UserService {
                     "status_end = ?" +
                     "where (user_id = ? and friend_id = ?) " +
                     "or (user_id = ? and friend_id = ?) " +
-                    "and (status = 2)";
+                    "and (status_id = 2)";
             jdbcTemplate.update(sqlQuery1,
                     Instant.now(),
                     id,
@@ -150,14 +154,14 @@ public class UserService {
                     friendId,
                     id
             );
-            String sqlQuery2 = "insert into friends (user_id, friend_id, status, status_start, status_end) " +
+            String sqlQuery2 = "insert into friends (user_id, friend_id, status_id, status_start, status_end) " +
                     "values (?, ?, ?, ?, ?)";
             jdbcTemplate.update(sqlQuery2,
                     id,
                     friendId,
                     3,
                     Instant.now(),
-                    Instant.parse("9999-12-31")
+                    LocalDate.parse(END_DATE, formatter)
             );
             return Optional.of(user);
         } else {
@@ -173,7 +177,7 @@ public class UserService {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend from friends where (user_id = " +
-                id + "or friend_id = " + id + ") and (status = 2)");
+                id + "or friend_id = " + id + ") and (status_id = 2)");
         if(resultSet.next()) {
             while (resultSet.next()) {
                 friendsIds.add(resultSet.getInt("user_id"));
@@ -193,12 +197,11 @@ public class UserService {
         Set<Optional<User>> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select distinct f1.user_id, f1.friend_id, f2.user_id, f2.friend_id from friends as f1 where (user_id = " +
-                        id + "or friend_id = " + id + ") and (status = 2)" +
+                "select f1.user_id, f1.friend_id, f2.user_id, f2.friend_id from friends as f1 where (f1.user_id = " +
+                        id + " or f1.friend_id = " + id + ") and (status_id = 2) and f2.user_id is not null" +
                         "left join (select distinct user_id, friend from friends where (user_id = " +
-                        otherId + " or friend_id = " + otherId + ") and (status = 2)) as f2" +
-                        "on f2.user_id = f2.user_id or f1.friend_id = f2.friend_id" +
-                        "where f2.user_id is not null"
+                        otherId + " or friend_id = " + otherId + ") and (status_id = 2)) as f2" +
+                        "on f2.user_id = f2.user_id or f1.friend_id = f2.friend_id"
         );
         if(resultSet.next()) {
             while (resultSet.next()) {
