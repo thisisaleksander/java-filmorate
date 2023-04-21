@@ -25,10 +25,10 @@ public class UserService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<User> acceptFriend(long id, long friendId) {
+    public Optional<User> acceptFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
-        User user = null;
+        User user;
         if (optionalUser.isPresent() && optionalFriend.isPresent()) {
             user = optionalUser.get();
         } else {
@@ -72,10 +72,10 @@ public class UserService {
         }
     }
 
-    public Optional<User> addFriend(long id, long friendId) {
+    public Optional<User> addFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
-        User user = null;
+        User user;
         if (optionalUser.isPresent() && optionalFriend.isPresent()) {
             user = optionalUser.get();
         } else {
@@ -111,18 +111,14 @@ public class UserService {
                     Instant.parse("9999-12-31")
             );
             log.info("Add friend request from user {} to user {} with status {}", friendId, id, 1);
-            if (user == null) {
-                return Optional.empty();
-            } else {
-                return Optional.of(user);
-            }
+            return Optional.of(user);
         }
     }
 
-    public Optional<User> removeFriend(long id, long friendId) {
+    public Optional<User> removeFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
-        User user = null;
+        User user;
         if (optionalUser.isPresent() && optionalFriend.isPresent()) {
             user = optionalUser.get();
         } else {
@@ -173,19 +169,19 @@ public class UserService {
         }
     }
 
-    public List<Optional<User>> getFriends(long id) {
+    public List<Optional<User>> getFriends(Integer id) {
         List<Optional<User>> friends = new ArrayList<>();
-        Set<Long> friendsdIds = new HashSet<>();
+        Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend from friends where (user_id = " +
                 id + "or friend_id = " + id + ") and (status = 2)");
         if(resultSet.next()) {
             while (resultSet.next()) {
-                friendsdIds.add(resultSet.getLong("user_id"));
-                friendsdIds.add(resultSet.getLong("friend_id"));
+                friendsIds.add(resultSet.getInt("user_id"));
+                friendsIds.add(resultSet.getInt("friend_id"));
             }
-            friendsdIds.remove(id);
-            log.info("Total friends found: {}", friendsdIds.size());
-            friendsdIds.forEach(someId -> friends.add(userStorage.get(someId)));
+            friendsIds.remove(id);
+            log.info("Total friends found: {}", friendsIds.size());
+            friendsIds.forEach(someId -> friends.add(userStorage.get(someId)));
             return friends;
         } else {
             log.info("No friends found");
@@ -193,9 +189,9 @@ public class UserService {
         }
     }
 
-    public Set<Optional<User>> getMutualFriends(long id, long otherId) {
+    public Set<Optional<User>> getMutualFriends(Integer id, Integer otherId) {
         Set<Optional<User>> commonFriends = new HashSet<>();
-        Set<Long> comonFriendsdIds = new HashSet<>();
+        Set<Integer> commonFriendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "select distinct f1.user_id, f1.friend_id, f2.user_id, f2.friend_id from friends as f1 where (user_id = " +
                         id + "or friend_id = " + id + ") and (status = 2)" +
@@ -206,15 +202,15 @@ public class UserService {
         );
         if(resultSet.next()) {
             while (resultSet.next()) {
-                comonFriendsdIds.add(resultSet.getLong("f1.user_id"));
-                comonFriendsdIds.add(resultSet.getLong("f1.friend_id"));
-                comonFriendsdIds.add(resultSet.getLong("f2.user_id"));
-                comonFriendsdIds.add(resultSet.getLong("f2.friend_id"));
+                commonFriendsIds.add(resultSet.getInt("f1.user_id"));
+                commonFriendsIds.add(resultSet.getInt("f1.friend_id"));
+                commonFriendsIds.add(resultSet.getInt("f2.user_id"));
+                commonFriendsIds.add(resultSet.getInt("f2.friend_id"));
             }
-            comonFriendsdIds.remove(id);
-            comonFriendsdIds.remove(otherId);
-            log.info("Total common friends found: {}", comonFriendsdIds.size());
-            comonFriendsdIds.forEach(someId -> commonFriends.add(userStorage.get(someId)));
+            commonFriendsIds.remove(id);
+            commonFriendsIds.remove(otherId);
+            log.info("Total common friends found: {}", commonFriendsIds.size());
+            commonFriendsIds.forEach(someId -> commonFriends.add(userStorage.get(someId)));
             return commonFriends;
         } else {
             log.info("No common friends found");

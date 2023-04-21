@@ -9,7 +9,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
-
 @Data
 @Entity
 @Builder
@@ -18,13 +17,13 @@ import java.time.LocalDate;
 public class Film {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long filmId;
+    private Integer id;
     private String name;
     @Size(max = 200)
     private String description;
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
-    private Long rate;
+    private Integer rate;
     private String rating;
 }

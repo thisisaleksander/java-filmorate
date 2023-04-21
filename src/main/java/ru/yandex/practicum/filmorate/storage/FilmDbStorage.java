@@ -42,16 +42,16 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate(),
                 film.getRating()
         );
-        log.info(FILM_LOG, LocalDateTime.now(), "added", film.getFilmId());
+        log.info(FILM_LOG, LocalDateTime.now(), "added", film.getId());
         return Optional.empty();
     }
 
     @Override
-    public Optional<Film> update(@NonNull long id, @NonNull Film film) {
+    public Optional<Film> update(@NonNull Integer id, @NonNull Film film) {
         ValidateService.validateFilm(film);
-        String sqlQuery = "update users set " +
+        String sqlQuery = "update films set " +
                 "name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating = ? " +
-                "where film_id = ?";
+                "where id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
@@ -61,31 +61,31 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRating(),
                 id
         );
-        log.info(FILM_LOG, LocalDateTime.now(), "updated", film.getFilmId());
+        log.info(FILM_LOG, LocalDateTime.now(), "updated", film.getId());
         return Optional.empty();
     }
 
     @Override
-    public Optional<Film> get(@NonNull long id) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films where user_id = ?", id);
+    public Optional<Film> get(@NonNull Integer id) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         if(resultSet.next()) {
             Film film = mapRowToFilm(resultSet);
-            log.info("Found user with id = {}", film.getFilmId());
+            log.info("Found film with id = {}", film.getId());
             return Optional.of(film);
         } else {
-            log.info("User with id = {} not found.", id);
+            log.info("Film with id = {} not found.", id);
             return Optional.empty();
         }
     }
 
     public Film mapRowToFilm(SqlRowSet resultSet) {
         return Film.builder()
-                .filmId(resultSet.getLong("film_id"))
+                .id(resultSet.getInt("id"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
                 .releaseDate(LocalDate.ofEpochDay(resultSet.getLong("release_date")))
                 .duration(resultSet.getInt("duration"))
-                .rate(resultSet.getLong("rate"))
+                .rate(resultSet.getInt("rate"))
                 .rating(resultSet.getString("rating"))
                 .build();
     }
@@ -93,15 +93,15 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Set<Film> getAll() {
         Set<Film> films = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from employees");
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films");
         if(resultSet.next()) {
             while (resultSet.next()) {
                 films.add(mapRowToFilm(resultSet));
             }
-            log.info("Total users found: {}", films.size());
+            log.info("Total films found: {}", films.size());
             return films;
         } else {
-            log.info("No users found");
+            log.info("No films found");
             return Collections.emptySet();
         }
     }

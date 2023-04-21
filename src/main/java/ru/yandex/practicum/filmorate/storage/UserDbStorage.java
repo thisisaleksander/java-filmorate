@@ -40,12 +40,12 @@ public class UserDbStorage implements UserStorage {
                 user.getName(),
                 user.getBirthday()
         );
-        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getUserId());
+        log.info(USER_LOG, LocalDateTime.now(), "registered", user.getId());
         return Optional.of(user);
     }
 
     @Override
-    public Optional<User> update(@NonNull long id, @NonNull User user) {
+    public Optional<User> update(@NonNull Integer id, @NonNull User user) {
         ValidateService.validateUser(user);
         String sqlQuery = "update users set " +
                 "email = ?, login = ?, name = ?, birthday = ? " +
@@ -57,16 +57,16 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 id
         );
-        log.info(USER_LOG, LocalDateTime.now(), "updated", user.getUserId());
+        log.info(USER_LOG, LocalDateTime.now(), "updated", user.getId());
         return Optional.empty();
     }
 
     @Override
-    public Optional<User> get(@NonNull long id) {
+    public Optional<User> get(@NonNull Integer id) {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where user_id = ?", id);
         if(resultSet.next()) {
             User user = mapRowToUser(resultSet);
-            log.info("Found user with id = {}", user.getUserId());
+            log.info("Found user with id = {}", user.getId());
             return Optional.of(user);
         } else {
             log.info("User with id = {} not found.", id);
@@ -76,7 +76,7 @@ public class UserDbStorage implements UserStorage {
 
     public User mapRowToUser(SqlRowSet resultSet) {
         return User.builder()
-                .userId(resultSet.getLong("user_id"))
+                .id(resultSet.getInt("id"))
                 .email(resultSet.getString("email"))
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
@@ -87,7 +87,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Set<User> getAll() {
         Set<User> users = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from employees");
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users");
         if(resultSet.next()) {
             while (resultSet.next()) {
                 users.add(mapRowToUser(resultSet));

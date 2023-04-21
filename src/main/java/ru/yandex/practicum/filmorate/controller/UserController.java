@@ -31,7 +31,7 @@ public class UserController {
     @PutMapping
     public Optional<User> updateUser(@RequestBody @Valid User user) {
         log.info("Received PUT request");
-        return userStorage.update(user.getUserId(), user);
+        return userStorage.update(user.getId(), user);
     }
 
     @GetMapping
@@ -41,37 +41,37 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable("id") long id) {
+    public Optional<User> getUserById(@PathVariable("id") Integer id) {
         log.info("Received GET request");
         return userStorage.get(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Optional<User> addFriend(@PathVariable long id, @PathVariable long friendId) {
+    public Optional<User> addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         log.info("Received PUT request");
         return userService.addFriend(id, friendId);
     }
 
     @PutMapping("/{id}/friends-accept/{friendId}")
-    public Optional<User> acceptFriend(@PathVariable long id, @PathVariable long friendId) {
+    public Optional<User> acceptFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         log.info("Received PUT request");
         return userService.acceptFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public Optional<User> removeFriend(@PathVariable long id, @PathVariable long friendId) {
+    public Optional<User> removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         log.info("Received DELETE request");
         return userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public List<Optional<User>> getFriends(@PathVariable long id) {
+    public List<Optional<User>> getFriends(@PathVariable Integer id) {
         log.info("Received GET request");
         return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<Optional<User>>  getMutualFriends(@PathVariable long id, @PathVariable long otherId) {
+    public Set<Optional<User>>  getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Received GET request");
         return userService.getMutualFriends(id, otherId);
     }

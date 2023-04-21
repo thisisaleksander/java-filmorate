@@ -8,9 +8,9 @@ import java.util.Set;
 public interface FilmStorage {
     Optional<Film> add(Film film);
 
-    Optional<Film> update(long id, Film film);
+    Optional<Film> update(Integer id, Film film);
 
-    Optional<Film> get(long id);
+    Optional<Film> get(Integer id);
 
     Set<Film> getAll();
 }

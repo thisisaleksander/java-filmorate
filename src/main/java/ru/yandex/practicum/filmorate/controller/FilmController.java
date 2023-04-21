@@ -31,7 +31,7 @@ public class FilmController {
     @PutMapping
     public Optional<Film> updateFilm(@RequestBody @Valid Film film) {
         log.info("Received PUT request");
-        return filmStorage.update(film.getFilmId(), film);
+        return filmStorage.update(film.getId(), film);
     }
 
     @GetMapping
@@ -41,13 +41,13 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Optional<Film> addLike(@PathVariable("id") Long id, @PathVariable("userId") Long userId) {
+    public Optional<Film> addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         log.info("Received PUT request");
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Optional<Film> deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") long userId) {
+    public Optional<Film> deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         log.info("Received DELETE request");
         return filmService.deleteLike(id, userId);
     }
@@ -59,7 +59,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Optional<Film> getFilmById(@PathVariable("id") Long id) {
+    public Optional<Film> getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request");
         return filmStorage.get(id);
     }

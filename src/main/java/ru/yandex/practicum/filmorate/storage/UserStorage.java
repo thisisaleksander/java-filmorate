@@ -8,9 +8,9 @@ import java.util.Set;
 public interface UserStorage {
     Optional<User> add(User user);
 
-    Optional<User> update(long id, User user);
+    Optional<User> update(Integer id, User user);
 
-    Optional<User> get(long id);
+    Optional<User> get(Integer id);
 
     Set<User> getAll();
 }

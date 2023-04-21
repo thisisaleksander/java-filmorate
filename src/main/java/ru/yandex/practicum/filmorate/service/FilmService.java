@@ -27,10 +27,10 @@ public class FilmService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<Film> addLike(long id, long userId) {
+    public Optional<Film> addLike(Integer id, Integer userId) {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
-        Film film = null;
+        Film film;
         if (optionalUser.isPresent() && optionalFilm.isPresent()) {
             film = optionalFilm.get();
         } else {
@@ -64,18 +64,14 @@ public class FilmService {
                     Instant.parse("9999-12-31")
             );
             log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
-            if (film == null) {
-                return Optional.empty();
-            } else {
-                return Optional.of(film);
-            }
+            return Optional.of(film);
         }
     }
 
-    public Optional<Film> deleteLike(long id, long userId) {
+    public Optional<Film> deleteLike(Integer id, Integer userId) {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
-        Film film = null;
+        Film film;
         if (optionalUser.isPresent() && optionalFilm.isPresent()) {
             film = optionalFilm.get();
         } else {
@@ -111,12 +107,8 @@ public class FilmService {
                     Instant.now(),
                     Instant.parse("9999-12-31")
             );
-            log.info("Add like request from user {} to film {} with status {}", userId, id, 2);
-            if (film == null) {
-                return Optional.empty();
-            } else {
-                return Optional.of(film);
-            }
+            log.info("Add like from user {} to film {} with status {}", userId, id, 2);
+            return Optional.of(film);
         } else {
             throw new DoNotExistException(String.format(
                     "Like from user id %s to film %s do not exist",
