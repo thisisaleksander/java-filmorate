@@ -201,7 +201,6 @@ public class UserService {
         });
         if (friends.isEmpty()) {
             log.info("No friends found");
-            return Collections.emptyList();
         }
         return friends;
     }
