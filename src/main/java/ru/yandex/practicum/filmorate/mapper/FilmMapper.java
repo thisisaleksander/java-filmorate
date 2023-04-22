@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
 
 public class FilmMapper implements RowMapper<Film> {

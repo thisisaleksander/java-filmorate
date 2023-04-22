@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
