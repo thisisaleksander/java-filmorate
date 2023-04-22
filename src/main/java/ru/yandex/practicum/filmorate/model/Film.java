@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
@@ -28,6 +29,8 @@ public class Film {
     private LocalDate releaseDate;
     @Min(1)
     private int duration;
+    @Min(0)
     private Integer rate;
     private String rating;
+    private final Set<Genre> genres;
 }
