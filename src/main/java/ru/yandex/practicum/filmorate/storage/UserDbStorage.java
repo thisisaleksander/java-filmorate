@@ -47,19 +47,25 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> update(@NonNull Integer id, @NonNull User user) {
-        ValidateService.validateUser(user);
-        String sqlQuery = "UPDATE users SET " +
-                "email = ?, login = ?, name = ?, birthday = ? " +
-                "WHERE id = ?";
-        jdbcTemplate.update(sqlQuery,
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                user.getBirthday(),
-                id
-        );
-        log.info(USER_LOG, LocalDateTime.now(), "updated");
-        return Optional.of(user);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE id = ?", id);
+        if (resultSet.next()) {
+            ValidateService.validateUser(user);
+            String sqlQuery = "UPDATE users SET " +
+                    "email = ?, login = ?, name = ?, birthday = ? " +
+                    "WHERE id = ?";
+            jdbcTemplate.update(sqlQuery,
+                    user.getEmail(),
+                    user.getLogin(),
+                    user.getName(),
+                    user.getBirthday(),
+                    id
+            );
+            log.info(USER_LOG, LocalDateTime.now(), "updated");
+            return Optional.of(user);
+        } else {
+            log.info("User with id = {} not found.", id);
+            throw new DoNotExistException("User with id = " + id + " do not exists");
+        }
     }
 
     @Override
@@ -78,11 +84,11 @@ public class UserDbStorage implements UserStorage {
 
     public User mapRowToUser(SqlRowSet resultSet) {
         return User.builder()
-                .id(resultSet.getInt("ID"))
-                .email(resultSet.getString("EMAIL"))
-                .login(resultSet.getString("LOGIN"))
-                .name(resultSet.getString("NAME"))
-                .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("BIRTHDAY"))))
+                .id(resultSet.getInt("id"))
+                .email(resultSet.getString("email"))
+                .login(resultSet.getString("login"))
+                .name(resultSet.getString("name"))
+                .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("birthday"))))
                 .build();
     }
 
