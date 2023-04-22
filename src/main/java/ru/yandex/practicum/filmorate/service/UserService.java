@@ -184,7 +184,7 @@ public class UserService {
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend_id from friends where (user_id = " +
                 id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")");
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             while (resultSet.next()) {
                 friendsIds.add(resultSet.getInt("user_id"));
                 friendsIds.add(resultSet.getInt("friend_id"));
@@ -224,7 +224,7 @@ public class UserService {
                 "select user_id, friend_id from friends where (user_id = " + otherId + " or friend_id = " +
                         otherId + ") and status_id = " + STATUS_ACTIVE
         );
-        if(resultSetOfUserOne.next() && resultSetOfUserTwo.next()) {
+        if (resultSetOfUserOne.next() && resultSetOfUserTwo.next()) {
             while (resultSetOfUserOne.next()) {
                 friendsOfUserOne.add(resultSetOfUserOne.getInt("user_id"));
                 friendsOfUserOne.add(resultSetOfUserOne.getInt("friend_id"));

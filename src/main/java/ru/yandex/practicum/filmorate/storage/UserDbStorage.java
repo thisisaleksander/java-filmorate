@@ -62,7 +62,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User>   get(@NonNull Integer id) throws SQLException {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             //User user = new UserMapper().mapRow((ResultSet) resultSet, resultSet.getRow());
             User user = mapRowToUser(resultSet);
             assert user != null;
@@ -88,7 +88,7 @@ public class UserDbStorage implements UserStorage {
     public Set<User> getAll() {
         Set<User> users = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users");
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             while (resultSet.next()) {
                 users.add(mapRowToUser(resultSet));
             }

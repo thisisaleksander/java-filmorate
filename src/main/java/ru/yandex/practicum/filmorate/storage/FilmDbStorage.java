@@ -68,7 +68,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> get(@NonNull Integer id) throws SQLException {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             Film film = mapRowToFilm(resultSet);
             GenreMapper genreMapper = new GenreMapper();
             SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
@@ -103,7 +103,7 @@ public class FilmDbStorage implements FilmStorage {
         Set<Film> films = new HashSet<>();
         GenreMapper genreMapper = new GenreMapper();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films");
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             while (resultSet.next()) {
                 Film film = mapRowToFilm(resultSet);
                 SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
