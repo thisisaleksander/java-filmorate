@@ -96,12 +96,11 @@ public class UserService {
                 "select * from friends " +
                         "where ((user_id = ? and friend_id = ?) " +
                         "or (user_id = ? and friend_id = ?)) " +
-                        "and (status_id = ? or status_id = ?)",
+                        "and (status_id = ?)",
                 friendId,
                 id,
                 id,
                 friendId,
-                STATUS_REQUEST,
                 STATUS_ACTIVE
         );
         if (resultSet.next()) {
@@ -185,26 +184,26 @@ public class UserService {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend_id from friends where (user_id = " +
-                id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")");
-        if (resultSet.next()) {
-            while (resultSet.next()) {
-                friendsIds.add(resultSet.getInt("user_id"));
-                friendsIds.add(resultSet.getInt("friend_id"));
+                id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")"
+        );
+        while (resultSet.next()) {
+            friendsIds.add(resultSet.getInt("user_id"));
+            friendsIds.add(resultSet.getInt("friend_id"));
+        }
+        friendsIds.remove(id);
+        log.info("Total friends found: {}", friendsIds.size());
+        friendsIds.forEach(someId -> {
+            try {
+                friends.add(userStorage.get(someId));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            friendsIds.remove(id);
-            log.info("Total friends found: {}", friendsIds.size());
-            friendsIds.forEach(someId -> {
-                try {
-                    friends.add(userStorage.get(someId));
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            return friends;
-        } else {
+        });
+        if (friends.isEmpty()) {
             log.info("No friends found");
             return Collections.emptyList();
         }
+        return friends;
     }
 
     /**
@@ -226,34 +225,33 @@ public class UserService {
                 "select user_id, friend_id from friends where (user_id = " + otherId + " or friend_id = " +
                         otherId + ") and status_id = " + STATUS_ACTIVE
         );
-        if (resultSetOfUserOne.next() && resultSetOfUserTwo.next()) {
-            while (resultSetOfUserOne.next()) {
-                friendsOfUserOne.add(resultSetOfUserOne.getInt("user_id"));
-                friendsOfUserOne.add(resultSetOfUserOne.getInt("friend_id"));
+        while (resultSetOfUserOne.next()) {
+            friendsOfUserOne.add(resultSetOfUserOne.getInt("user_id"));
+            friendsOfUserOne.add(resultSetOfUserOne.getInt("friend_id"));
+        }
+        while (resultSetOfUserTwo.next()) {
+            friendsOfUserTwo.add(resultSetOfUserTwo.getInt("user_id"));
+            friendsOfUserTwo.add(resultSetOfUserTwo.getInt("friend_id"));
+        }
+        for (Integer someId : friendsOfUserOne) {
+            if (friendsOfUserTwo.contains(someId)) {
+                commonFriendsIds.add(someId);
             }
-            while (resultSetOfUserTwo.next()) {
-                friendsOfUserTwo.add(resultSetOfUserTwo.getInt("user_id"));
-                friendsOfUserTwo.add(resultSetOfUserTwo.getInt("friend_id"));
+        }
+        commonFriendsIds.remove(id);
+        commonFriendsIds.remove(otherId);
+        log.info("Total common friends found: {}", commonFriendsIds.size());
+        commonFriendsIds.forEach(someId -> {
+            try {
+                commonFriends.add(userStorage.get(someId));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-            for (Integer someId : friendsOfUserOne) {
-                if (friendsOfUserTwo.contains(someId)) {
-                    commonFriendsIds.add(someId);
-                }
-            }
-            commonFriendsIds.remove(id);
-            commonFriendsIds.remove(otherId);
-            log.info("Total common friends found: {}", commonFriendsIds.size());
-            commonFriendsIds.forEach(someId -> {
-                try {
-                    commonFriends.add(userStorage.get(someId));
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-            return commonFriends;
-        } else {
+        });
+        if (commonFriends.isEmpty()) {
             log.info("No common friends found");
             return Collections.emptySet();
         }
+        return commonFriends;
     }
 }
