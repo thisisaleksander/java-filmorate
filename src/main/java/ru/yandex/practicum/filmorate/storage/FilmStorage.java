@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.*;
 
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,10 +24,17 @@ public interface FilmStorage {
      * @param id -> parameter from request
      * @return Optional<Film> -> found film with @param id if exists
      */
-    Optional<Film> get(Integer id);
+    Optional<Film> get(Integer id) throws SQLException;
 
     /**
      * @return Set<Film> -> all unique films from table 'films'
      */
-    Set<Film> getAll();
+    Set<Film> getAll() throws SQLException;
+
+    /**
+     * method that adds new genre to film, uses table filmGenre
+     * @param id -> id of a film to add genre to
+     * @return Optional<Film> ->
+     */
+    Optional<Film> addGenre(Integer id);
 }

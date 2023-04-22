@@ -7,9 +7,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -63,10 +66,18 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> get(@NonNull Integer id) {
+    public Optional<Film> get(@NonNull Integer id) throws SQLException {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
         if(resultSet.next()) {
             Film film = mapRowToFilm(resultSet);
+            GenreMapper genreMapper = new GenreMapper();
+            SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
+                    "SELECT g.ID , g.GENRE FROM FILM_GENRE fg LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID WHERE fg.FILM_ID = " +
+                            film.getId()
+            );
+            while (genresRowSet.next()) {
+                film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
+            }
             log.info("Found film with id = {}", film.getId());
             return Optional.of(film);
         } else {
@@ -88,12 +99,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Set<Film> getAll() {
+    public Set<Film> getAll() throws SQLException {
         Set<Film> films = new HashSet<>();
+        GenreMapper genreMapper = new GenreMapper();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films");
         if(resultSet.next()) {
             while (resultSet.next()) {
-                films.add(mapRowToFilm(resultSet));
+                Film film = mapRowToFilm(resultSet);
+                SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
+                        "SELECT GENRES.id, GENRES.genre_name FROM FILM_GENRE WHERE film_id = " + film.getId() +
+                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id"
+                );
+                while (genresRowSet.next()) {
+                    film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
+                }
+                films.add(film);
             }
             log.info("Total films found: {}", films.size());
             return films;
@@ -101,5 +121,10 @@ public class FilmDbStorage implements FilmStorage {
             log.info("No films found");
             return Collections.emptySet();
         }
+    }
+
+    @Override
+    public Optional<Film> addGenre(Integer id) {
+        return Optional.empty();
     }
 }

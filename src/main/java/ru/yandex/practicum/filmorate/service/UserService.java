@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
+import java.sql.SQLException;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.*;
@@ -32,7 +33,7 @@ public class UserService {
      * @param friendId -> int from request string, id of user who have sent a friend request
      * @return Optional<User> -> user who accepts friend request
      */
-    public Optional<User> acceptFriend(Integer id, Integer friendId) {
+    public Optional<User> acceptFriend(Integer id, Integer friendId) throws SQLException {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
         User user;
@@ -78,7 +79,7 @@ public class UserService {
      * @param friendId -> int from request string, id of user who will receive a friend request
      * @return Optional<User> -> user who sends friend request
      */
-    public Optional<User> addFriend(Integer id, Integer friendId) {
+    public Optional<User> addFriend(Integer id, Integer friendId) throws SQLException {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
         User user;
@@ -127,7 +128,7 @@ public class UserService {
      * @param friendId -> int from request string, id of a user to delete friendship with
      * @return Optional<User> -> user who sends friend request
      */
-    public Optional<User> removeFriend(Integer id, Integer friendId) {
+    public Optional<User> removeFriend(Integer id, Integer friendId) throws SQLException {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
         User user;
@@ -190,7 +191,13 @@ public class UserService {
             }
             friendsIds.remove(id);
             log.info("Total friends found: {}", friendsIds.size());
-            friendsIds.forEach(someId -> friends.add(userStorage.get(someId)));
+            friendsIds.forEach(someId -> {
+                try {
+                    friends.add(userStorage.get(someId));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             return friends;
         } else {
             log.info("No friends found");
@@ -234,7 +241,13 @@ public class UserService {
             commonFriendsIds.remove(id);
             commonFriendsIds.remove(otherId);
             log.info("Total common friends found: {}", commonFriendsIds.size());
-            commonFriendsIds.forEach(someId -> commonFriends.add(userStorage.get(someId)));
+            commonFriendsIds.forEach(someId -> {
+                try {
+                    commonFriends.add(userStorage.get(someId));
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             return commonFriends;
         } else {
             log.info("No common friends found");

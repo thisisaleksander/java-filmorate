@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,5 +33,10 @@ public class Film {
     @Min(0)
     private Integer rate;
     private String rating;
-    private final Set<Genre> genres;
+    //@JsonIgnore
+    //private final Set<Genre> genres;
+
+    public void setGenres(Genre genre) {
+        //this.genres.add(genre);
+    }
 }

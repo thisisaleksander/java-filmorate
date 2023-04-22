@@ -7,9 +7,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -59,10 +62,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> get(@NonNull Integer id) {
+    public Optional<User>   get(@NonNull Integer id) throws SQLException {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
         if(resultSet.next()) {
+            //User user = new UserMapper().mapRow((ResultSet) resultSet, resultSet.getRow());
             User user = mapRowToUser(resultSet);
+            assert user != null;
             log.info("Found user with id = {}", user.getId());
             return Optional.of(user);
         } else {

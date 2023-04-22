@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,7 +24,7 @@ public interface UserStorage {
      * @param id -> parameter from request
      * @return Optional<User> -> found user with @param id if exists
      */
-    Optional<User> get(Integer id);
+    Optional<User> get(Integer id) throws SQLException;
 
     /**
      *

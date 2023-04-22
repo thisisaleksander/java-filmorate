@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -41,25 +42,25 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public Optional<User> getUserById(@PathVariable("id") Integer id) {
+    public Optional<User> getUserById(@PathVariable("id") Integer id) throws SQLException {
         log.info("Received GET request");
         return userStorage.get(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Optional<User> addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public Optional<User> addFriend(@PathVariable Integer id, @PathVariable Integer friendId) throws SQLException {
         log.info("Received PUT request");
         return userService.addFriend(id, friendId);
     }
 
     @PutMapping("/{id}/friends-accept/{friendId}")
-    public Optional<User> acceptFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public Optional<User> acceptFriend(@PathVariable Integer id, @PathVariable Integer friendId) throws SQLException {
         log.info("Received PUT request");
         return userService.acceptFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public Optional<User> removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public Optional<User> removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) throws SQLException {
         log.info("Received DELETE request");
         return userService.removeFriend(id, friendId);
     }

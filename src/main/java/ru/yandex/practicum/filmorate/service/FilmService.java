@@ -6,13 +6,15 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
@@ -31,7 +33,7 @@ public class FilmService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<Film> addLike(Integer id, Integer userId) {
+    public Optional<Film> addLike(Integer id, Integer userId) throws SQLException {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
         Film film;
@@ -74,7 +76,7 @@ public class FilmService {
         }
     }
 
-    public Optional<Film> deleteLike(Integer id, Integer userId) {
+    public Optional<Film> deleteLike(Integer id, Integer userId) throws SQLException {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
         Film film;
@@ -100,14 +102,18 @@ public class FilmService {
                     "status_id = ?" +
                     "where film_id = ? and user_id = ?";
             jdbcTemplate.update(sqlQuery,
-                    Instant.now(),
+                    STATUS_DELETED,
                     id,
-                    userId,
-                    STATUS_DELETED
+                    userId
             );
             log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
-            film.setRate(film.getRate() - 1);
-            filmStorage.update(film.getId(), film);
+            if (film.getRate() == 0) {
+                log.info("Film rate updated");
+                return Optional.of(film);
+            } else {
+                film.setRate(film.getRate() - 1);
+                filmStorage.update(film.getId(), film);
+            }
             log.info("Film rate updated");
             return Optional.of(film);
         } else {
@@ -119,14 +125,28 @@ public class FilmService {
         }
     }
 
-    public List<Film> getTopFilms(long count) {
-        List<Film> filmsList = new ArrayList<>();
+    public List<Film> getTopFilms(long count) throws SQLException {
+        List<Film> films = new ArrayList<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select distinct * from films order by rate desc limit" + count
+                "select distinct * from films order by rate desc limit " + count
         );
-        while (resultSet.next()) {
-            filmsList.add(filmStorage.mapRowToFilm(resultSet));
+        if (resultSet.next()) {
+            while (resultSet.next()) {
+                Film film = filmStorage.mapRowToFilm(resultSet);
+                GenreMapper genreMapper = new GenreMapper();
+                SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
+                        "SELECT GENRES.id, genre_name FROM FILM_GENRE " +
+                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id" +
+                                " WHERE film_id = " + film.getId()
+                );
+                while (genresRowSet.next()) {
+                    film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
+                }
+                films.add(film);
+            }
+            return films;
+        } else {
+            throw new DoNotExistException("No films found in database");
         }
-        return filmsList;
     }
 }
