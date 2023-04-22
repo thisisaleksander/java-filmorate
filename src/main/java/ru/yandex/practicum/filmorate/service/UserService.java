@@ -26,6 +26,12 @@ public class UserService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * method to accept friend request from user (table friends, updates status_id to STATUS_ACTIVE)
+     * @param id -> int from request string, id of user who may accept a friend request
+     * @param friendId -> int from request string, id of user who have sent a friend request
+     * @return Optional<User> -> user who accepts friend request
+     */
     public Optional<User> acceptFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
@@ -66,6 +72,12 @@ public class UserService {
         }
     }
 
+    /**
+     * method to send friend request from user (table friends, sets status_id to STATUS_REQUEST)
+     * @param id -> int from request string, id of user who sends a friend request
+     * @param friendId -> int from request string, id of user who will receive a friend request
+     * @return Optional<User> -> user who sends friend request
+     */
     public Optional<User> addFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
@@ -93,7 +105,7 @@ public class UserService {
         );
         if (resultSet.next()) {
             throw new AlreadyExistException(String.format(
-                    "Friend request from user id %s to user %s already exist",
+                    "Friend request or from user id %s to user %s already exist, or active users are already friends",
                     id,
                     friendId
             ));
@@ -109,6 +121,12 @@ public class UserService {
         }
     }
 
+    /**
+     * method to remove friend (table friends, sets status_id to STATUS_DELETED)
+     * @param id -> int from request string, id of user who deletes friend
+     * @param friendId -> int from request string, id of a user to delete friendship with
+     * @return Optional<User> -> user who sends friend request
+     */
     public Optional<User> removeFriend(Integer id, Integer friendId) {
         Optional<User> optionalUser = userStorage.get(id);
         Optional<User> optionalFriend = userStorage.get(friendId);
@@ -155,10 +173,15 @@ public class UserService {
         }
     }
 
+    /**
+     * method that returns all friends (user objects) of a user with id from request
+     * @param id -> int from request string, id of user whose friends will be found
+     * @return List<Optional<User>> -> List of user objects who have active friendship status with user (@param id)
+     */
     public List<Optional<User>> getFriends(Integer id) {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend from friends where (user_id = " +
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend_id from friends where (user_id = " +
                 id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")");
         if(resultSet.next()) {
             while (resultSet.next()) {
@@ -175,6 +198,12 @@ public class UserService {
         }
     }
 
+    /**
+     * method that returns all mutual friends if users with ids : @param id and @param otherId
+     * @param id
+     * @param otherId
+     * @return Set<Optional<User>> -> set of unique user objects who are friends of users with id and otherId
+     */
     public Set<Optional<User>> getMutualFriends(Integer id, Integer otherId) {
         Set<Optional<User>> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
