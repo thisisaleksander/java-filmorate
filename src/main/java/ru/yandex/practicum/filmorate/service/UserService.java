@@ -175,7 +175,7 @@ public class UserService {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct friend_id from friends where user_id = " +
-                id + " and status_id = " + STATUS_ACTIVE + ""
+                id + " and status_id = " + STATUS_ACTIVE
         );
         while (resultSet.next()) {
             friendsIds.add(resultSet.getInt("friend_id"));
