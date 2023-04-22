@@ -27,7 +27,7 @@ public interface UserStorage {
     Optional<User> get(Integer id) throws SQLException;
 
     /**
-     *
+     * returns all user objects from table users
      * @return Set<User> -> all found users in table 'users'
      */
     Set<User> getAll();

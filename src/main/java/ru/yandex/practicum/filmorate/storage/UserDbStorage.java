@@ -7,6 +7,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
@@ -30,8 +32,8 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Optional<User> add(@NonNull User user) {
         ValidateService.validateUser(user);
-        String sqlQuery = "insert into users (email, login, name, birthday) " +
-                "values (?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
+                "VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
@@ -39,15 +41,16 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday()
         );
         log.info(USER_LOG, LocalDateTime.now(), "registered");
-        return Optional.of(user);
+        List<User> userToReturn = jdbcTemplate.query("SELECT id, login, email, name, birthday FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
+        return Optional.of(userToReturn.get(0));
     }
 
     @Override
     public Optional<User> update(@NonNull Integer id, @NonNull User user) {
         ValidateService.validateUser(user);
-        String sqlQuery = "update users set " +
+        String sqlQuery = "UPDATE users SET " +
                 "email = ?, login = ?, name = ?, birthday = ? " +
-                "where id = ?";
+                "WHERE id = ?";
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
@@ -56,47 +59,45 @@ public class UserDbStorage implements UserStorage {
                 id
         );
         log.info(USER_LOG, LocalDateTime.now(), "updated");
-        return Optional.empty();
+        return Optional.of(user);
     }
 
     @Override
-    public Optional<User>   get(@NonNull Integer id) throws SQLException {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users where id = ?", id);
+    public Optional<User> get(@NonNull Integer id) throws SQLException {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE id = ?", id);
         if (resultSet.next()) {
-            //User user = new UserMapper().mapRow((ResultSet) resultSet, resultSet.getRow());
             User user = mapRowToUser(resultSet);
             assert user != null;
             log.info("Found user with id = {}", user.getId());
             return Optional.of(user);
         } else {
             log.info("User with id = {} not found.", id);
-            return Optional.empty();
+            throw new DoNotExistException("User with id = " + id + " do not exists");
         }
     }
 
     public User mapRowToUser(SqlRowSet resultSet) {
         return User.builder()
-                .id(resultSet.getInt("id"))
-                .email(resultSet.getString("email"))
-                .login(resultSet.getString("login"))
-                .name(resultSet.getString("name"))
-                .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("birthday"))))
+                .id(resultSet.getInt("ID"))
+                .email(resultSet.getString("EMAIL"))
+                .login(resultSet.getString("LOGIN"))
+                .name(resultSet.getString("NAME"))
+                .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("BIRTHDAY"))))
                 .build();
     }
 
     @Override
     public Set<User> getAll() {
         Set<User> users = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from users");
-        if (resultSet.next()) {
-            while (resultSet.next()) {
-                users.add(mapRowToUser(resultSet));
-            }
-            log.info("Total users found: {}", users.size());
-            return users;
-        } else {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
+        while (resultSet.next()) {
+            users.add(mapRowToUser(resultSet));
+        }
+        log.info("Total users found: {}", users.size());
+        if (users.isEmpty()) {
             log.info("No users found");
             return Collections.emptySet();
         }
+        return users;
     }
 }

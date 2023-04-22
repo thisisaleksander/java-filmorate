@@ -36,5 +36,5 @@ public interface FilmStorage {
      * @param id -> id of a film to add genre to
      * @return Optional<Film> ->
      */
-    Optional<Film> addGenre(Integer id);
+    Optional<Film> addGenre(Integer id, Integer filmId);
 }

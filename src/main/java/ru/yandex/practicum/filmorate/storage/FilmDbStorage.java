@@ -32,33 +32,35 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> add(@NonNull Film film) {
         ValidateService.validateFilm(film);
-        String sqlQuery = "insert into films (name, description, release_date, duration, rate, rating) " +
-                "values (?, ?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rate, mpa) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getRate(),
-                film.getRating()
+                film.getMpa()
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
-        return Optional.of(film);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM FILMS ORDER BY id DESC LIMIT 1");
+        Film filmToReturn = mapRowToFilm(resultSet);
+        return Optional.of(filmToReturn);
     }
 
     @Override
     public Optional<Film> update(@NonNull Integer id, @NonNull Film film) {
         ValidateService.validateFilm(film);
-        String sqlQuery = "update films set " +
-                "name = ?, description = ?, release_date = ?, duration = ?, rate = ?, rating = ? " +
-                "where id = ?";
+        String sqlQuery = "UPDATE films SET " +
+                "name = ?, description = ?, release_date = ?, duration = ?, rate = ?, mpa = ? " +
+                "WHERE id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getRate(),
-                film.getRating(),
+                film.getMpa(),
                 id
         );
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
@@ -67,7 +69,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> get(@NonNull Integer id) throws SQLException {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films where id = ?", id);
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM FILMS WHERE id = ?", id);
         if (resultSet.next()) {
             Film film = mapRowToFilm(resultSet);
             GenreMapper genreMapper = new GenreMapper();
@@ -94,7 +96,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(LocalDate.parse(Objects.requireNonNull(resultSet.getString("release_date"))))
                 .duration(resultSet.getInt("duration"))
                 .rate(resultSet.getInt("rate"))
-                .rating(resultSet.getString("rating"))
+                .mpa(resultSet.getString("mpa"))
                 .build();
     }
 
@@ -102,13 +104,14 @@ public class FilmDbStorage implements FilmStorage {
     public Set<Film> getAll() throws SQLException {
         Set<Film> films = new HashSet<>();
         GenreMapper genreMapper = new GenreMapper();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from films");
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM films");
         if (resultSet.next()) {
             while (resultSet.next()) {
                 Film film = mapRowToFilm(resultSet);
                 SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
-                        "SELECT GENRES.id, GENRES.genre_name FROM FILM_GENRE WHERE film_id = " + film.getId() +
-                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id"
+                        "SELECT GENRES.id, GENRES.genre_name FROM FILM_GENRE " +
+                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id " +
+                                "WHERE film_id = "  + film.getId()
                 );
                 while (genresRowSet.next()) {
                     film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
@@ -124,7 +127,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> addGenre(Integer id) {
+    public Optional<Film> addGenre(Integer id, Integer filmId) {
         return Optional.empty();
     }
 }

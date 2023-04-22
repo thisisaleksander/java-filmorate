@@ -30,7 +30,7 @@ public class Film {
     private int duration;
     @Min(0)
     private Integer rate;
-    private String rating;
+    private String mpa;
     //@JsonIgnore
     //private final Set<Genre> genres;
 
