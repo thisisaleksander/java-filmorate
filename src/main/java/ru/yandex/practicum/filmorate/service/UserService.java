@@ -94,7 +94,7 @@ public class UserService {
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "SELECT * FROM friends " +
-                        "WHERE ((user_id = ? AND friend_id = ?) " +
+                        "WHERE (user_id = ? AND friend_id = ?) " +
                         "AND (status_id = ?)",
                 id,
                 friendId,
