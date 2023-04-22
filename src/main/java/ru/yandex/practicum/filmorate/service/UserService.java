@@ -115,9 +115,11 @@ public class UserService {
             jdbcTemplate.update(sqlQuery,
                     id,
                     friendId,
-                    STATUS_REQUEST
+                    STATUS_ACTIVE
+                    // STATUS_REQUEST -> for friend request
             );
-            log.info("Add friend request from user {} to user {} with status {}", friendId, id, STATUS_REQUEST);
+            // log.info("Add friend request from user {} to user {} with status {}", friendId, id, STATUS_REQUEST);  -> for friend request
+            log.info("Add friendship of user {} with user {}", friendId, id);
             return Optional.of(user);
         }
     }
