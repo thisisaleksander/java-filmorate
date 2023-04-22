@@ -200,8 +200,8 @@ public class UserService {
 
     /**
      * method that returns all mutual friends if users with ids : @param id and @param otherId
-     * @param id
-     * @param otherId
+     * @param id -> int from request string, id of a user
+     * @param otherId -> int from request string, id of a user
      * @return Set<Optional<User>> -> set of unique user objects who are friends of users with id and otherId
      */
     public Set<Optional<User>> getMutualFriends(Integer id, Integer otherId) {
