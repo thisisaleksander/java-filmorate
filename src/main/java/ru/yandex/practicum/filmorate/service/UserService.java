@@ -46,17 +46,17 @@ public class UserService {
                     friendId
             ));
         }
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select * from friends " +
-                        "where (user_id = ? and friend_id = ?) " +
-                        "and (status_id = ?)",
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM friends " +
+                        "WHERE (user_id = ? AND friend_id = ?) " +
+                        "AND (status_id = ?)",
                 friendId,
                 id,
                 STATUS_REQUEST
         );
         if (resultSet.next()) {
-            String sqlQuery = "update friends set " +
+            String sqlQuery = "UPDATE friends SET " +
                     "status_id = ?" +
-                    " where user_id = ? and friend_id = ?";
+                    " WHERE user_id = ? AND friend_id = ?";
             jdbcTemplate.update(sqlQuery,
                     STATUS_ACTIVE,
                     friendId,
@@ -93,12 +93,9 @@ public class UserService {
             ));
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select * from friends " +
-                        "where ((user_id = ? and friend_id = ?) " +
-                        "or (user_id = ? and friend_id = ?)) " +
-                        "and (status_id = ?)",
-                friendId,
-                id,
+                "SELECT * FROM friends " +
+                        "WHERE ((user_id = ? AND friend_id = ?) " +
+                        "AND (status_id = ?)",
                 id,
                 friendId,
                 STATUS_ACTIVE
@@ -110,7 +107,7 @@ public class UserService {
                     friendId
             ));
         } else {
-            String sqlQuery = "insert into friends (user_id, friend_id, status_id) values (?, ?, ?)";
+            String sqlQuery = "INSERT INTO friends (user_id, friend_id, status_id) VALUES (?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     friendId,
@@ -143,27 +140,21 @@ public class UserService {
             ));
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select * from friends " +
-                        "where ((user_id = ? and friend_id = ?) " +
-                        "or (user_id = ? and friend_id = ?)) " +
-                        "and (status_id = ?)",
-                friendId,
-                id,
+                "SELECT * FROM friends " +
+                        "WHERE (user_id = ? AND friend_id = ?) " +
+                        "AND (status_id = ?)",
                 id,
                 friendId,
                 STATUS_ACTIVE
         );
         if (resultSet.next()) {
-            String sqlQuery1 = "update friends set " +
-                    "status_id = ?" +
-                    "where (user_id = ? and friend_id = ?) " +
-                    "or (user_id = ? and friend_id = ?)";
+            String sqlQuery1 = "UPDATE friends SET " +
+                    "status_id = ? " +
+                    "WHERE (user_id = ? AND friend_id = ?)";
             jdbcTemplate.update(sqlQuery1,
                     STATUS_DELETED,
                     id,
-                    friendId,
-                    friendId,
-                    id
+                    friendId
             );
             return Optional.of(user);
         } else {
@@ -183,14 +174,12 @@ public class UserService {
     public List<Optional<User>> getFriends(Integer id) {
         List<Optional<User>> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct user_id, friend_id from friends where (user_id = " +
-                id + "or friend_id = " + id + ") and (status_id = " + STATUS_ACTIVE + ")"
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct friend_id from friends where user_id = " +
+                id + " and status_id = " + STATUS_ACTIVE + ""
         );
         while (resultSet.next()) {
-            friendsIds.add(resultSet.getInt("user_id"));
             friendsIds.add(resultSet.getInt("friend_id"));
         }
-        friendsIds.remove(id);
         log.info("Total friends found: {}", friendsIds.size());
         friendsIds.forEach(someId -> {
             try {
@@ -217,19 +206,15 @@ public class UserService {
         Set<Integer> friendsOfUserOne = new HashSet<>();
         Set<Integer> friendsOfUserTwo = new HashSet<>();
         SqlRowSet resultSetOfUserOne = jdbcTemplate.queryForRowSet(
-                "select user_id, friend_id from friends where (user_id = " + id + " or friend_id = " +
-                        id + ") and status_id = " + STATUS_ACTIVE
+                "SELECT DISTINCT friend_id FROM friends WHERE user_id = " + id + " AND status_id = " + STATUS_ACTIVE
         );
         SqlRowSet resultSetOfUserTwo = jdbcTemplate.queryForRowSet(
-                "select user_id, friend_id from friends where (user_id = " + otherId + " or friend_id = " +
-                        otherId + ") and status_id = " + STATUS_ACTIVE
+                "SELECT DISTINCT friend_id FROM friends WHERE user_id = " + otherId + " AND status_id = " + STATUS_ACTIVE
         );
         while (resultSetOfUserOne.next()) {
-            friendsOfUserOne.add(resultSetOfUserOne.getInt("user_id"));
             friendsOfUserOne.add(resultSetOfUserOne.getInt("friend_id"));
         }
         while (resultSetOfUserTwo.next()) {
-            friendsOfUserTwo.add(resultSetOfUserTwo.getInt("user_id"));
             friendsOfUserTwo.add(resultSetOfUserTwo.getInt("friend_id"));
         }
         for (Integer someId : friendsOfUserOne) {
