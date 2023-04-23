@@ -21,11 +21,16 @@ public class MpaDbStorage {
     }
 
     public List<Mpa> getAll() {
-        return jdbcTemplate.query("SELECT * FROM MPA", new MpaMapper());
+        return jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name FROM MPA",
+                new MpaMapper()
+        );
     }
 
     public Mpa getMpaById(Integer id) {
-        List<Mpa> mpa = jdbcTemplate.query("SELECT * FROM MPA WHERE ID = " + id, new MpaMapper());
+        List<Mpa> mpa = jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name FROM MPA WHERE ID = "
+                + id,
+                new MpaMapper()
+        );
         if (mpa.isEmpty()) {
             throw new DoNotExistException("MPA with id = " + id + " do not exists");
         }

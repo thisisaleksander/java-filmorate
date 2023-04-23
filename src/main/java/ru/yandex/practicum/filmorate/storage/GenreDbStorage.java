@@ -21,11 +21,16 @@ public class GenreDbStorage {
     }
 
     public List<Genre> getAll() {
-        return jdbcTemplate.query("SELECT * FROM GENRES", new GenreMapper());
+        return jdbcTemplate.query("SELECT ID AS genre_id, NAME AS genre_name FROM GENRES",
+                new GenreMapper()
+        );
     }
 
     public Genre getGenreById(Integer id) {
-        List<Genre> genres = jdbcTemplate.query("SELECT * FROM GENRES WHERE ID = " + id, new GenreMapper());
+        List<Genre> genres = jdbcTemplate.query("SELECT ID AS genre_id, NAME AS genre_name FROM GENRES WHERE ID = " +
+                id,
+                new GenreMapper()
+        );
         if (genres.isEmpty()) {
             throw new DoNotExistException("Genre with id = " + id + " do not exists");
         }
@@ -33,8 +38,7 @@ public class GenreDbStorage {
     }
 
     public Genre addGenre(Genre genre) {
-        String sqlQuery = "INSERT INTO GENRES (name) " +
-                "VALUES (?)";
+        String sqlQuery = "INSERT INTO GENRES (NAME) VALUES (?)";
         jdbcTemplate.update(sqlQuery,
                 genre.getName()
         );
