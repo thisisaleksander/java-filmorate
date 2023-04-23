@@ -105,16 +105,17 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Set<Film> getAll() {
         // GenreMapper genreMapper = new GenreMapper();
-        List<Film> filmsList = jdbcTemplate.query("SELECT films.id, films.name, films.description, films.release_date, " +
-                        "films.duration, films.rate, " +
-                        "genres.genre_id, genres.genre_name, " +
-                        "mpa.mpa_id, mpa.mpa_name " +
-                        "FROM films " +
-                "LEFT JOIN film_genre on films.id = film_genre.film_id " +
-                "LEFT JOIN genres on film_genre.genre_id = genres.genre_id " +
-                "LEFT JOIN mpa on mpa.mpa_id = films.mpa_id",
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
+                        "g.id, g.genre, m.ID, m.mpa FROM films f " +
+                        "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
+                        "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
+                        "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
+                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID ",
                 new FilmMapper()
         );
+        if (filmsList.isEmpty()) {
+            log.info("No films found in database");
+        }
         return new HashSet<>(filmsList);
     }
 
