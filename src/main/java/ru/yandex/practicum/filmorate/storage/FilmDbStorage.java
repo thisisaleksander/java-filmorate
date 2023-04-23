@@ -50,12 +50,27 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
                         "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
                         "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
-                        "WHERE fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE +
+                        //"WHERE fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE +
                         " ORDER BY f.ID LIMIT 1",
                 new FilmMapper()
         );
         Film filmToReturn = filmsList.get(0);
-        return Optional.of(filmToReturn);
+        if (film.getMpa().getId() != null) {
+            addMpa(film.getMpa().getId(), filmToReturn.getId());
+        }
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            film.getGenres().forEach(genre -> addGenre(genre.getId(), filmToReturn.getId()));
+        }
+        filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
+                        "g.id as genre_id, g.genre, m.ID as mpa_id, m.mpa FROM films f " +
+                        "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
+                        "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
+                        "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
+                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
+                        "ORDER BY f.ID LIMIT 1",
+                new FilmMapper()
+        );
+        return Optional.of(filmsList.get(0));
     }
 
     @Override
