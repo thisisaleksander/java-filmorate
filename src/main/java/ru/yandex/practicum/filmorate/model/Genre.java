@@ -21,5 +21,5 @@ public class Genre {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Size(max = 25)
-    private String genre;
+    private String name;
 }
