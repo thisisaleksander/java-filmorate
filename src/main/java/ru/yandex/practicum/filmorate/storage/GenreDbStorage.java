@@ -51,7 +51,7 @@ public class GenreDbStorage {
     }
 
     public Set<Genre> getGenresOfFilm(Integer filmId) {
-        List<Genre> genres = jdbcTemplate.query("SELECT fg.GENRE_ID AS GENRE_ID, g.NAME AS GENRE_NAME " +
+        List<Genre> genres = jdbcTemplate.query("SELECT DISTINCT fg.GENRE_ID AS GENRE_ID, g.NAME AS GENRE_NAME " +
                         "FROM FILM_GENRE fg " +
                         "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID " +
                         "WHERE fg.STATUS_ID = 2 AND fg.FILM_ID = " + filmId +
