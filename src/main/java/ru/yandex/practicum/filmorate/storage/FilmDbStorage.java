@@ -143,7 +143,7 @@ public class FilmDbStorage implements FilmStorage {
         if (resultSet.next()) {
             log.info("Genre already added to film with id = {}", filmId);
         } else {
-            String sqlQuery = "INSERT INTO film_genres (film_id, genre_id, status_id) " +
+            String sqlQuery = "INSERT INTO film_genre (film_id, genre_id, status_id) " +
                     "VALUES (?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     filmId,
@@ -162,7 +162,7 @@ public class FilmDbStorage implements FilmStorage {
                 STATUS_ACTIVE
         );
         if (resultSet.next()) {
-            String sqlQuery = "UPDATE film_genres SET status_id = ? WHERE (film_id = ? AND genre_id = ?)";
+            String sqlQuery = "UPDATE film_genre SET status_id = ? WHERE (film_id = ? AND genre_id = ?)";
             jdbcTemplate.update(sqlQuery,
                     STATUS_DELETED,
                     filmId,
