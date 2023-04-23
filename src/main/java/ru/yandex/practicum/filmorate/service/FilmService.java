@@ -32,6 +32,12 @@ public class FilmService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * method that adds like from user to a film
+     * @param id -> id of a film to add like to
+     * @param userId -> id of a user whose like was added
+     * @return Optional<Film> -> film object where like was added
+     */
     public Optional<Film> addLike(Integer id, Integer userId) throws SQLException {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
@@ -46,9 +52,9 @@ public class FilmService {
             ));
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select * from likes " +
-                        "where (film_id = ? and user_id = ?) " +
-                        "and (status_id = ?)",
+                "SELECT * FROM likes " +
+                        "WHERE (film_id = ? AND user_id = ?) " +
+                        "AND (status_id = ?)",
                 id,
                 userId,
                 STATUS_ACTIVE
@@ -60,8 +66,8 @@ public class FilmService {
                     id
             ));
         } else {
-            String sqlQuery = "insert into likes (film_id, user_id, status_id) " +
-                    "values (?, ?, ?)";
+            String sqlQuery = "INSERT INTO likes (film_id, user_id, status_id) " +
+                    "VALUES (?, ?, ?)";
             jdbcTemplate.update(sqlQuery,
                     id,
                     userId,
@@ -75,6 +81,12 @@ public class FilmService {
         }
     }
 
+    /**
+     * method to delete like in film from user
+     * @param id -> id of a film to delete like form
+     * @param userId -> id of a user whose like needs to be removed
+     * @return Optional<Film> -> film object where like was removed
+     */
     public Optional<Film> deleteLike(Integer id, Integer userId) throws SQLException {
         Optional<Film> optionalFilm = filmStorage.get(id);
         Optional<User> optionalUser = userStorage.get(userId);
@@ -89,17 +101,17 @@ public class FilmService {
             ));
         }
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select * from likes " +
-                        "where (film_id = ? and user_id = ?) " +
-                        "and (status_id = ?)",
+                "SELECT * FROM likes " +
+                        "WHERE (film_id = ? AND user_id = ?) " +
+                        "AND (status_id = ?)",
                 id,
                 userId,
                 STATUS_ACTIVE
         );
         if (resultSet.next()) {
-            String sqlQuery = "update likes set " +
+            String sqlQuery = "UPDATE likes SET " +
                     "status_id = ?" +
-                    "where film_id = ? and user_id = ?";
+                    "WHERE film_id = ? AND user_id = ?";
             jdbcTemplate.update(sqlQuery,
                     STATUS_DELETED,
                     id,
@@ -124,28 +136,32 @@ public class FilmService {
         }
     }
 
+    /**
+     * method to get top n films by rate from films table
+     * @param count -> amount of films to get, uses in LIMIT statement
+     * @return List<Film> -> list of top n films
+     */
     public List<Film> getTopFilms(long count) throws SQLException {
         List<Film> films = new ArrayList<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "select distinct * from films order by rate desc limit " + count
+                "SELECT DISTINCT * FROM films ORDER BY rate desc LIMIT " + count
         );
-        if (resultSet.next()) {
-            while (resultSet.next()) {
-                Film film = filmStorage.mapRowToFilm(resultSet);
-                GenreMapper genreMapper = new GenreMapper();
-                SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
-                        "SELECT GENRES.id, genre_name FROM FILM_GENRE " +
-                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id" +
-                                " WHERE film_id = " + film.getId()
-                );
-                while (genresRowSet.next()) {
-                    film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
-                }
-                films.add(film);
+        while (resultSet.next()) {
+            Film film = filmStorage.mapRowToFilm(resultSet);
+            GenreMapper genreMapper = new GenreMapper();
+            SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
+                    "SELECT GENRES.id, genre_name FROM FILM_GENRE " +
+                            "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id" +
+                            " WHERE film_id = " + film.getId()
+            );
+            while (genresRowSet.next()) {
+                film.addGenre(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
             }
-            return films;
-        } else {
+            films.add(film);
+        }
+        if (films.isEmpty()) {
             throw new DoNotExistException("No films found in database");
         }
+        return films;
     }
 }

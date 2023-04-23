@@ -15,11 +15,11 @@ import javax.validation.constraints.Size;
 @Component
 @AllArgsConstructor
 @RequiredArgsConstructor
-@Table(name = "GENRES")
-public class Genre {
+@Table(name = "MPA")
+public class Mpa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Size(max = 25)
-    private String genre;
+    private String mpa;
 }

@@ -7,15 +7,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
+import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 
 @Slf4j
 @Component
@@ -68,24 +70,25 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> get(@NonNull Integer id) throws SQLException {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM FILMS WHERE id = ?", id);
-        if (resultSet.next()) {
-            Film film = mapRowToFilm(resultSet);
-            GenreMapper genreMapper = new GenreMapper();
-            SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
-                    "SELECT g.ID , g.GENRE FROM FILM_GENRE fg LEFT JOIN GENRES g ON fg.GENRE_ID = g.ID WHERE fg.FILM_ID = " +
-                            film.getId()
-            );
-            while (genresRowSet.next()) {
-                film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
-            }
-            log.info("Found film with id = {}", film.getId());
-            return Optional.of(film);
-        } else {
-            log.info("Film with id = {} not found.", id);
-            return Optional.empty();
+    public Optional<Film> get(@NonNull Integer id) {
+        List<Film> filmsList = jdbcTemplate.query("SELECT films.id, films.name, films.description, films.release_date, " +
+                        "films.duration, films.rate, " +
+                        "genres.genre_id, genres.genre_name, " +
+                        "mpa.mpa_id, mpa.mpa_name " +
+                        "FROM films " +
+                        "LEFT JOIN film_genre on films.id = film_genre.film_id " +
+                        "LEFT JOIN genres on film_genre.genre_id = genres.genre_id " +
+                        "LEFT JOIN mpa on mpa.mpa_id = films.mpa_id " +
+                        "WHERE films.id = " + id,
+                new FilmMapper()
+        );
+        Film film = filmsList.get(0);
+        if (film == null) {
+            log.info("Film not found, id = {}", id);
+            throw new DoNotExistException("Film with id = " + id + " do not exist");
         }
+        log.info("Found film with id = {}", id);
+        return Optional.of(film);
     }
 
     public Film mapRowToFilm(SqlRowSet resultSet) {
@@ -96,38 +99,63 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(LocalDate.parse(Objects.requireNonNull(resultSet.getString("release_date"))))
                 .duration(resultSet.getInt("duration"))
                 .rate(resultSet.getInt("rate"))
-                .mpa(resultSet.getString("mpa"))
                 .build();
     }
 
     @Override
-    public Set<Film> getAll() throws SQLException {
-        Set<Film> films = new HashSet<>();
-        GenreMapper genreMapper = new GenreMapper();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM films");
+    public Set<Film> getAll() {
+        // GenreMapper genreMapper = new GenreMapper();
+        List<Film> filmsList = jdbcTemplate.query("SELECT films.id, films.name, films.description, films.release_date, " +
+                        "films.duration, films.rate, " +
+                        "genres.genre_id, genres.genre_name, " +
+                        "mpa.mpa_id, mpa.mpa_name " +
+                        "FROM films " +
+                "LEFT JOIN film_genre on films.id = film_genre.film_id " +
+                "LEFT JOIN genres on film_genre.genre_id = genres.genre_id " +
+                "LEFT JOIN mpa on mpa.mpa_id = films.mpa_id",
+                new FilmMapper()
+        );
+        return new HashSet<>(filmsList);
+    }
+
+    @Override
+    public void addGenre(Integer genreId, Integer filmId) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
+                filmId,
+                genreId,
+                STATUS_ACTIVE
+        );
         if (resultSet.next()) {
-            while (resultSet.next()) {
-                Film film = mapRowToFilm(resultSet);
-                SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
-                        "SELECT GENRES.id, GENRES.genre_name FROM FILM_GENRE " +
-                                "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id " +
-                                "WHERE film_id = "  + film.getId()
-                );
-                while (genresRowSet.next()) {
-                    film.setGenres(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
-                }
-                films.add(film);
-            }
-            log.info("Total films found: {}", films.size());
-            return films;
+            log.info("Genre already added to film with id = {}", filmId);
         } else {
-            log.info("No films found");
-            return Collections.emptySet();
+            String sqlQuery = "INSERT INTO film_genres (film_id, genre_id, status_id) " +
+                    "VALUES (?, ?, ?)";
+            jdbcTemplate.update(sqlQuery,
+                    filmId,
+                    genreId,
+                    STATUS_ACTIVE
+            );
+            log.info("Add new genre to film with id = {}", filmId);
         }
     }
 
     @Override
-    public Optional<Film> addGenre(Integer id, Integer filmId) {
-        return Optional.empty();
+    public void removeGenre(Integer genreId, Integer filmId) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
+                filmId,
+                genreId,
+                STATUS_ACTIVE
+        );
+        if (resultSet.next()) {
+            String sqlQuery = "UPDATE film_genres SET status_id = ? WHERE (film_id = ? AND genre_id = ?)";
+            jdbcTemplate.update(sqlQuery,
+                    STATUS_DELETED,
+                    filmId,
+                    genreId
+            );
+            log.info("Genre was removed from film with id = {}", filmId);
+        } else {
+            log.info("Genre was not added to film with id = {}", filmId);
+        }
     }
 }

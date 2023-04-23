@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
@@ -30,11 +31,14 @@ public class Film {
     private int duration;
     @Min(0)
     private Integer rate;
-    private String mpa;
-    //@JsonIgnore
-    //private final Set<Genre> genres;
+    private transient Mpa mpa;
+    private transient Set<Genre> genres;
 
-    public void setGenres(Genre genre) {
-        //this.genres.add(genre);
+    public void addGenre(Genre genre) {
+        this.genres.add(genre);
+    }
+
+    public void removeGenre(Genre genre) {
+        this.genres.remove(genre);
     }
 }

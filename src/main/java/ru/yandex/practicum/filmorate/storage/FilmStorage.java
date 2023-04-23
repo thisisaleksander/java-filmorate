@@ -32,9 +32,16 @@ public interface FilmStorage {
     Set<Film> getAll() throws SQLException;
 
     /**
-     * method that adds new genre to film, uses table filmGenre
-     * @param id -> id of a film to add genre to
-     * @return Optional<Film> ->
+     * method that adds new link to genre, uses table filmGenre
+     * @param genreId -> id of genre to add
+     * @param filmId -> id of a film to add genre to
      */
-    Optional<Film> addGenre(Integer id, Integer filmId);
+    void addGenre(Integer genreId, Integer filmId);
+
+    /**
+     * method removes link to genre with genre_id = genreId, uses table filmGenre
+     * @param genreId -> id of a genre to remove from film
+     * @param filmId -> id of a film to remove genre from
+     */
+    void removeGenre(Integer genreId, Integer filmId);
 }
