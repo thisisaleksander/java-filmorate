@@ -45,6 +45,8 @@ public interface FilmStorage {
      */
     void removeGenre(Integer genreId, Integer filmId);
 
+    void removeAllGenres(Integer filmId);
+
     void addMpa(Integer mpaId, Integer filmId);
 
     void removeMpa(Integer filmId);

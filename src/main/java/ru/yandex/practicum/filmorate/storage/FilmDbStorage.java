@@ -87,7 +87,10 @@ public class FilmDbStorage implements FilmStorage {
             addMpa(film.getMpa().getId(), film.getId());
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            removeAllGenres(id);
             film.getGenres().forEach(genre -> addGenre(genre.getId(), film.getId()));
+        } else {
+            removeAllGenres(id);
         }
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
         return get(id);
@@ -168,6 +171,16 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             log.info("Genre was not added to film with id = {}", filmId);
         }
+    }
+
+    @Override
+    public void removeAllGenres(Integer filmId) {
+        String sqlQuery = "UPDATE film_genre SET status_id = ? WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery,
+                STATUS_DELETED,
+                filmId
+        );
+        log.info("All genres was removed from film with id = {}", filmId);
     }
 
     @Override
