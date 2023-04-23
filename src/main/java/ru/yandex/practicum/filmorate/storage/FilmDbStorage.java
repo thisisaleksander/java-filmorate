@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
@@ -123,7 +124,9 @@ public class FilmDbStorage implements FilmStorage {
             log.info("No films found in database");
         }
         log.info("Total films found: {}", filmsList.size());
-        return new HashSet<>(filmsList);
+        return filmsList.stream()
+                .sorted(Film::getFilmIdToCompare)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override

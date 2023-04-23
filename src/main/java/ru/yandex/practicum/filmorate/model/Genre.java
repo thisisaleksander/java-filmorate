@@ -22,4 +22,8 @@ public class Genre {
     private Integer id;
     @Size(max = 25)
     private String name;
+
+    public int getGenreIdToCompare(Genre genre) {
+        return genre.id;
+    }
 }

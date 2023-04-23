@@ -7,11 +7,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -57,6 +60,8 @@ public class GenreDbStorage {
                         " ORDER BY fg.GENRE_ID",
                 new GenreMapper()
         );
-        return new HashSet<>(genres);
+        return genres.stream()
+                .sorted(Genre::getGenreIdToCompare)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

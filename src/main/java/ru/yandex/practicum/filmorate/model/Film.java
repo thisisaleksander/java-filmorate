@@ -41,4 +41,8 @@ public class Film {
     public void removeGenre(Genre genre) {
         this.genres.remove(genre);
     }
+
+    public int getFilmIdToCompare(Film film) {
+        return film.id;
+    }
 }
