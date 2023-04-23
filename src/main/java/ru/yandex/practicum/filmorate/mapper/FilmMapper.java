@@ -21,15 +21,15 @@ public class FilmMapper implements RowMapper<Film> {
             filmGenres.add(genreMapper.mapRow(resultSet, i));
         }
         return new Film(
-                resultSet.getInt("id"),
+                resultSet.getInt("ID"),
                 resultSet.getString("NAME"),
                 resultSet.getString("DESCRIPTION"),
                 LocalDate.parse(Objects.requireNonNull(resultSet.getString("RELEASE_DATE"))),
                 resultSet.getInt("DURATION"),
                 resultSet.getInt("RATE"),
                 new Mpa(
-                        resultSet.getInt("MPA_ID")
-                        //resultSet.getString("mpa")
+                        resultSet.getInt("MPA_ID"),
+                        resultSet.getString("MPA_NAME")
                         ),
                 filmGenres
                 );
