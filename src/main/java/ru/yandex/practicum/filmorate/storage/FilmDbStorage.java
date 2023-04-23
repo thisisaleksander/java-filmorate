@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -109,17 +108,6 @@ public class FilmDbStorage implements FilmStorage {
         return Optional.of(film);
     }
 
-    public Film mapRowToFilm(SqlRowSet resultSet) {
-        return Film.builder()
-                .id(resultSet.getInt("id"))
-                .name(resultSet.getString("name"))
-                .description(resultSet.getString("description"))
-                .releaseDate(LocalDate.parse(Objects.requireNonNull(resultSet.getString("release_date"))))
-                .duration(resultSet.getInt("duration"))
-                .rate(resultSet.getInt("rate"))
-                .build();
-    }
-
     @Override
     public Set<Film> getAll() {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
@@ -184,6 +172,7 @@ public class FilmDbStorage implements FilmStorage {
         );
         if (resultSet.next()) {
             log.info("Mpa already added to film with id = {}", filmId);
+            removeMpa(filmId);
         } else {
             String sqlQuery = "INSERT INTO film_mpa (film_id, mpa_id, status_id) " +
                     "VALUES (?, ?, ?)";
@@ -197,22 +186,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void removeMpa(Integer mpaId, Integer filmId) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE (film_id = ? AND mpa_id = ?) AND status_id = ?",
-                filmId,
-                mpaId,
-                STATUS_ACTIVE
+    public void removeMpa(Integer filmId) {
+        String sqlQuery = "UPDATE film_mpa SET status_id = ? WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery,
+                STATUS_DELETED,
+                filmId
         );
-        if (resultSet.next()) {
-            String sqlQuery = "UPDATE film_mpa SET status_id = ? WHERE (film_id = ? AND mpa_id = ?)";
-            jdbcTemplate.update(sqlQuery,
-                    STATUS_DELETED,
-                    filmId,
-                    mpaId
-            );
-            log.info("Mpa was removed from film with id = {}", filmId);
-        } else {
-            log.info("Mpa was not added to film with id = {}", filmId);
-        }
+        log.info("Mpa was removed from film with id = {}", filmId);
     }
 }

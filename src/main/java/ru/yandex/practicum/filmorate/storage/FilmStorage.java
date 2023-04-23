@@ -47,5 +47,5 @@ public interface FilmStorage {
 
     void addMpa(Integer mpaId, Integer filmId);
 
-    void removeMpa(Integer mpaId, Integer filmId);
+    void removeMpa(Integer filmId);
 }
