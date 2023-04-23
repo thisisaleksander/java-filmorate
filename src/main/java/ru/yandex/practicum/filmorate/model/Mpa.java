@@ -23,7 +23,7 @@ public class Mpa {
     @Size(max = 25)
     private String mpa;
 
-    public Mpa(int mpa_id) {
-        this.id = mpa_id;
+    public Mpa(int mpaId) {
+        this.id = mpaId;
     }
 }
