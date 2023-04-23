@@ -84,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getMpa().getId() != null) {
             addMpa(film.getMpa().getId(), film.getId());
         }
-        if (!film.getGenres().isEmpty()) {
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), film.getId()));
         }
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
@@ -121,18 +121,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getAll() {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
-                        "g.id as genre_id, g.genre, m.ID as mpa_id, m.mpa FROM films f " +
-                        "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
-                        "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
-                        "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
-                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
-                        "WHERE fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE,
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
+                        "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID ",
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
         }
+        log.info("Total films found: {}", filmsList.size());
         return new HashSet<>(filmsList);
     }
 
