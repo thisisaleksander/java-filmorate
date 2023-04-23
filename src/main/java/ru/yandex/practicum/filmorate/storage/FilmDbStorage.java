@@ -34,19 +34,26 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> add(@NonNull Film film) {
         ValidateService.validateFilm(film);
-        String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rate, mpa) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rate) " +
+                "VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
-                film.getRate(),
-                film.getMpa()
+                film.getRate()
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM FILMS ORDER BY id DESC LIMIT 1");
-        Film filmToReturn = mapRowToFilm(resultSet);
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
+                        "g.id, g.genre, m.ID as mpa_id, m.mpa FROM films f " +
+                        "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
+                        "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
+                        "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
+                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
+                        "ORDER BY f.ID LIMIT 1",
+                new FilmMapper()
+        );
+        Film filmToReturn = filmsList.get(0);
         return Optional.of(filmToReturn);
     }
 
@@ -71,15 +78,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> get(@NonNull Integer id) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT films.id, films.name, films.description, films.release_date, " +
-                        "films.duration, films.rate, " +
-                        "genres.genre_id, genres.genre_name, " +
-                        "mpa.mpa_id, mpa.mpa_name " +
-                        "FROM films " +
-                        "LEFT JOIN film_genre on films.id = film_genre.film_id " +
-                        "LEFT JOIN genres on film_genre.genre_id = genres.genre_id " +
-                        "LEFT JOIN mpa on mpa.mpa_id = films.mpa_id " +
-                        "WHERE films.id = " + id,
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
+                        "g.id, g.genre, m.ID, m.mpa FROM films f " +
+                        "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
+                        "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
+                        "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
+                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
+                        "WHERE f.ID = " + id,
                 new FilmMapper()
         );
         Film film = filmsList.get(0);
