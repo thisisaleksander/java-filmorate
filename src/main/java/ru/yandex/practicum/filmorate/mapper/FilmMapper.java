@@ -1,28 +1,34 @@
 package ru.yandex.practicum.filmorate.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class FilmMapper implements RowMapper<Film> {
+    @Autowired
+    private final JdbcTemplate jdbcTemplate;
+
+    public FilmMapper(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-        Set<Genre> filmGenres = new HashSet<>();
-        GenreMapper genreMapper = new GenreMapper();
-        //for (int i = 0; i < resultSet.getFetchSize(); i++) {
-        //    filmGenres.add(genreMapper.mapRow(resultSet, i));
-        //}
-        filmGenres.add(genreMapper.mapRow(resultSet, resultSet.getRow()));
+        GenreDbStorage genreDbStorage = new GenreDbStorage(jdbcTemplate);
+        Integer filmId = resultSet.getInt("ID");
+        Set<Genre> filmGenres = genreDbStorage.getGenresOfFilm(filmId);
         return new Film(
-                resultSet.getInt("ID"),
+                filmId,
                 resultSet.getString("NAME"),
                 resultSet.getString("DESCRIPTION"),
                 LocalDate.parse(Objects.requireNonNull(resultSet.getString("RELEASE_DATE"))),

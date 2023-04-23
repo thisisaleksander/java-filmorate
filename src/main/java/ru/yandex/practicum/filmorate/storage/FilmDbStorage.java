@@ -44,13 +44,11 @@ public class FilmDbStorage implements FilmStorage {
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
-                        "fm.MPA_ID, m.NAME as mpa_name, fg.GENRE_ID, g.NAME as genre_name FROM films f " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID " +
                         "ORDER BY f.ID DESC LIMIT 1",
-                new FilmMapper()
+                new FilmMapper(jdbcTemplate)
         );
         Film filmToReturn = filmsList.get(0);
         if (film.getMpa() != null && film.getMpa().getId() != null) {
@@ -60,13 +58,11 @@ public class FilmDbStorage implements FilmStorage {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), filmToReturn.getId()));
         }
         filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
-                        "fm.MPA_ID, m.NAME as mpa_name, fg.GENRE_ID, g.NAME as genre_name FROM films f " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID " +
                         "ORDER BY f.ID DESC LIMIT 1",
-                new FilmMapper()
+                new FilmMapper(jdbcTemplate)
         );
         return Optional.of(filmsList.get(0));
     }
@@ -99,13 +95,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> get(@NonNull Integer id) {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
-                        "fm.MPA_ID, m.NAME as mpa_name, fg.GENRE_ID, g.NAME as genre_name FROM films f " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID " +
                         "WHERE f.ID = " + id,
-                new FilmMapper()
+                new FilmMapper(jdbcTemplate)
         );
         if (filmsList.isEmpty()) {
             log.info("Film not found, id = {}", id);
@@ -119,12 +113,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Set<Film> getAll() {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
-                        "fm.MPA_ID, m.NAME as mpa_name, fg.GENRE_ID, g.NAME as genre_name FROM films f " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID ",
-                new FilmMapper()
+                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID",
+                new FilmMapper(jdbcTemplate)
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");

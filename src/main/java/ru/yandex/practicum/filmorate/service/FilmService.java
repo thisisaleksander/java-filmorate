@@ -142,14 +142,12 @@ public class FilmService {
      */
     public List<Film> getTopFilms(long count) throws SQLException {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
-                        "fm.MPA_ID, m.NAME as mpa_name, fg.GENRE_ID, g.NAME as genre_name FROM films f " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "LEFT JOIN GENRES g ON g.ID = fg.GENRE_ID " +
                         "ORDER BY rate DESC " +
                         "LIMIT " + count,
-                new FilmMapper()
+                new FilmMapper(jdbcTemplate)
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
