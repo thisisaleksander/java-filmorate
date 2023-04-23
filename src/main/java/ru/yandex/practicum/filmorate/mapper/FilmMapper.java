@@ -17,9 +17,10 @@ public class FilmMapper implements RowMapper<Film> {
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Set<Genre> filmGenres = new HashSet<>();
         GenreMapper genreMapper = new GenreMapper();
-        for (int i = 0; i < resultSet.getArray("genres").getResultSet().getFetchSize(); i++) {
-            filmGenres.add(genreMapper.mapRow(resultSet.getArray("genres").getResultSet(), i));
-        }
+        //for (int i = 0; i < resultSet.getFetchSize(); i++) {
+        //    filmGenres.add(genreMapper.mapRow(resultSet, i));
+        //}
+        filmGenres.add(genreMapper.mapRow(resultSet, resultSet.getRow()));
         return new Film(
                 resultSet.getInt("ID"),
                 resultSet.getString("NAME"),
