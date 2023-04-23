@@ -93,7 +93,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> get(@NonNull Integer id) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
                         "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
                         "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID " +
                         "WHERE f.ID = " + id,
