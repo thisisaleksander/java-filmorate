@@ -21,7 +21,7 @@ public class Mpa {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Size(max = 25)
-    private String mpa;
+    private String name;
 
     public Mpa(int mpaId) {
         this.id = mpaId;

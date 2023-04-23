@@ -99,12 +99,12 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE f.ID = " + id,
                 new FilmMapper()
         );
-        Film film = filmsList.get(0);
-        if (film == null) {
+        if (filmsList.isEmpty()) {
             log.info("Film not found, id = {}", id);
             throw new DoNotExistException("Film with id = " + id + " do not exist");
         }
         log.info("Found film with id = {}", id);
+        Film film = filmsList.get(0);
         return Optional.of(film);
     }
 
