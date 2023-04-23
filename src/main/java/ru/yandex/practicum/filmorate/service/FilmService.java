@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
@@ -154,6 +155,8 @@ public class FilmService {
             return filmsList;
         }
         log.info("total films found: " + filmsList.size());
-        return filmsList;
+        return filmsList.stream()
+                .sorted(Film::getFilmIdToCompare)
+                .collect(Collectors.toList());
     }
 }
