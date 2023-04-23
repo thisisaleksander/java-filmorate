@@ -45,22 +45,22 @@ public class FilmDbStorage implements FilmStorage {
         log.info(FILM_LOG, LocalDateTime.now(), "added");
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate, " +
                         "MPA_ID, GENRE_ID FROM films f " +
-                        "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
-                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID " +
-                        "ORDER BY f.ID LIMIT 1",
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
+                        "ORDER BY f.ID DESC LIMIT 1",
                 new FilmMapper()
         );
         Film filmToReturn = filmsList.get(0);
-        if (film.getMpa().getId() != null) {
+        if (film.getMpa() != null && film.getMpa().getId() != null) {
             addMpa(film.getMpa().getId(), filmToReturn.getId());
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), filmToReturn.getId()));
         }
         filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
-                        "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
-                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID " +
-                        "ORDER BY f.ID LIMIT 1",
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
+                        "ORDER BY f.ID DESC LIMIT 1",
                 new FilmMapper()
         );
         return Optional.of(filmsList.get(0));
@@ -94,8 +94,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> get(@NonNull Integer id) {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
-                        "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
-                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID " +
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                         "WHERE f.ID = " + id,
                 new FilmMapper()
         );
@@ -111,8 +111,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Set<Film> getAll() {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
-                        "LEFT JOIN FILM_MPA fm ON f.ID = fm.FILM_ID  " +
-                        "LEFT JOIN FILM_GENRE fg ON f.ID = fg.FILM_ID ",
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID ",
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
@@ -165,9 +165,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addMpa(Integer mpaId, Integer filmId) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE (film_id = ? AND mpa_id = ?) AND status_id = ?",
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE film_id = ? AND status_id = ?",
                 filmId,
-                mpaId,
                 STATUS_ACTIVE
         );
         if (resultSet.next()) {
