@@ -150,7 +150,9 @@ public class FilmService {
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
+            return filmsList;
         }
+        log.info("total films found: " + filmsList.size());
         return filmsList;
     }
 }

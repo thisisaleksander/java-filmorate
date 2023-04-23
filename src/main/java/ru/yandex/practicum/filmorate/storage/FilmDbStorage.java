@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate(),
                 id
         );
-        if (film.getMpa().getId() != null) {
+        if (film.getMpa() != null && film.getMpa().getId() != null) {
             addMpa(film.getMpa().getId(), film.getId());
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
@@ -165,23 +165,15 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addMpa(Integer mpaId, Integer filmId) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE film_id = ? AND status_id = ?",
+        removeMpa(filmId);
+        String sqlQuery = "INSERT INTO film_mpa (film_id, mpa_id, status_id) " +
+                "VALUES (?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
                 filmId,
+                mpaId,
                 STATUS_ACTIVE
         );
-        if (resultSet.next()) {
-            log.info("Mpa already added to film with id = {}", filmId);
-            removeMpa(filmId);
-        } else {
-            String sqlQuery = "INSERT INTO film_mpa (film_id, mpa_id, status_id) " +
-                    "VALUES (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery,
-                    filmId,
-                    mpaId,
-                    STATUS_ACTIVE
-            );
-            log.info("Add new mpa to film with id = {}", filmId);
-        }
+        log.info("Add new mpa to film with id = {}", filmId);
     }
 
     @Override
