@@ -115,7 +115,8 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID",
+                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                        "ORDER BY f.ID",
                 new FilmMapper(jdbcTemplate)
         );
         if (filmsList.isEmpty()) {
