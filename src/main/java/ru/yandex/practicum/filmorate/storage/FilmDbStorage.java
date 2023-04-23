@@ -69,6 +69,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> update(@NonNull Integer id, @NonNull Film film) {
+        get(id);
         ValidateService.validateFilm(film);
         String sqlQuery = "UPDATE films SET " +
                 "name = ?, description = ?, release_date = ?, duration = ?, rate = ? " +

@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.GenreMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -142,26 +143,16 @@ public class FilmService {
      * @return List<Film> -> list of top n films
      */
     public List<Film> getTopFilms(long count) throws SQLException {
-        List<Film> films = new ArrayList<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "SELECT DISTINCT * FROM films ORDER BY rate desc LIMIT " + count
+        List<Film> filmsList = jdbcTemplate.query("SELECT DISTINCT f.ID, name, description, release_date, duration, rate , MPA_ID, GENRE_ID FROM films f " +
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID  " +
+                        "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
+                        "ORDER BY rate DESC " +
+                        "LIMIT " + count,
+                new FilmMapper()
         );
-        while (resultSet.next()) {
-            Film film = filmStorage.mapRowToFilm(resultSet);
-            GenreMapper genreMapper = new GenreMapper();
-            SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(
-                    "SELECT GENRES.id, genre_name FROM FILM_GENRE " +
-                            "LEFT JOIN GENRES ON FILM_GENRE.genre_id = GENRES.id" +
-                            " WHERE film_id = " + film.getId()
-            );
-            while (genresRowSet.next()) {
-                film.addGenre(genreMapper.mapRow((ResultSet) genresRowSet, genresRowSet.getRow()));
-            }
-            films.add(film);
+        if (filmsList.isEmpty()) {
+            log.info("No films found in database");
         }
-        if (films.isEmpty()) {
-            throw new DoNotExistException("No films found in database");
-        }
-        return films;
+        return filmsList;
     }
 }
