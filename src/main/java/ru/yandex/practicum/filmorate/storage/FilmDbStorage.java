@@ -90,7 +90,7 @@ public class FilmDbStorage implements FilmStorage {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), film.getId()));
         }
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
-        return Optional.of(film);
+        return get(id);
     }
 
     @Override
