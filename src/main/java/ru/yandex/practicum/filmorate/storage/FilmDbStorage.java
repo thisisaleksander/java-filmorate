@@ -50,7 +50,8 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
                         "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
                         "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
-                        "ORDER BY f.ID LIMIT 1",
+                        "WHERE fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE +
+                        " ORDER BY f.ID LIMIT 1",
                 new FilmMapper()
         );
         Film filmToReturn = filmsList.get(0);
@@ -72,6 +73,12 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa(),
                 id
         );
+        if (film.getMpa().getId() != null) {
+            addMpa(film.getMpa().getId(), film.getId());
+        }
+        if (!film.getGenres().isEmpty()) {
+            film.getGenres().forEach(genre -> addGenre(genre.getId(), film.getId()));
+        }
         log.info(FILM_LOG, LocalDateTime.now(), "updated");
         return Optional.of(film);
     }
@@ -79,12 +86,12 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<Film> get(@NonNull Integer id) {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
-                        "g.id, g.genre, m.ID, m.mpa FROM films f " +
+                        "g.id as genre_id, g.genre, m.ID as mpa_id, m.mpa FROM films f " +
                         "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
                         "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
                         "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
                         "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
-                        "WHERE f.ID = " + id,
+                        "WHERE f.ID = " + id + " AND fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE,
                 new FilmMapper()
         );
         Film film = filmsList.get(0);
@@ -109,13 +116,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getAll() {
-        // GenreMapper genreMapper = new GenreMapper();
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, f.description, f.release_date, f.duration, f.rate, " +
-                        "g.id, g.genre, m.ID, m.mpa FROM films f " +
+                        "g.id as genre_id, g.genre, m.ID as mpa_id, m.mpa FROM films f " +
                         "LEFT JOIN film_genre fg on f.ID = fg.FILM_ID " +
                         "LEFT JOIN genres g on fg.GENRE_ID  = g.ID  " +
                         "LEFT JOIN FILM_MPA fm ON fm.FILM_ID = f.ID " +
-                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID ",
+                        "LEFT JOIN mpa m on m.ID  = fm.MPA_ID " +
+                        "WHERE fm.status_id = " + STATUS_ACTIVE + " AND fg.status_id = " + STATUS_ACTIVE,
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
@@ -162,6 +169,47 @@ public class FilmDbStorage implements FilmStorage {
             log.info("Genre was removed from film with id = {}", filmId);
         } else {
             log.info("Genre was not added to film with id = {}", filmId);
+        }
+    }
+
+    @Override
+    public void addMpa(Integer mpaId, Integer filmId) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE (film_id = ? AND mpa_id = ?) AND status_id = ?",
+                filmId,
+                mpaId,
+                STATUS_ACTIVE
+        );
+        if (resultSet.next()) {
+            log.info("Mpa already added to film with id = {}", filmId);
+        } else {
+            String sqlQuery = "INSERT INTO film_mpa (film_id, mpa_id, status_id) " +
+                    "VALUES (?, ?, ?)";
+            jdbcTemplate.update(sqlQuery,
+                    filmId,
+                    mpaId,
+                    STATUS_ACTIVE
+            );
+            log.info("Add new mpa to film with id = {}", filmId);
+        }
+    }
+
+    @Override
+    public void removeMpa(Integer mpaId, Integer filmId) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_mpa WHERE (film_id = ? AND mpa_id = ?) AND status_id = ?",
+                filmId,
+                mpaId,
+                STATUS_ACTIVE
+        );
+        if (resultSet.next()) {
+            String sqlQuery = "UPDATE film_mpa SET status_id = ? WHERE (film_id = ? AND mpa_id = ?)";
+            jdbcTemplate.update(sqlQuery,
+                    STATUS_DELETED,
+                    filmId,
+                    mpaId
+            );
+            log.info("Mpa was removed from film with id = {}", filmId);
+        } else {
+            log.info("Mpa was not added to film with id = {}", filmId);
         }
     }
 }

@@ -44,4 +44,8 @@ public interface FilmStorage {
      * @param filmId -> id of a film to remove genre from
      */
     void removeGenre(Integer genreId, Integer filmId);
+
+    void addMpa(Integer mpaId, Integer filmId);
+
+    void removeMpa(Integer mpaId, Integer filmId);
 }
