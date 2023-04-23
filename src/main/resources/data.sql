@@ -29,3 +29,27 @@ VALUES('R');
 INSERT INTO PUBLIC.MPA
 (name)
 VALUES('NC-17');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Комедия');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Драма');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Мультфильм');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Триллер');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Документальный');
+
+INSERT INTO PUBLIC.GENRES
+(name)
+VALUES('Боевик');
