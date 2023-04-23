@@ -12,9 +12,7 @@ CREATE TABLE IF NOT EXISTS FILMS (
   description VARCHAR(200),
   release_date DATE,
   duration INTEGER,
-  rate INTEGER,
-  mpa_id INTEGER,
-  genres VARCHAR(100)
+  rate INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS FRIENDS (

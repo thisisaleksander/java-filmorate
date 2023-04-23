@@ -22,14 +22,14 @@ public class FilmMapper implements RowMapper<Film> {
         }
         return new Film(
                 resultSet.getInt("id"),
-                resultSet.getString("name"),
-                resultSet.getString("description"),
-                LocalDate.parse(Objects.requireNonNull(resultSet.getString("release_date"))),
-                resultSet.getInt("duration"),
-                resultSet.getInt("rate"),
+                resultSet.getString("NAME"),
+                resultSet.getString("DESCRIPTION"),
+                LocalDate.parse(Objects.requireNonNull(resultSet.getString("RELEASE_DATE"))),
+                resultSet.getInt("DURATION"),
+                resultSet.getInt("RATE"),
                 new Mpa(
-                        resultSet.getInt("mpa_id"),
-                        resultSet.getString("mpa")
+                        resultSet.getInt("MPA_ID")
+                        //resultSet.getString("mpa")
                         ),
                 filmGenres
                 );
