@@ -21,7 +21,7 @@ public class MpaDbStorage {
     }
 
     public List<Mpa> getAll() {
-        return jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name FROM MPA",
+        return jdbcTemplate.query("SELECT DISTINCT ID AS mpa_id, NAME AS mpa_name FROM MPA",
                 new MpaMapper()
         );
     }

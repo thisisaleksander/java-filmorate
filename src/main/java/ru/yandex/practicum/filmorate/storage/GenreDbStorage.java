@@ -26,7 +26,7 @@ public class GenreDbStorage {
     }
 
     public List<Genre> getAll() {
-        return jdbcTemplate.query("SELECT ID AS genre_id, NAME AS genre_name FROM GENRES",
+        return jdbcTemplate.query("SELECT DISTINCT ID AS genre_id, NAME AS genre_name FROM GENRES",
                 new GenreMapper()
         );
     }
