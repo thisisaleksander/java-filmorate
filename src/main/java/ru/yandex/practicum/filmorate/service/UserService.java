@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.sql.SQLException;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.*;
