@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.ValidateService;
@@ -107,7 +108,7 @@ public class FilmDbStorage implements FilmStorage {
         );
         if (filmsList.isEmpty()) {
             log.info("Film not found, id = {}", id);
-            throw new DoNotExistException("Film with id = " + id + " do not exist");
+            throw new NotFoundException("Film with id = " + id + " do not exist");
         }
         log.info("Found film with id = {}", id);
         Film film = filmsList.get(0);
