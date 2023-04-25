@@ -52,7 +52,7 @@ public class UserService {
                     friendId,
                     id
             );
-            log.info("Add friend {} to user {} with status {}", friendId, id, 2);
+            log.info("Accept friend {} to user {} with status {}", friendId, id, 2);
             return user;
         } else {
             throw new DoNotExistException(String.format(
@@ -92,10 +92,8 @@ public class UserService {
                     id,
                     friendId,
                     STATUS_ACTIVE
-                    // STATUS_REQUEST -> for friend request
             );
-            // log.info("Add friend request from user {} to user {} with status {}", friendId, id, STATUS_REQUEST);  -> for friend request
-            log.info("Add friendship of user {} with user {}", friendId, id);
+            log.info("Added friendship of user {} with user {}", friendId, id);
             return user;
         }
     }
@@ -126,6 +124,7 @@ public class UserService {
                     id,
                     friendId
             );
+            log.info("Removed friendship of user {} with user {}", friendId, id);
             return user;
         } else {
             throw new DoNotExistException(String.format(
@@ -150,7 +149,7 @@ public class UserService {
         while (resultSet.next()) {
             friendsIds.add(resultSet.getInt("friend_id"));
         }
-        log.info("Total friends found: {}", friendsIds.size());
+        log.info("Total friends of user {} found: {}", id, friendsIds.size());
         friendsIds.forEach(someId -> {
             friends.add(userStorage.get(someId));
         });
@@ -190,12 +189,12 @@ public class UserService {
         }
         commonFriendsIds.remove(id);
         commonFriendsIds.remove(otherId);
-        log.info("Total common friends found: {}", commonFriendsIds.size());
+        log.info("Total common friends found of users {} and {} found: {}", id, otherId, commonFriendsIds.size());
         commonFriendsIds.forEach(someId -> {
             commonFriends.add(userStorage.get(someId));
         });
         if (commonFriends.isEmpty()) {
-            log.info("No common friends found");
+            log.info("No common friends found of users {} and {}", id, otherId);
             return Collections.emptySet();
         }
         return commonFriends;

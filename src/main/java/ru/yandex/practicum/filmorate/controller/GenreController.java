@@ -18,19 +18,19 @@ public class GenreController {
 
     @GetMapping
     public List<Genre> getAll() {
-        log.info("Received GET request");
+        log.info("Received GET request: all genres");
         return genreDbStorage.getAll();
     }
 
     @GetMapping("/{id}")
     public Genre getById(@PathVariable("id") Integer id) {
-        log.info("Received GET request");
+        log.info("Received GET request: genre {}", id);
         return genreDbStorage.getGenreById(id);
     }
 
     @PostMapping
     public Genre addGenre(@RequestBody @Valid Genre genre) {
-        log.info("Received POST request");
+        log.info("Received POST request: new genre");
         return genreDbStorage.addGenre(genre);
     }
 }

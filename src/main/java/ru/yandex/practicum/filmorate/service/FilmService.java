@@ -66,7 +66,7 @@ public class FilmService {
             log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
             film.setRate(film.getRate() + 1);
             filmStorage.update(film.getId(), film);
-            log.info("Film rate updated");
+            log.info("Film {} rate updated", id);
             return film;
         }
     }
@@ -99,13 +99,13 @@ public class FilmService {
             );
             log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
             if (film.getRate() == 0) {
-                log.info("Film rate updated");
+                log.info("Film {} rate updated", id);
                 return film;
             } else {
                 film.setRate(film.getRate() - 1);
                 filmStorage.update(film.getId(), film);
             }
-            log.info("Film rate updated");
+            log.info("Film {} rate updated", id);
             return film;
         } else {
             throw new DoNotExistException(String.format(
@@ -134,7 +134,7 @@ public class FilmService {
             log.info("No films found in database");
             return filmsList;
         }
-        log.info("total films found: " + filmsList.size());
+        log.info("Total films found in database: " + filmsList.size());
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toList());

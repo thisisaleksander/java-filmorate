@@ -20,13 +20,13 @@ public class MpaController {
 
     @GetMapping
     public List<Mpa> getAll() {
-        log.info("Received GET request");
+        log.info("Received GET request: all mpa");
         return mpaDbStorage.getAll();
     }
 
     @GetMapping("/{id}")
     public Mpa getById(@PathVariable("id") Integer id) {
-        log.info("Received GET request");
+        log.info("Received GET request: mpa {}", id);
         return mpaDbStorage.getMpaById(id);
     }
 }
