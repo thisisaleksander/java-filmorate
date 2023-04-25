@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    @JsonIgnore
     private Boolean deleted;
 
     public int getUserToCompare(User user) {
