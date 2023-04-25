@@ -44,7 +44,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate()
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), filmToReturn.getId()));
         }
-        filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
+        filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
@@ -73,7 +73,7 @@ public class FilmDbStorage implements FilmStorage {
         get(id);
         ValidateService.validateFilm(film);
         String sqlQuery = "UPDATE films SET " +
-                "name = ?, description = ?, release_date = ?, duration = ?, rate = ? " +
+                "name = ?, description = ?, release_date = ?, duration = ?, rate = ?, deleted = ? " +
                 "WHERE id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getName(),
@@ -81,6 +81,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getRate(),
+                film.getDeleted(),
                 id
         );
         if (film.getMpa() != null && film.getMpa().getId() != null) {
@@ -98,7 +99,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(@NonNull Integer id) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
@@ -115,7 +116,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getAll() {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +

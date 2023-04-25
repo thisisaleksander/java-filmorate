@@ -17,6 +17,7 @@ public class UserMapper implements RowMapper<User> {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("birthday"))))
+                .deleted(resultSet.getBoolean("DELETED"))
                 .build();
     }
 }

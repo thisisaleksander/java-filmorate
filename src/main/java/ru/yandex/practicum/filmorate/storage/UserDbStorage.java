@@ -9,12 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -31,30 +33,35 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User add(@NonNull User user) {
         ValidateService.validateUser(user);
-        String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
-                "VALUES (?, ?, ?, ?)";
+        String sqlQuery = "INSERT INTO users (email, login, name, birthday, deleted) " +
+                "VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
-                user.getBirthday()
+                user.getBirthday(),
+                user.getDeleted()
         );
         log.info(USER_LOG, LocalDateTime.now(), "registered");
-        List<User> userToReturn = jdbcTemplate.query("SELECT id, login, email, name, birthday FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
-        return userToReturn.get(0);
+        List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
+        if (usersToReturn.isEmpty()) {
+            throw new NotFoundException("New user not found and failed to return");
+        }
+        return usersToReturn.get(0);
     }
 
     @Override
     public User update(@NonNull Integer id, @NonNull User user) {
             ValidateService.validateUser(user);
             String sqlQuery = "UPDATE users SET " +
-                    "email = ?, login = ?, name = ?, birthday = ? " +
-                    "WHERE id = ?";
+                    "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
+                    "WHERE id = ? AND deleted = FALSE";
             jdbcTemplate.update(sqlQuery,
                     user.getEmail(),
                     user.getLogin(),
                     user.getName(),
                     user.getBirthday(),
+                    user.getDeleted(),
                     id
             );
             log.info(USER_LOG, LocalDateTime.now(), "updated");
@@ -82,6 +89,7 @@ public class UserDbStorage implements UserStorage {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(LocalDate.parse(Objects.requireNonNull(resultSet.getString("birthday"))))
+                .deleted(resultSet.getBoolean("deleted"))
                 .build();
     }
 
@@ -97,6 +105,8 @@ public class UserDbStorage implements UserStorage {
             log.info("No users found");
             return Collections.emptySet();
         }
-        return users;
+        return users.stream()
+                .sorted(User::getUserToCompare)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

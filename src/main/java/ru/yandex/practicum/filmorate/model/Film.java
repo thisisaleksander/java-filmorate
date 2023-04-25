@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Set;
@@ -19,7 +18,6 @@ import java.util.Set;
 @Table(name = "FILMS")
 public class Film {
     @Id
-    @NotBlank
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
@@ -30,6 +28,7 @@ public class Film {
     private int duration;
     @Min(0)
     private Integer rate;
+    private Boolean deleted;
     private transient Mpa mpa;
     private transient Set<Genre> genres;
 

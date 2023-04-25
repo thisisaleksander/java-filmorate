@@ -32,6 +32,7 @@ public class FilmMapper implements RowMapper<Film> {
                 LocalDate.parse(Objects.requireNonNull(resultSet.getString("RELEASE_DATE"))),
                 resultSet.getInt("DURATION"),
                 resultSet.getInt("RATE"),
+                resultSet.getBoolean("DELETED"),
                 new Mpa(
                         resultSet.getInt("MPA_ID"),
                         resultSet.getString("MPA_NAME")

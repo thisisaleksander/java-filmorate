@@ -26,4 +26,9 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    private Boolean deleted;
+
+    public int getUserToCompare(User user) {
+        return user.id;
+    }
 }

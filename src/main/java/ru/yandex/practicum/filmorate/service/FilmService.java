@@ -120,7 +120,7 @@ public class FilmService {
      * @return List<Film> -> list of top n films
      */
     public List<Film> getTopFilms(long count) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
