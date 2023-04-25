@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
-import ru.yandex.practicum.filmorate.exception.FilmValidationFailedException;
-import ru.yandex.practicum.filmorate.exception.UserValidationFailedException;
+import ru.yandex.practicum.filmorate.exception.FilmValidationException;
+import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 
 @RestControllerAdvice
@@ -15,7 +15,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleFilmValidationFailedException(final FilmValidationFailedException e) {
+    public ErrorResponse handleFilmValidationFailedException(final FilmValidationException e) {
         return new ErrorResponse(
                 String.format("Error in film validation \"%s\".", e.getMessage())
         );
@@ -23,7 +23,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleUserValidationFailedException(final UserValidationFailedException e) {
+    public ErrorResponse handleUserValidationFailedException(final UserValidationException e) {
         return new ErrorResponse(
                 String.format("Error in user validation \"%s\".", e.getMessage())
         );
