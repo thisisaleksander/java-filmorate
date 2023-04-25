@@ -54,7 +54,7 @@ public class UserDbStorage implements UserStorage {
             ValidateService.validateUser(user);
             String sqlQuery = "UPDATE users SET " +
                     "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
-                    "WHERE id = ? AND deleted = FALSE";
+                    "WHERE id = ?";
             jdbcTemplate.update(sqlQuery,
                     user.getEmail(),
                     user.getLogin(),
