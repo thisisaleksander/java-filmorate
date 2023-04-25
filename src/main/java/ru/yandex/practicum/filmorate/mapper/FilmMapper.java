@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,7 +14,6 @@ import java.util.Objects;
 import java.util.Set;
 
 public class FilmMapper implements RowMapper<Film> {
-    @Autowired
     private final JdbcTemplate jdbcTemplate;
 
     public FilmMapper(JdbcTemplate jdbcTemplate) {
