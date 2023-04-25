@@ -11,20 +11,20 @@ public interface UserStorage {
      * @param user -> user object from json
      * @return Optional<User> -> user object that was added
      */
-    Optional<User> add(User user);
+    User add(User user);
 
     /**
      * @param id -> gets from film object
      * @param user -> user object from json
      * @return Optional<User> -> updated user object if exists
      */
-    Optional<User> update(Integer id, User user);
+    User update(Integer id, User user);
 
     /**
      * @param id -> parameter from request
      * @return Optional<User> -> found user with @param id if exists
      */
-    Optional<User> get(Integer id) throws SQLException;
+    User get(Integer id) throws SQLException;
 
     /**
      * returns all user objects from table users

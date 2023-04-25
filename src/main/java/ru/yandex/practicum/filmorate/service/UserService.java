@@ -33,19 +33,9 @@ public class UserService {
      * @param friendId -> int from request string, id of user who have sent a friend request
      * @return Optional<User> -> user who accepts friend request
      */
-    public Optional<User> acceptFriend(Integer id, Integer friendId) throws SQLException {
-        Optional<User> optionalUser = userStorage.get(id);
-        Optional<User> optionalFriend = userStorage.get(friendId);
-        User user;
-        if (optionalUser.isPresent() && optionalFriend.isPresent()) {
-            user = optionalUser.get();
-        } else {
-            throw new DoNotExistException(String.format(
-                    "User with id %s or %s do not exist",
-                    id,
-                    friendId
-            ));
-        }
+    public User acceptFriend(Integer id, Integer friendId) {
+        User user = userStorage.get(id);
+        userStorage.get(friendId);
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM friends " +
                         "WHERE (user_id = ? AND friend_id = ?) " +
                         "AND (status_id = ?)",
@@ -63,7 +53,7 @@ public class UserService {
                     id
             );
             log.info("Add friend {} to user {} with status {}", friendId, id, 2);
-            return Optional.of(user);
+            return user;
         } else {
             throw new DoNotExistException(String.format(
                     "No friend request for user %s and user %s",
@@ -79,19 +69,9 @@ public class UserService {
      * @param friendId -> int from request string, id of user who will receive a friend request
      * @return Optional<User> -> user who sends friend request
      */
-    public Optional<User> addFriend(Integer id, Integer friendId) throws SQLException {
-        Optional<User> optionalUser = userStorage.get(id);
-        Optional<User> optionalFriend = userStorage.get(friendId);
-        User user;
-        if (optionalUser.isPresent() && optionalFriend.isPresent()) {
-            user = optionalUser.get();
-        } else {
-            throw new DoNotExistException(String.format(
-                    "User with id %s or %s do not exist",
-                    id,
-                    friendId
-            ));
-        }
+    public User addFriend(Integer id, Integer friendId) {
+        User user = userStorage.get(id);
+        userStorage.get(friendId);
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "SELECT * FROM friends " +
                         "WHERE (user_id = ? AND friend_id = ?) " +
@@ -116,7 +96,7 @@ public class UserService {
             );
             // log.info("Add friend request from user {} to user {} with status {}", friendId, id, STATUS_REQUEST);  -> for friend request
             log.info("Add friendship of user {} with user {}", friendId, id);
-            return Optional.of(user);
+            return user;
         }
     }
 
@@ -126,19 +106,9 @@ public class UserService {
      * @param friendId -> int from request string, id of a user to delete friendship with
      * @return Optional<User> -> user who sends friend request
      */
-    public Optional<User> removeFriend(Integer id, Integer friendId) throws SQLException {
-        Optional<User> optionalUser = userStorage.get(id);
-        Optional<User> optionalFriend = userStorage.get(friendId);
-        User user;
-        if (optionalUser.isPresent() && optionalFriend.isPresent()) {
-            user = optionalUser.get();
-        } else {
-            throw new DoNotExistException(String.format(
-                    "User with id %s or %s do not exist",
-                    id,
-                    friendId
-            ));
-        }
+    public User removeFriend(Integer id, Integer friendId) {
+        User user = userStorage.get(id);
+        userStorage.get(friendId);
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "SELECT * FROM friends " +
                         "WHERE (user_id = ? AND friend_id = ?) " +
@@ -156,7 +126,7 @@ public class UserService {
                     id,
                     friendId
             );
-            return Optional.of(user);
+            return user;
         } else {
             throw new DoNotExistException(String.format(
                     "User with id %s not a friend to user %s",
@@ -171,8 +141,8 @@ public class UserService {
      * @param id -> int from request string, id of user whose friends will be found
      * @return List<Optional<User>> -> List of user objects who have active friendship status with user (@param id)
      */
-    public List<Optional<User>> getFriends(Integer id) {
-        List<Optional<User>> friends = new ArrayList<>();
+    public List<User> getFriends(Integer id) {
+        List<User> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct friend_id from friends where user_id = " +
                 id + " and status_id = " + STATUS_ACTIVE
@@ -182,11 +152,7 @@ public class UserService {
         }
         log.info("Total friends found: {}", friendsIds.size());
         friendsIds.forEach(someId -> {
-            try {
-                friends.add(userStorage.get(someId));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            friends.add(userStorage.get(someId));
         });
         if (friends.isEmpty()) {
             log.info("No friends found");
@@ -200,8 +166,8 @@ public class UserService {
      * @param otherId -> int from request string, id of a user
      * @return Set<Optional<User>> -> set of unique user objects who are friends of users with id and otherId
      */
-    public Set<Optional<User>> getMutualFriends(Integer id, Integer otherId) {
-        Set<Optional<User>> commonFriends = new HashSet<>();
+    public Set<User> getMutualFriends(Integer id, Integer otherId) {
+        Set<User> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
         Set<Integer> friendsOfUserOne = new HashSet<>();
         Set<Integer> friendsOfUserTwo = new HashSet<>();
@@ -226,11 +192,7 @@ public class UserService {
         commonFriendsIds.remove(otherId);
         log.info("Total common friends found: {}", commonFriendsIds.size());
         commonFriendsIds.forEach(someId -> {
-            try {
-                commonFriends.add(userStorage.get(someId));
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
+            commonFriends.add(userStorage.get(someId));
         });
         if (commonFriends.isEmpty()) {
             log.info("No common friends found");

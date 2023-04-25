@@ -32,7 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> add(@NonNull Film film) {
+    public Film add(@NonNull Film film) {
         ValidateService.validateFilm(film);
         String sqlQuery = "INSERT INTO films (name, description, release_date, duration, rate) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -65,11 +65,11 @@ public class FilmDbStorage implements FilmStorage {
                         "ORDER BY f.ID DESC LIMIT 1",
                 new FilmMapper(jdbcTemplate)
         );
-        return Optional.of(filmsList.get(0));
+        return filmsList.get(0);
     }
 
     @Override
-    public Optional<Film> update(@NonNull Integer id, @NonNull Film film) {
+    public Film update(@NonNull Integer id, @NonNull Film film) {
         get(id);
         ValidateService.validateFilm(film);
         String sqlQuery = "UPDATE films SET " +
@@ -97,7 +97,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> get(@NonNull Integer id) {
+    public Film get(@NonNull Integer id) {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
@@ -111,7 +111,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         log.info("Found film with id = {}", id);
         Film film = filmsList.get(0);
-        return Optional.of(film);
+        return film;
     }
 
     @Override

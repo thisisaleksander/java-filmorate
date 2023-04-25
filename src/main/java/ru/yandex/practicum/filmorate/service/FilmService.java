@@ -38,19 +38,9 @@ public class FilmService {
      * @param userId -> id of a user whose like was added
      * @return Optional<Film> -> film object where like was added
      */
-    public Optional<Film> addLike(Integer id, Integer userId) throws SQLException {
-        Optional<Film> optionalFilm = filmStorage.get(id);
-        Optional<User> optionalUser = userStorage.get(userId);
-        Film film;
-        if (optionalUser.isPresent() && optionalFilm.isPresent()) {
-            film = optionalFilm.get();
-        } else {
-            throw new DoNotExistException(String.format(
-                    "Film with id %s or user %s do not exist",
-                    id,
-                    userId
-            ));
-        }
+    public Film addLike(Integer id, Integer userId) {
+        Film film = filmStorage.get(id);
+        userStorage.get(userId);
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "SELECT * FROM likes " +
                         "WHERE (film_id = ? AND user_id = ?) " +
@@ -77,7 +67,7 @@ public class FilmService {
             film.setRate(film.getRate() + 1);
             filmStorage.update(film.getId(), film);
             log.info("Film rate updated");
-            return Optional.of(film);
+            return film;
         }
     }
 
@@ -87,19 +77,9 @@ public class FilmService {
      * @param userId -> id of a user whose like needs to be removed
      * @return Optional<Film> -> film object where like was removed
      */
-    public Optional<Film> deleteLike(Integer id, Integer userId) throws SQLException {
-        Optional<Film> optionalFilm = filmStorage.get(id);
-        Optional<User> optionalUser = userStorage.get(userId);
-        Film film;
-        if (optionalUser.isPresent() && optionalFilm.isPresent()) {
-            film = optionalFilm.get();
-        } else {
-            throw new DoNotExistException(String.format(
-                    "Film with id %s or user %s do not exist",
-                    id,
-                    userId
-            ));
-        }
+    public Film deleteLike(Integer id, Integer userId) {
+        Film film = filmStorage.get(id);
+        userStorage.get(userId);
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
                 "SELECT * FROM likes " +
                         "WHERE (film_id = ? AND user_id = ?) " +
@@ -120,13 +100,13 @@ public class FilmService {
             log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
             if (film.getRate() == 0) {
                 log.info("Film rate updated");
-                return Optional.of(film);
+                return film;
             } else {
                 film.setRate(film.getRate() - 1);
                 filmStorage.update(film.getId(), film);
             }
             log.info("Film rate updated");
-            return Optional.of(film);
+            return film;
         } else {
             throw new DoNotExistException(String.format(
                     "Like from user id %s to film %s do not exist",
@@ -141,7 +121,7 @@ public class FilmService {
      * @param count -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
-    public List<Film> getTopFilms(long count) throws SQLException {
+    public List<Film> getTopFilms(long count) {
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +

@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -30,7 +29,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> add(@NonNull User user) {
+    public User add(@NonNull User user) {
         ValidateService.validateUser(user);
         String sqlQuery = "INSERT INTO users (email, login, name, birthday) " +
                 "VALUES (?, ?, ?, ?)";
@@ -42,13 +41,11 @@ public class UserDbStorage implements UserStorage {
         );
         log.info(USER_LOG, LocalDateTime.now(), "registered");
         List<User> userToReturn = jdbcTemplate.query("SELECT id, login, email, name, birthday FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
-        return Optional.of(userToReturn.get(0));
+        return userToReturn.get(0);
     }
 
     @Override
-    public Optional<User> update(@NonNull Integer id, @NonNull User user) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE id = ?", id);
-        if (resultSet.next()) {
+    public User update(@NonNull Integer id, @NonNull User user) {
             ValidateService.validateUser(user);
             String sqlQuery = "UPDATE users SET " +
                     "email = ?, login = ?, name = ?, birthday = ? " +
@@ -61,21 +58,17 @@ public class UserDbStorage implements UserStorage {
                     id
             );
             log.info(USER_LOG, LocalDateTime.now(), "updated");
-            return Optional.of(user);
-        } else {
-            log.info("User with id = {} not found.", id);
-            throw new DoNotExistException("User with id = " + id + " do not exists");
-        }
+            return get(id);
     }
 
     @Override
-    public Optional<User> get(@NonNull Integer id) throws SQLException {
+    public User get(@NonNull Integer id) {
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users WHERE id = ?", id);
         if (resultSet.next()) {
             User user = mapRowToUser(resultSet);
             assert user != null;
             log.info("Found user with id = {}", user.getId());
-            return Optional.of(user);
+            return user;
         } else {
             log.info("User with id = {} not found.", id);
             throw new DoNotExistException("User with id = " + id + " do not exists");

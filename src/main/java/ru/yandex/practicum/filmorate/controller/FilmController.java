@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -24,43 +22,43 @@ public class FilmController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Optional<Film> addNewFilm(@RequestBody @Valid Film film) {
+    public Film addNewFilm(@RequestBody @Valid Film film) {
         log.info("Received GET request");
         return filmStorage.add(film);
     }
 
     @PutMapping
-    public Optional<Film> updateFilm(@RequestBody @Valid Film film) {
+    public Film updateFilm(@RequestBody @Valid Film film) {
         log.info("Received PUT request");
         return filmStorage.update(film.getId(), film);
     }
 
     @GetMapping
-    public Set<Film> findAllFilms() throws SQLException {
+    public Set<Film> findAllFilms() {
         log.info("Received GET request");
         return filmStorage.getAll();
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Optional<Film> addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) throws SQLException {
+    public Film addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         log.info("Received PUT request");
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Optional<Film> deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) throws SQLException {
+    public Film deleteLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
         log.info("Received DELETE request");
         return filmService.deleteLike(id, userId);
     }
 
     @GetMapping("/popular")
-    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) throws SQLException {
+    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
         log.info("Received GET request");
         return filmService.getTopFilms(count);
     }
 
     @GetMapping("/{id}")
-    public Optional<Film> getFilmById(@PathVariable("id") Integer id) throws SQLException {
+    public Film getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request");
         return filmStorage.get(id);
     }
