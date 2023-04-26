@@ -24,11 +24,13 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 @Repository
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final GenreDbStorage genreDbStorage;
     private static final String FILM_LOG = "FILM - {} : {}";
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.genreDbStorage = genreDbStorage;
     }
 
     @Override
@@ -49,7 +51,7 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "ORDER BY f.ID DESC LIMIT 1",
-                new FilmMapper(jdbcTemplate)
+                new FilmMapper()
         );
         Film filmToReturn = filmsList.get(0);
         if (film.getMpa() != null && film.getMpa().getId() != null) {
@@ -58,14 +60,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             film.getGenres().forEach(genre -> addGenre(genre.getId(), filmToReturn.getId()));
         }
-        filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
-                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "ORDER BY f.ID DESC LIMIT 1",
-                new FilmMapper(jdbcTemplate)
-        );
-        return filmsList.get(0);
+        return get(filmToReturn.getId());
     }
 
     @Override
@@ -89,7 +84,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             removeAllGenres(id);
-            film.getGenres().forEach(genre -> addGenre(genre.getId(), film.getId()));
+            film.getGenres().forEach(genre -> addGenre(genre.getId(), id));
         } else {
             removeAllGenres(id);
         }
@@ -104,14 +99,16 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "WHERE f.ID = " + id,
-                new FilmMapper(jdbcTemplate)
+                new FilmMapper()
         );
         if (filmsList.isEmpty()) {
             log.info("Film not found, id = {}", id);
             throw new NotFoundException("Film with id = " + id + " do not exist");
         }
         log.info("Found film with id = {}", id);
-        return filmsList.get(0);
+        Film film = filmsList.get(0);
+        film.setGenres(genreDbStorage.getGenresOfFilm(id));
+        return film;
     }
 
     @Override
@@ -121,12 +118,13 @@ public class FilmDbStorage implements FilmStorage {
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "ORDER BY f.ID",
-                new FilmMapper(jdbcTemplate)
+                new FilmMapper()
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
         }
         log.info("Total films found: {}", filmsList.size());
+        filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));

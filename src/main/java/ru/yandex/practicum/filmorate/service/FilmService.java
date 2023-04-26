@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
@@ -22,11 +23,13 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
+    private final GenreDbStorage genreDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.genreDbStorage = genreDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -126,13 +129,14 @@ public class FilmService {
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "ORDER BY rate DESC " +
                         "LIMIT " + count,
-                new FilmMapper(jdbcTemplate)
+                new FilmMapper()
         );
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
             return filmsList;
         }
         log.info("Total films found in database: " + filmsList.size());
+        filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toList());
