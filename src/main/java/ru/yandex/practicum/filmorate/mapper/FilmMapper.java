@@ -1,11 +1,9 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
