@@ -4,18 +4,22 @@ Rest API with kinopoisk logic
 
 Developer tasks:
 Ekaterina -> add-search branch
+
 	~ GET /fimls/search
 	Возвращает список фильмов, отсортированных по популярности.
 
 Konstantin -> add-feed
+
 	~ GET /users/{id}/feed
 	Возвращает ленту событий пользователя.
 
 Andrey -> add-recommendations branch
+
 	~ GET /users/{id}/recommendations
 	Возвращает рекомендации по фильмам для просмотра.
 
 Elena -> add-reviews branch
+
 	~ POST /reviews
 	Добавление нового отзыва.
 
@@ -44,5 +48,6 @@ Elena -> add-reviews branch
 	Пользователь удаляет дизлайк отзыву.
 
 Alexander -> add-common-films
+
 	~ GET /films/common?userId={userId}&friendId={friendId} 
 	Возвращает список фильмов, отсортированных по популярности.
