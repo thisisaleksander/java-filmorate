@@ -142,6 +142,12 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * method to find films that was liked by users form @params
+     * @param userId -> id of a user to get liked films
+     * @param friendId -> id of a user to get liked films
+     * @return List<Film> -> list of films that was liked by both users
+     */
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         userStorage.get(userId);
         userStorage.get(friendId);
