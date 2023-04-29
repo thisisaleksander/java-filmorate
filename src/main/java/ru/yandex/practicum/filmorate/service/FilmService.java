@@ -145,12 +145,14 @@ public class FilmService {
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         userStorage.get(userId);
         userStorage.get(friendId);
-        List<Film> films = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+        List<Film> films = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, " +
+                        "rate, deleted, fm.MPA_ID, m.NAME as mpa_name " +
+                        "FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "WHERE f.id IN (SELECT DISTINCT film_id FROM likes WHERE status_id = 2 AND user_id " +
-                        "IN (" + userId + ", " + friendId + ")) " +
+                        "LEFT JOIN (SELECT * FROM LIKES WHERE user_id = " + userId + " AND status_id = 2) l1 ON l1.film_id = f.ID " +
+                        "LEFT JOIN (SELECT * FROM LIKES WHERE user_id = " + friendId + " AND status_id = 2) l2 ON l2.film_id = f.ID " +
+                        "WHERE l1.user_id IS NOT NULL AND l2.user_id IS NOT NULL " +
                         "ORDER BY rate DESC",
                 new FilmMapper()
         );
