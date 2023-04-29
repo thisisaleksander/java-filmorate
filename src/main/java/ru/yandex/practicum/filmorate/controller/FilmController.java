@@ -62,4 +62,10 @@ public class FilmController {
         log.info("Received GET request: film {}", id);
         return filmStorage.get(id);
     }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam() Integer userId, @RequestParam() Integer friendId) {
+        log.info("Received GET request: common films of users {} and {}", userId, friendId);
+        return filmService.getCommonFilms(userId, friendId);
+    }
 }

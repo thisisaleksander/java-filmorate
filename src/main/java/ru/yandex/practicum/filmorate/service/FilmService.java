@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class FilmService {
      * method that adds like from user to a film
      * @param id -> id of a film to add like to
      * @param userId -> id of a user whose like was added
-     * @return Optional<Film> -> film object where like was added
+     * @return Film -> film object where like was added
      */
     public Film addLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
@@ -76,7 +77,7 @@ public class FilmService {
      * method to delete like in film from user
      * @param id -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
-     * @return Optional<Film> -> film object where like was removed
+     * @return Film -> film object where like was removed
      */
     public Film deleteLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
@@ -139,6 +140,29 @@ public class FilmService {
         filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userStorage.get(userId);
+        userStorage.get(friendId);
+        List<Film> films = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
+                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
+                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                        "WHERE f.id IN (SELECT DISTINCT film_id FROM likes WHERE status_id = 2 AND user_id " +
+                        "IN (" + userId + ", " + friendId + ")) " +
+                        "ORDER BY rate DESC",
+                new FilmMapper()
+        );
+        if (films.isEmpty()) {
+            log.info("No films found in database");
+            return films;
+        }
+        films.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
+        log.info("Total common films found: " + films.size());
+        return films.stream()
+                .sorted(Film::getFilmRateToCompare)
                 .collect(Collectors.toList());
     }
 }
