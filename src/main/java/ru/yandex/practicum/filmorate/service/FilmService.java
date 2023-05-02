@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
@@ -140,5 +140,13 @@ public class FilmService {
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toList());
+    }
+
+    public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
+        return filmStorage.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    public List<Film> getFilmsByKeyWord(String query, String by) {
+        return filmStorage.findFilmsByKeyWord(query, by);
     }
 }
