@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 
@@ -61,5 +61,15 @@ public class FilmController {
     public Film getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request: film {}", id);
         return filmStorage.get(id);
+    }
+
+    @GetMapping("/director/{id}")
+    public List<Film> getSortedFilmsWithIdDirector(@PathVariable("id") Integer id, @RequestParam String sortBy) {
+        return filmService.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByKeyWord(@RequestParam String query, @RequestParam String by) {
+        return filmService.getFilmsByKeyWord(query, by);
     }
 }
