@@ -70,8 +70,21 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User>  getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    public Set<User> getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Received GET request: common friends of users {} and {}", id, otherId);
         return userService.getMutualFriends(id, otherId);
+    }
+
+    @PostMapping("/{userId}/recommendations/{filmId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public List<Integer> addRecommendation(@PathVariable Integer userId, @PathVariable Integer filmId) {
+        log.info("Received POST request: new recommendation");
+        return userService.addRecommendation(userId, filmId);
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public List<Integer> getRecommendations(@PathVariable Integer userId) {
+        log.info("Received GET request: recommended films of user {}", userId);
+        return userService.getRecommendations(userId);
     }
 }
