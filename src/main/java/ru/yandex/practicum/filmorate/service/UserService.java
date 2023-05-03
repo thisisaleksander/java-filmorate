@@ -198,4 +198,30 @@ public class UserService {
         }
         return commonFriends;
     }
+
+    public List<Integer> addRecommendation(Integer userId, Integer filmId) {
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
+                "SELECT * FROM recommendations WHERE user_id = ? AND film_id = ?",
+                userId,
+                filmId
+        );
+        if (resultSet.next()) {
+            throw new AlreadyExistException("This movie has already been recommended for this user");
+        } else {
+            String sqlAddRecommendation = "INSERT INTO recommendations (user_id,film_id)" +
+                    "VALUES (?, ?)";
+            jdbcTemplate.update(sqlAddRecommendation, userId, filmId);
+        }
+        return getRecommendations(userId);
+    }
+
+    public List<Integer> getRecommendations(Integer userId) {
+        SqlRowSet sql = jdbcTemplate.queryForRowSet("SELECT film_id FROM recommendations WHERE user_id = ?",
+                userId);
+        List<Integer> recommendationsFilms = new LinkedList<>();
+        while (sql.next()) {
+            recommendationsFilms.add(sql.getInt("film_id"));
+        }
+        return recommendationsFilms;
+    }
 }
