@@ -94,13 +94,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(@NonNull Integer id) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
-                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "WHERE f.ID = " + id,
-                new FilmMapper()
-        );
+        String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
+                "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+                "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
+                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                "WHERE f.ID = ?";
+        List<Film> filmsList = jdbcTemplate.query(sql, new FilmMapper(), id);
         if (filmsList.isEmpty()) {
             log.info("Film not found, id = {}", id);
             throw new NotFoundException("Film with id = " + id + " do not exist");
@@ -123,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
         if (filmsList.isEmpty()) {
             log.info("No films found in database");
         }
-        log.info("Total films found: {}", filmsList.size());
+        log.info("Total films found: {}", Optional.of(filmsList.size()));
         filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
@@ -202,5 +201,26 @@ public class FilmDbStorage implements FilmStorage {
                 filmId
         );
         log.info("Mpa was removed from film with id = {}", filmId);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        String sql = "SELECT f.ID, f.name, description, release_date, duration, " +
+                "rate, deleted, fm.MPA_ID, m.NAME as mpa_name " +
+                "FROM films f " +
+                "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
+                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                "LEFT JOIN (SELECT * FROM LIKES WHERE user_id = ? AND status_id = 2) l1 ON l1.film_id = f.ID " +
+                "LEFT JOIN (SELECT * FROM LIKES WHERE user_id = ? AND status_id = 2) l2 ON l2.film_id = f.ID " +
+                "WHERE l1.user_id IS NOT NULL AND l2.user_id IS NOT NULL " +
+                "ORDER BY rate DESC";
+        List<Film> films = jdbcTemplate.query(sql, new FilmMapper(), userId, friendId);
+        if (films.isEmpty()) {
+            log.info("No films found in database");
+            return films;
+        }
+        films.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
+        log.info("Total common films found: " + films.size());
+        return films;
     }
 }
