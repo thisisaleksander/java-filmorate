@@ -35,4 +35,8 @@ public class Film {
     public int getFilmIdToCompare(Film film) {
         return film.id;
     }
+
+    public int getFilmRateToCompare(Film film) {
+        return film.rate;
+    }
 }
