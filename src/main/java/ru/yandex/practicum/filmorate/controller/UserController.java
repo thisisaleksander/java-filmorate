@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
@@ -75,15 +76,8 @@ public class UserController {
         return userService.getMutualFriends(id, otherId);
     }
 
-    @PostMapping("/{userId}/recommendations/{filmId}")
-    @ResponseStatus(HttpStatus.CREATED)
-    public List<Integer> addRecommendation(@PathVariable Integer userId, @PathVariable Integer filmId) {
-        log.info("Received POST request: new recommendation");
-        return userService.addRecommendation(userId, filmId);
-    }
-
     @GetMapping("/{userId}/recommendations")
-    public List<Integer> getRecommendations(@PathVariable Integer userId) {
+    public List<Film> getRecommendations(@PathVariable Integer userId) {
         log.info("Received GET request: recommended films of user {}", userId);
         return userService.getRecommendations(userId);
     }
