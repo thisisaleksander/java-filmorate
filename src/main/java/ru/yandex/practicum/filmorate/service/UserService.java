@@ -141,7 +141,6 @@ public class UserService {
     /**
      * method that returns all friends (user objects) of a user with id from request
      * @param id -> int from request string, id of user whose friends will be found
-     * @return List<Optional < User>> -> List of user objects who have active friendship status with user (@param id)
      */
     public List<User> getFriends(Integer id) {
         List<User> friends = new ArrayList<>();
@@ -166,7 +165,6 @@ public class UserService {
      * method that returns all mutual friends if users with ids : @param id and @param otherId
      * @param id -> int from request string, id of a user
      * @param otherId -> int from request string, id of a user
-     * @return Set<Optional < User>> -> set of unique user objects who are friends of users with id and otherId
      */
     public Set<User> getMutualFriends(Integer id, Integer otherId) {
         Set<User> commonFriends = new HashSet<>();
