@@ -30,12 +30,6 @@ public class UserService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    /**
-     * method to accept friend request from user (table friends, updates status_id to STATUS_ACTIVE)
-     * @param id -> int from request string, id of user who may accept a friend request
-     * @param friendId -> int from request string, id of user who have sent a friend request
-     * @return Optional<User> -> user who accepts friend request
-     */
     public User acceptFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
