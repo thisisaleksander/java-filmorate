@@ -36,7 +36,7 @@ public class DirectorController {
     }
 
     @PutMapping()
-    public Director updateFilm(@RequestBody @Valid Director director) {
+    public Director updateDirector(@RequestBody @Valid Director director) {
         directorService.update(director);
         log.info("Director had been updated: {}", director);
         return director;

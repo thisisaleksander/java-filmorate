@@ -260,6 +260,7 @@ public class FilmDbStorage implements FilmStorage {
             return films;
         }
         films.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
+        films.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
         log.info("Total common films found: " + films.size());
         return films;
     }
@@ -386,17 +387,13 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper(), id);
         films.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         films.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
-        return films.stream()
-                .sorted(Film::getFilmIdToCompare)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return films;
     }
 
     private List<Film> getGenresAndDirectorsForAllFilms(String sqlQuery) {
         List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper());
         films.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         films.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
-        return films.stream()
-                .sorted(Film::getFilmIdToCompare)
-                .collect(Collectors.toCollection(LinkedList::new));
+        return films;
     }
 }
