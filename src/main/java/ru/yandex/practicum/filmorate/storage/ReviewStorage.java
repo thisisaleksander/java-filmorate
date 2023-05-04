@@ -9,9 +9,9 @@ public interface ReviewStorage {
 
     Review getReview(Integer id);
 
-    void updateReview(Review review);
+    Boolean updateReview(Review review);
 
-    Review deletedReview(int id);
+    Boolean deleteReview(int id);
 
     List<Review> getAllReviewByFilm(Integer filmId, int count);
 
@@ -21,7 +21,7 @@ public interface ReviewStorage {
 
     Review addDislikeReview(int id, int userId);
 
-    Review deletedLikeReview(int id, int userId);
+    Boolean deleteLikeReview(int id, int userId);
 
-    Review deletedDislikeReview(int id, int userId);
+    Boolean deleteDislikeReview(int id, int userId);
 }

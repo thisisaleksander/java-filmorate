@@ -3,13 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -18,22 +14,14 @@ import java.util.List;
 public class ReviewService {
 
     private final ReviewStorage reviewStorage;
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final UserService userService;
+    private final FilmService filmService;
 
     public Review addReview(Review review) {
         Integer filmId = review.getFilmId();
         Integer userId = review.getUserId();
-        try {
-            filmStorage.get(filmId);
-        } catch (RuntimeException | SQLException e) {
-            throw new NotFoundException("Film id " + filmId + " not found");
-        }
-        try {
-            userStorage.get(userId);
-        } catch (RuntimeException | SQLException ee) {
-            throw new NotFoundException("User id " + userId + " not found");
-        }
+        filmService.get(filmId);
+        userService.get(userId);
         return reviewStorage.addReview(review, userId, filmId);
     }
 
@@ -46,8 +34,8 @@ public class ReviewService {
         return reviewStorage.getReview(review.getReviewId());
     }
 
-    public Review deletedReview(int id) {
-        return reviewStorage.deletedReview(id);
+    public void deleteReview(int id) {
+        reviewStorage.deleteReview(id);
     }
 
     public List<Review> getAllReviewByFilm(Integer filmId, int count) {
@@ -66,11 +54,11 @@ public class ReviewService {
         return reviewStorage.addDislikeReview(id, userId);
     }
 
-    public Review deletedLikeReview(int id, int userId) {
-        return reviewStorage.deletedLikeReview(id, userId);
+    public void deleteLikeReview(int id, int userId) {
+        reviewStorage.deleteLikeReview(id, userId);
     }
 
-    public Review deletedDislikeReview(int id, int userId) {
-        return reviewStorage.deletedDislikeReview(id, userId);
+    public void deleteDislikeReview(int id, int userId) {
+        reviewStorage.deleteDislikeReview(id, userId);
     }
 }

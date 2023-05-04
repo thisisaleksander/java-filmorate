@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -162,7 +163,7 @@ public class UserService {
      * method that returns all mutual friends if users with ids : @param id and @param otherId
      * @param id -> int from request string, id of a user
      * @param otherId -> int from request string, id of a user
-     * @return Set<Optional<User>> -> set of unique user objects who are friends of users with id and otherId
+     * @return Set<Optional < User>> -> set of unique user objects who are friends of users with id and otherId
      */
     public Set<User> getMutualFriends(Integer id, Integer otherId) {
         Set<User> commonFriends = new HashSet<>();
@@ -197,5 +198,9 @@ public class UserService {
             return Collections.emptySet();
         }
         return commonFriends;
+    }
+
+    public User get(@NonNull Integer id) {
+        return userStorage.get(id);
     }
 }

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -35,7 +36,7 @@ public class FilmService {
 
     /**
      * method that adds like from user to a film
-     * @param id -> id of a film to add like to
+     * @param id     -> id of a film to add like to
      * @param userId -> id of a user whose like was added
      * @return Optional<Film> -> film object where like was added
      */
@@ -74,7 +75,7 @@ public class FilmService {
 
     /**
      * method to delete like in film from user
-     * @param id -> id of a film to delete like form
+     * @param id     -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
      * @return Optional<Film> -> film object where like was removed
      */
@@ -140,5 +141,9 @@ public class FilmService {
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toList());
+    }
+
+    public Film get(@NonNull Integer id) {
+        return filmStorage.get(id);
     }
 }

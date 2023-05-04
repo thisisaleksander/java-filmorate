@@ -31,9 +31,9 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    public Review deletedReview(@PathVariable("id") int id) {
+    public void deleteReview(@PathVariable("id") int id) {
         log.info("Received DELETE request: delete review {}", id);
-        return reviewService.deletedReview(id);
+        reviewService.deleteReview(id);
     }
 
     @GetMapping("/{id}")
@@ -43,7 +43,7 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<Review> getReviewById(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10") int count) {
+    public List<Review> getReviewByFilm(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10") int count) {
         log.info("Received GET request: all review film id{}", filmId);
         return reviewService.getAllReviewByFilm(filmId, count);
     }
@@ -61,14 +61,14 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Review deletedLikeReview(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void deleteLikeReview(@PathVariable("id") int id, @PathVariable("userId") int userId) {
         log.info("Received DELETE request: delete like review {}", id);
-        return reviewService.deletedLikeReview(id, userId);
+        reviewService.deleteLikeReview(id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
-    public Review deletedDislikeReview(@PathVariable("id") int id, @PathVariable("userId") int userId) {
+    public void deleteDislikeReview(@PathVariable("id") int id, @PathVariable("userId") int userId) {
         log.info("Received DELETE request: delete dislike review {}", id);
-        return reviewService.deletedDislikeReview(id, userId);
+        reviewService.deleteDislikeReview(id, userId);
     }
 }
