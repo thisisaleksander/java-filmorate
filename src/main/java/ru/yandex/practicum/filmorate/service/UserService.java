@@ -66,12 +66,6 @@ public class UserService {
         }
     }
 
-    /**
-     * method to send friend request from user (table friends, sets status_id to STATUS_REQUEST)
-     * @param id -> int from request string, id of user who sends a friend request
-     * @param friendId -> int from request string, id of user who will receive a friend request
-     * @return Optional<User> -> user who sends friend request
-     */
     public User addFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
@@ -101,12 +95,6 @@ public class UserService {
         }
     }
 
-    /**
-     * method to remove friend (table friends, sets status_id to STATUS_DELETED)
-     * @param id -> int from request string, id of user who deletes friend
-     * @param friendId -> int from request string, id of a user to delete friendship with
-     * @return Optional<User> -> user who sends friend request
-     */
     public User removeFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
@@ -138,10 +126,6 @@ public class UserService {
         }
     }
 
-    /**
-     * method that returns all friends (user objects) of a user with id from request
-     * @param id -> int from request string, id of user whose friends will be found
-     */
     public List<User> getFriends(Integer id) {
         List<User> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
@@ -161,11 +145,6 @@ public class UserService {
         return friends;
     }
 
-    /**
-     * method that returns all mutual friends if users with ids : @param id and @param otherId
-     * @param id -> int from request string, id of a user
-     * @param otherId -> int from request string, id of a user
-     */
     public Set<User> getMutualFriends(Integer id, Integer otherId) {
         Set<User> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
