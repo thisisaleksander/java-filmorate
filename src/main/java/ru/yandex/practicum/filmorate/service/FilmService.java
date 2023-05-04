@@ -37,7 +37,7 @@ public class FilmService {
      * method that adds like from user to a film
      * @param id -> id of a film to add like to
      * @param userId -> id of a user whose like was added
-     * @return Optional<Film> -> film object where like was added
+     * @return Film -> film object where like was added
      */
     public Film addLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
@@ -76,7 +76,7 @@ public class FilmService {
      * method to delete like in film from user
      * @param id -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
-     * @return Optional<Film> -> film object where like was removed
+     * @return Film -> film object where like was removed
      */
     public Film deleteLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
@@ -140,5 +140,17 @@ public class FilmService {
         return filmsList.stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * method to find films that was liked by users form @params
+     * @param userId -> id of a user to get liked films
+     * @param friendId -> id of a user to get liked films
+     * @return List<Film> -> list of films that was liked by both users
+     */
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userStorage.get(userId);
+        userStorage.get(friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 }

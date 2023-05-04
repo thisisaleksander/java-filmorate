@@ -30,6 +30,12 @@ public class UserService {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * method to accept friend request from user (table friends, updates status_id to STATUS_ACTIVE)
+     * @param id -> int from request string, id of user who may accept a friend request
+     * @param friendId -> int from request string, id of user who have sent a friend request
+     * @return User -> user who accepts friend request
+     */
     public User acceptFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
@@ -60,6 +66,12 @@ public class UserService {
         }
     }
 
+    /**
+     * method to send friend request from user (table friends, sets status_id to STATUS_REQUEST)
+     * @param id -> int from request string, id of user who sends a friend request
+     * @param friendId -> int from request string, id of user who will receive a friend request
+     * @return User -> user who sends friend request
+     */
     public User addFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
@@ -89,6 +101,12 @@ public class UserService {
         }
     }
 
+    /**
+     * method to remove friend (table friends, sets status_id to STATUS_DELETED)
+     * @param id -> int from request string, id of user who deletes friend
+     * @param friendId -> int from request string, id of a user to delete friendship with
+     * @return User -> user who sends friend request
+     */
     public User removeFriend(Integer id, Integer friendId) {
         User user = userStorage.get(id);
         userStorage.get(friendId);
@@ -120,6 +138,11 @@ public class UserService {
         }
     }
 
+    /**
+     * method that returns all friends (user objects) of a user with id from request
+     * @param id -> int from request string, id of user whose friends will be found
+     * @return List<User> -> List of user objects who have active friendship status with user (@param id)
+     */
     public List<User> getFriends(Integer id) {
         List<User> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
@@ -139,6 +162,12 @@ public class UserService {
         return friends;
     }
 
+    /**
+     * method that returns all mutual friends if users with ids : @param id and @param otherId
+     * @param id -> int from request string, id of a user
+     * @param otherId -> int from request string, id of a user
+     * @return Set<User> -> set of unique user objects who are friends of users with id and otherId
+     */
     public Set<User> getMutualFriends(Integer id, Integer otherId) {
         Set<User> commonFriends = new HashSet<>();
         Set<Integer> commonFriendsIds = new HashSet<>();
