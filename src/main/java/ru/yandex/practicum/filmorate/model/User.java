@@ -31,6 +31,7 @@ public class User {
     private LocalDate birthday;
     @JsonIgnore
     private Boolean deleted;
+
     private final transient List<Review> reviews = new ArrayList<>();
     public int getUserToCompare(User user) {
         return user.id;
