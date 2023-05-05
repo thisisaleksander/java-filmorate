@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -30,7 +32,47 @@ public class User {
     @JsonIgnore
     private Boolean deleted;
 
+    private final transient List<Review> reviews = new ArrayList<>();
+
     public int getUserToCompare(User user) {
         return user.id;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

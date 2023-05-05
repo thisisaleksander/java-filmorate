@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -162,5 +163,17 @@ public class FilmService {
         userStorage.get(userId);
         userStorage.get(friendId);
         return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
+        return filmStorage.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    public List<Film> getFilmsByKeyWord(String query, String by) {
+        return filmStorage.findFilmsByKeyWord(query, by);
+    }
+
+    public Film get(@NonNull Integer id) {
+        return filmStorage.get(id);
     }
 }

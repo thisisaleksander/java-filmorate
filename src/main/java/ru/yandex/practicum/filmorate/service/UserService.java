@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -7,9 +8,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
@@ -20,12 +21,14 @@ import static ru.yandex.practicum.filmorate.storage.Constants.*;
 @Service
 public class UserService {
     private final UserDbStorage userStorage;
+    private final FilmDbStorage filmdStorage;
     private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
+    public UserService(UserDbStorage userStorage, FilmDbStorage filmdStorage, FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.userStorage = userStorage;
+        this.filmdStorage = filmdStorage;
         this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -207,6 +210,48 @@ public class UserService {
             return Collections.emptySet();
         }
         return commonFriends;
+    }
+
+    public User get(@NonNull Integer id) {
+        return userStorage.get(id);
+    }
+
+    public List<Film> getRecommendations(Integer userId) {
+        List<Film> recommendationsFilms = new ArrayList<>();
+        SqlRowSet sql = jdbcTemplate.queryForRowSet("SELECT * FROM likes WHERE STATUS_ID != 3");
+        HashMap<Integer, List<Integer>> likes = new HashMap<>();
+        while (sql.next()) {
+            int user = sql.getInt("user_id");
+            if (!likes.containsKey(sql.getInt("user_id"))) {
+                likes.put(user, new ArrayList<>());
+                likes.get(user).add(sql.getInt("film_id"));
+            } else {
+                likes.get(user).add(sql.getInt("film_id"));
+            }
+        }
+        if (!likes.containsKey(userId) || likes.size() == 1) {
+            return new ArrayList<>();
+        } else {
+            int commonLikes = 0;
+            int commonUser = 0;
+            for (int i = 1; i <= likes.size(); i++) {
+                List<Integer> commonValues = new ArrayList<>(likes.get(userId));
+                if (i == userId) {
+                    continue;
+                }
+                commonValues.retainAll(likes.get(i));
+                if (commonValues.size() > commonLikes) {
+                    commonLikes = commonValues.size();
+                    commonUser = i;
+                }
+            }
+            List<Integer> recommendationsId = new ArrayList<>(likes.get(commonUser));
+            recommendationsId.removeAll(likes.get(userId));
+            for (Integer id : recommendationsId) {
+                recommendationsFilms.add(filmdStorage.get(id));
+            }
+            return recommendationsFilms;
+        }
     }
 
     public Collection<Feed> getUsersActionFeed(Integer id) {
