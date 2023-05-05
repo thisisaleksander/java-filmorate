@@ -18,43 +18,43 @@ public class FeedDbStorage {
     }
 
     public int addLikeSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(film_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 1, 2)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int removeLikeSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(film_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 1, 1)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int addFriendSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(friend_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 3, 2)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int removeFriendSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(friend_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 3, 1)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int addReviewSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(review_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 2, 2)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int updateReviewSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(review_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 2, 3)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
 
     public int removeReviewSaveToFeed(Integer entityId, Integer userId) {
-        String sqlQuery = "insert into feed(entity_id, user_id, event_type_id, operation_id) " +
+        String sqlQuery = "insert into feed(review_id, user_id, event_type_id, operation_id) " +
                 "values (?, ?, 2, 1)";
         return jdbcTemplate.update(sqlQuery, entityId, userId);
     }
