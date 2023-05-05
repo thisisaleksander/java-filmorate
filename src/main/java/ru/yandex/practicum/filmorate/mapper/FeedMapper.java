@@ -13,7 +13,7 @@ public class FeedMapper implements RowMapper<Feed> {
     public Feed mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         return Feed.builder()
                 .eventId(resultSet.getInt("event_id"))
-                .timestamp(resultSet.getTimestamp("timestamp").toInstant())
+                .timestamp(resultSet.getTimestamp("created_at").getTime())
                 .entityId(resultSet.getInt("entity_id"))
                 .userId(resultSet.getInt("user_id"))
                 .eventType(EventType.valueOf(resultSet.getString("event_name")))

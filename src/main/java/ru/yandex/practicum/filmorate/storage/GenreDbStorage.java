@@ -33,7 +33,7 @@ public class GenreDbStorage {
 
     public Genre getGenreById(Integer id) {
         List<Genre> genres = jdbcTemplate.query("SELECT ID AS genre_id, NAME AS genre_name FROM GENRES WHERE ID = " +
-                id,
+                        id,
                 new GenreMapper()
         );
         if (genres.isEmpty()) {

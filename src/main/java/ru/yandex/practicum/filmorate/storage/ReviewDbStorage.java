@@ -86,7 +86,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Boolean deleteReview(int id) {
+    public int deleteReview(int id) {
         String sqlQuery = "SELECT* FROM reviews WHERE id = ? AND deleted = ?";
         SqlRowSet reviewRows = jdbcTemplate.queryForRowSet(sqlQuery, id, false);
         if (reviewRows.next()) {
@@ -94,10 +94,8 @@ public class ReviewDbStorage implements ReviewStorage {
                     true, id);
             if (i != 0) {
                 log.info("Deleted review id: {}", id);
-                return true;
-            } else {
-                return false;
             }
+            return reviewRows.getInt("user_id");
         } else {
             log.info("Review " + id + " not found");
             throw new NotFoundException("Review " + id + " not found");
