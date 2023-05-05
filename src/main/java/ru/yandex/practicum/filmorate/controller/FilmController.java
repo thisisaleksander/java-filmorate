@@ -60,7 +60,7 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request: film {}", id);
-        return filmStorage.get(id);
+        return filmService.get(id);
     }
 
     @GetMapping("/common")
