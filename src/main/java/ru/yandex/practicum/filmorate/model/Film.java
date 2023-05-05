@@ -10,6 +10,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -35,6 +37,7 @@ public class Film {
     private transient Mpa mpa;
     private transient Set<Genre> genres;
     private transient Set<Director> directors;
+    private final transient List<Review> reviews = new ArrayList<>();
 
     public int getFilmIdToCompare(Film film) {
         return film.id;

@@ -42,7 +42,7 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") Integer id) {
         log.info("Received GET request: user {}", id);
-        return userStorage.get(id);
+        return userService.get(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

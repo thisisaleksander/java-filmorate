@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -197,5 +198,9 @@ public class UserService {
             return Collections.emptySet();
         }
         return commonFriends;
+    }
+
+    public User get(@NonNull Integer id) {
+        return userStorage.get(id);
     }
 }

@@ -51,20 +51,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(@NonNull Integer id, @NonNull User user) {
-            ValidateService.validateUser(user);
-            String sqlQuery = "UPDATE users SET " +
-                    "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
-                    "WHERE id = ?";
-            jdbcTemplate.update(sqlQuery,
-                    user.getEmail(),
-                    user.getLogin(),
-                    user.getName(),
-                    user.getBirthday(),
-                    user.getDeleted(),
-                    id
-            );
-            log.info(USER_LOG, LocalDateTime.now(), "updated");
-            return get(id);
+        ValidateService.validateUser(user);
+        String sqlQuery = "UPDATE users SET " +
+                "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
+                "WHERE id = ?";
+        jdbcTemplate.update(sqlQuery,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday(),
+                user.getDeleted(),
+                id
+        );
+        log.info(USER_LOG, LocalDateTime.now(), "updated");
+        return get(id);
     }
 
     @Override
