@@ -24,8 +24,8 @@ public class FilmMapper implements RowMapper<Film> {
                 new Mpa(
                         resultSet.getInt("MPA_ID"),
                         resultSet.getString("MPA_NAME")
-                        ),
-                new HashSet<>()
-                );
+                ),
+                new HashSet<>(),
+                new HashSet<>());
     }
 }

@@ -60,12 +60,22 @@ public class FilmController {
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request: film {}", id);
-        return filmStorage.get(id);
+        return filmService.get(id);
     }
 
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam() Integer userId, @RequestParam() Integer friendId) {
         log.info("Received GET request: common films of users {} and {}", userId, friendId);
         return filmService.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{id}")
+    public List<Film> getSortedFilmsWithIdDirector(@PathVariable("id") Integer id, @RequestParam String sortBy) {
+        return filmService.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> getFilmsByKeyWord(@RequestParam String query, @RequestParam String by) {
+        return filmService.getFilmsByKeyWord(query, by);
     }
 }
