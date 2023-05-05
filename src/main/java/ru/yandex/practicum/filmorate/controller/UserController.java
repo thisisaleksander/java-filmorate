@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -73,5 +75,11 @@ public class UserController {
     public Set<User>  getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Received GET request: common friends of users {} and {}", id, otherId);
         return userService.getMutualFriends(id, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Feed> getUsersActionFeed(@PathVariable Integer id) {
+        log.info("Received GET request: action feed of user {}", id);
+        return userService.getUsersActionFeed(id);
     }
 }

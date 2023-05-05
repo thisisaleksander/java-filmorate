@@ -12,10 +12,10 @@ import java.time.Instant;
 @AllArgsConstructor
 @Builder
 public class Feed {
-    Instant timestamp;
-    Integer userId;
-    EventType eventType;
-    OperationType operation;
-    Integer eventId;
-    Integer entityId;
+    private Instant timestamp;
+    private Integer userId;
+    private EventType eventType;
+    private OperationType operation;
+    private Integer eventId;
+    private Integer entityId;
 }

@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
@@ -24,12 +25,15 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final GenreDbStorage genreDbStorage;
+    private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage, JdbcTemplate jdbcTemplate) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage,
+                       FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreDbStorage = genreDbStorage;
+        this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -68,6 +72,9 @@ public class FilmService {
             film.setRate(film.getRate() + 1);
             filmStorage.update(film.getId(), film);
             log.info("Film {} rate updated", id);
+            if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
+                log.warn("'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            }
             return film;
         }
     }
@@ -107,6 +114,9 @@ public class FilmService {
                 filmStorage.update(film.getId(), film);
             }
             log.info("Film {} rate updated", id);
+            if (feedDbStorage.removeLikeSaveToFeed(id, userId) == 0) {
+                log.warn("'Remove Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            }
             return film;
         } else {
             throw new DoNotExistException(String.format(

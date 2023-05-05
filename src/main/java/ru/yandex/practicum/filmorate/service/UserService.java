@@ -7,7 +7,9 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
@@ -18,11 +20,13 @@ import static ru.yandex.practicum.filmorate.storage.Constants.*;
 @Service
 public class UserService {
     private final UserDbStorage userStorage;
+    private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserService(UserDbStorage userStorage, JdbcTemplate jdbcTemplate) {
+    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.userStorage = userStorage;
+        this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -93,6 +97,9 @@ public class UserService {
                     STATUS_ACTIVE
             );
             log.info("Added friendship of user {} with user {}", friendId, id);
+            if (feedDbStorage.addFriendSaveToFeed(friendId, id) == 0) {
+                log.warn("'Add Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
+            }
             return user;
         }
     }
@@ -124,6 +131,9 @@ public class UserService {
                     friendId
             );
             log.info("Removed friendship of user {} with user {}", friendId, id);
+            if (feedDbStorage.removeFriendSaveToFeed(friendId, id) == 0) {
+                log.warn("'Remove Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
+            }
             return user;
         } else {
             throw new DoNotExistException(String.format(
@@ -197,5 +207,9 @@ public class UserService {
             return Collections.emptySet();
         }
         return commonFriends;
+    }
+
+    public Collection<Feed> getUsersActionFeed(Integer id) {
+        return feedDbStorage.getUsersActionFeed(id);
     }
 }
