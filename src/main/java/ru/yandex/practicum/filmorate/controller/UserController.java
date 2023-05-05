@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
@@ -70,8 +71,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Set<User>  getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    public Set<User> getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         log.info("Received GET request: common friends of users {} and {}", id, otherId);
         return userService.getMutualFriends(id, otherId);
+    }
+
+    @GetMapping("/{userId}/recommendations")
+    public List<Film> getRecommendations(@PathVariable Integer userId) {
+        log.info("Received GET request: recommended films of user {}", userId);
+        return userService.getRecommendations(userId);
     }
 }
