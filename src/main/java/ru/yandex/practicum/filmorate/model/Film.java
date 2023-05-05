@@ -1,6 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
@@ -31,6 +34,7 @@ public class Film {
     private Boolean deleted;
     private transient Mpa mpa;
     private transient Set<Genre> genres;
+    private transient Set<Director> directors;
 
     public int getFilmIdToCompare(Film film) {
         return film.id;

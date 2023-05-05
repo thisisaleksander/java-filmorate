@@ -153,4 +153,12 @@ public class FilmService {
         userStorage.get(friendId);
         return filmStorage.getCommonFilms(userId, friendId);
     }
+
+    public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
+        return filmStorage.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    public List<Film> getFilmsByKeyWord(String query, String by) {
+        return filmStorage.findFilmsByKeyWord(query, by);
+    }
 }
