@@ -10,9 +10,9 @@ import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.util.stream.Collectors;
 import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
@@ -23,7 +23,6 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final GenreDbStorage genreDbStorage;
     private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
@@ -31,7 +30,6 @@ public class FilmService {
                        FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.genreDbStorage = genreDbStorage;
         this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }

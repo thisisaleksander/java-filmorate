@@ -28,8 +28,8 @@ public class UserService {
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
-    public UserService(UserDbStorage userStorage, FilmDbStorage filmStorage, JdbcTemplate jdbcTemplate) {
+    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage,
+                       JdbcTemplate jdbcTemplate, FilmDbStorage filmStorage) {
         this.userStorage = userStorage;
         this.feedDbStorage = feedDbStorage;
         this.filmStorage = filmStorage;
