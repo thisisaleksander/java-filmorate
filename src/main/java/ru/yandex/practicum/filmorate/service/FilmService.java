@@ -118,8 +118,8 @@ public class FilmService {
      * @param limit -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
-    public List<Film> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
-        return filmStorage.getMostPopularFilms(limit, genreId, year);
+    public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
+        return filmStorage.getMostPopularFilms(count, limit, genreId, year);
     }
 
     /**

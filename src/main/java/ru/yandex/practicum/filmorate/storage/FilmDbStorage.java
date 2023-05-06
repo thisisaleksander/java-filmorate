@@ -397,23 +397,29 @@ public class FilmDbStorage implements FilmStorage {
         return films;
     }
 
-    public List<Film> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
-        String paramGenreId = " ";
-        String paramYear = " ";
-        if (genreId > 0) {
-            paramGenreId = " WHERE fg.genre_id = " + genreId + " ";
+    public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
+        String param;
+        String bound;
+        if (genreId > 0 && year > 0) {
+            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + " ";
+        } else if (genreId > 0 && year == 0) {
+            param = " WHERE fg.genre_id = " + genreId + " ";
+        } else if (genreId == 0 && year > 0) {
+            param =  " WHERE YEAR(f.release_date) = " + year + " ";
+        } else {
+            param = "";
         }
-        if (year > 0) {
-            paramYear = " YEAR(f.release_date) = " + year + " ";
+        if (limit >= 1 && (genreId > 0 || year > 0)) {
+            bound = "LIMIT " + limit;
+        } else {
+            bound = "LIMIT " + count;
         }
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        paramGenreId + paramYear +
-                        "ORDER BY rate DESC " +
-                        "LIMIT " + limit,
+                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " + param +
+                        "ORDER BY rate DESC " + bound,
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
