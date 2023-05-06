@@ -428,6 +428,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         log.info("Total films found in database: " + filmsList.size());
         filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
+        filmsList.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
         return filmsList;
     }
 }
