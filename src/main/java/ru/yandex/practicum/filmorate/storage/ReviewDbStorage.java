@@ -88,7 +88,7 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public int deleteReview(int id) {
+    public Integer deleteReview(int id) {
         String sqlQuery = "SELECT* FROM reviews WHERE id = ? AND deleted = ?";
         SqlRowSet reviewRows = jdbcTemplate.queryForRowSet(sqlQuery, id, false);
         if (reviewRows.next()) {

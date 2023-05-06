@@ -40,7 +40,6 @@ public class FilmService {
 
     /**
      * method that adds like from user to a film
-     *
      * @param id     -> id of a film to add like to
      * @param userId -> id of a user whose like was added
      * @return Film -> film object where like was added
@@ -83,7 +82,6 @@ public class FilmService {
 
     /**
      * method to delete like in film from user
-     *
      * @param id     -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
      * @return Film -> film object where like was removed
@@ -132,7 +130,6 @@ public class FilmService {
 
     /**
      * method to get top n films by rate from films table
-     *
      * @param count -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
@@ -158,7 +155,6 @@ public class FilmService {
 
     /**
      * method to find films that was liked by users form @params
-     *
      * @param userId   -> id of a user to get liked films
      * @param friendId -> id of a user to get liked films
      * @return List<Film> -> list of films that was liked by both users
