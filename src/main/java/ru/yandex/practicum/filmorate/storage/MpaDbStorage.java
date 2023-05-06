@@ -28,7 +28,7 @@ public class MpaDbStorage {
 
     public Mpa getMpaById(Integer id) {
         List<Mpa> mpa = jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name FROM MPA WHERE ID = "
-                + id,
+                        + id,
                 new MpaMapper()
         );
         if (mpa.isEmpty()) {

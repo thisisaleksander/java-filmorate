@@ -13,7 +13,7 @@ public interface UserStorage {
     User add(User user);
 
     /**
-     * @param id -> gets from film object
+     * @param id   -> gets from film object
      * @param user -> user object from json
      * @return User -> updated user object if exists
      */
@@ -27,6 +27,7 @@ public interface UserStorage {
 
     /**
      * returns all user objects from table users
+     *
      * @return Set<User> -> all found users in table 'users'
      */
     Set<User> getAll();

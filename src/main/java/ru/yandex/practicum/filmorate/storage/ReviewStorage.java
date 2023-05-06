@@ -11,7 +11,7 @@ public interface ReviewStorage {
 
     Boolean updateReview(Review review);
 
-    Boolean deleteReview(int id);
+    Integer deleteReview(int id);
 
     List<Review> getAllReviewByFilm(Integer filmId, int count);
 
