@@ -120,27 +120,11 @@ public class FilmService {
 
     /**
      * method to get top n films by rate from films table
-     * @param count -> amount of films to get, uses in LIMIT statement
+     * @param limit -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
-    public List<Film> getTopFilms(long count) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
-                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT " + count,
-                new FilmMapper()
-        );
-        if (filmsList.isEmpty()) {
-            log.info("No films found in database");
-            return filmsList;
-        }
-        log.info("Total films found in database: " + filmsList.size());
-        filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
-        return filmsList.stream()
-                .sorted(Film::getFilmIdToCompare)
-                .collect(Collectors.toList());
+    public List<Film> getMostPopularFilms(Integer limit, Integer genreId, Integer year) {
+        return filmStorage.getMostPopularFilms(limit, genreId, year);
     }
 
     /**

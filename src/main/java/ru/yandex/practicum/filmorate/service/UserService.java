@@ -20,13 +20,13 @@ import static ru.yandex.practicum.filmorate.storage.Constants.*;
 @Service
 public class UserService {
     private final UserDbStorage userStorage;
-    private final FilmDbStorage filmdStorage;
+    private final FilmDbStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserService(UserDbStorage userStorage, FilmDbStorage filmdStorage, JdbcTemplate jdbcTemplate) {
+    public UserService(UserDbStorage userStorage, FilmDbStorage filmStorage, JdbcTemplate jdbcTemplate) {
         this.userStorage = userStorage;
-        this.filmdStorage = filmdStorage;
+        this.filmStorage = filmStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -239,7 +239,7 @@ public class UserService {
             List<Integer> recommendationsId = new ArrayList<>(likes.get(commonUser));
             recommendationsId.removeAll(likes.get(userId));
             for (Integer id : recommendationsId) {
-                recommendationsFilms.add(filmdStorage.get(id));
+                recommendationsFilms.add(filmStorage.get(id));
             }
             return recommendationsFilms;
         }
