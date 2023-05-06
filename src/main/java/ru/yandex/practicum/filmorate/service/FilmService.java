@@ -9,11 +9,12 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
@@ -25,18 +26,21 @@ public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
     private final GenreDbStorage genreDbStorage;
+    private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage, JdbcTemplate jdbcTemplate) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage,
+                       FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.genreDbStorage = genreDbStorage;
+        this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
      * method that adds like from user to a film
-     * @param id -> id of a film to add like to
+     * @param id     -> id of a film to add like to
      * @param userId -> id of a user whose like was added
      * @return Film -> film object where like was added
      */
@@ -69,13 +73,16 @@ public class FilmService {
             film.setRate(film.getRate() + 1);
             filmStorage.update(film.getId(), film);
             log.info("Film {} rate updated", id);
+            if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
+                log.warn("'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            }
             return film;
         }
     }
 
     /**
      * method to delete like in film from user
-     * @param id -> id of a film to delete like form
+     * @param id     -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
      * @return Film -> film object where like was removed
      */
@@ -108,6 +115,9 @@ public class FilmService {
                 filmStorage.update(film.getId(), film);
             }
             log.info("Film {} rate updated", id);
+            if (feedDbStorage.removeLikeSaveToFeed(id, userId) == 0) {
+                log.warn("'Remove Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            }
             return film;
         } else {
             throw new DoNotExistException(String.format(
@@ -145,7 +155,7 @@ public class FilmService {
 
     /**
      * method to find films that was liked by users form @params
-     * @param userId -> id of a user to get liked films
+     * @param userId   -> id of a user to get liked films
      * @param friendId -> id of a user to get liked films
      * @return List<Film> -> list of films that was liked by both users
      */
