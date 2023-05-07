@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping
-    public Set<User> findAllUsers() {
+    public List<User> findAllUsers() {
         log.info("Received GET request: all users");
         return userStorage.getAll();
     }
