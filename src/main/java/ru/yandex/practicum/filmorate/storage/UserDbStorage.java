@@ -107,7 +107,7 @@ public class UserDbStorage implements UserStorage {
         return usersTmp;
     }
 
-    public Set<User> delete(Integer id) {
+    public List<User> delete(Integer id) {
         String sql = "DELETE FROM USERS WHERE ID = " + id;
         jdbcTemplate.update(sql);
         return getAll();
