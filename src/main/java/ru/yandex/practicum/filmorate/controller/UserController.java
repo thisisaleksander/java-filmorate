@@ -92,6 +92,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public Set<User> delete(@PathVariable("id") Integer id) {
+        log.info("Received DELETE request: user {}", id);
         return userStorage.delete(id);
     }
 }

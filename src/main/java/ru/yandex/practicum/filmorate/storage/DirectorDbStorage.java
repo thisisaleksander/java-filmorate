@@ -31,7 +31,7 @@ public class DirectorDbStorage {
         if (directorRows.next()) {
             return new Director(directorRows.getInt("id"), directorRows.getString("name"));
         } else {
-            throw new NotFoundException(String.format("Режиссер c id %d не найден", id));
+            throw new NotFoundException(String.format("Director with id %d not found", id));
         }
     }
 
@@ -57,7 +57,7 @@ public class DirectorDbStorage {
                     director.getId());
             return director;
         } else {
-            throw new NotFoundException(String.format("Режиссер c id %d не найден", director.getId()));
+            throw new NotFoundException(String.format("Director with id %d not found", director.getId()));
         }
     }
 

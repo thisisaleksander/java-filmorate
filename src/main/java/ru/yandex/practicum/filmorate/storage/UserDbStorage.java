@@ -112,6 +112,7 @@ public class UserDbStorage implements UserStorage {
     public Set<User> delete(Integer id) {
         String sql = "DELETE FROM USERS WHERE ID = " + id;
         jdbcTemplate.update(sql);
+        log.info(String.format("User with id = %d was deleted", id));
         return getAll();
     }
 }

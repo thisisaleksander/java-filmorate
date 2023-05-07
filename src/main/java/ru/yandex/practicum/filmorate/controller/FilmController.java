@@ -84,6 +84,7 @@ public class FilmController {
 
     @DeleteMapping("/{id}")
     public Set<Film> delete(@PathVariable("id") Integer id) {
+        log.info("Received DELETE request: film {}", id);
         return filmStorage.delete(id);
     }
 }

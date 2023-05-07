@@ -267,7 +267,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
         if (!jdbcTemplate.queryForRowSet("SELECT id FROM directors WHERE id = ?", id).next()) {
-            throw new NotFoundException(String.format("Режиссер c id %d не найден", id));
+            throw new NotFoundException(String.format("Director with id %d not found", id));
         }
         if (sortBy.equals("year")) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
@@ -300,7 +300,7 @@ public class FilmDbStorage implements FilmStorage {
                     "ORDER BY f.rate DESC";
             return getGenresAndDirectorsForAllFilms(id, sqlQuery);
         } else {
-            throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+            throw new FilmValidationException("Request could not be proceeded");
         }
     }
 
@@ -339,8 +339,7 @@ public class FilmDbStorage implements FilmStorage {
                             "ORDER BY f.rate";
                     return getGenresAndDirectorsForAllFilms(sqlQuery);
                 } else {
-                    throw new FilmValidationException(String.format(
-                            "Запрос с данными параметрами не может быть обработан"));
+                    throw new FilmValidationException("Request could not be proceeded");
                 }
             case 2:
                 if (whereSearch[0].equals("director") && whereSearch[1].equals("title")
@@ -361,10 +360,10 @@ public class FilmDbStorage implements FilmStorage {
                             "ORDER BY f.rate";
                     return getGenresAndDirectorsForAllFilms(sqlQuery);
                 } else {
-                    throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+                    throw new FilmValidationException("Request could not be proceeded");
                 }
             default:
-                throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+                throw new FilmValidationException("Request could not be proceeded");
         }
     }
 
@@ -379,7 +378,7 @@ public class FilmDbStorage implements FilmStorage {
             directors.addAll(jdbcTemplate.query(sqlQuery, new DirectorMapper(), id));
             return directors;
         } else {
-            throw new NotFoundException(String.format("Фильм c id %d не найден", id));
+            throw new NotFoundException(String.format("Film with id %d not found", id));
         }
     }
 
@@ -437,6 +436,7 @@ public class FilmDbStorage implements FilmStorage {
     public Set<Film> delete(Integer id) {
         String sql = "DELETE FROM FILMS WHERE ID = " + id;
         jdbcTemplate.update(sql);
+        log.info(String.format("Film with id %d was deleted", id));
         return getAll();
     }
 }
