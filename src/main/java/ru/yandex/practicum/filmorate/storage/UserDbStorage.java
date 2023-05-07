@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
@@ -94,7 +95,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Set<User> getAll() {
-        Set<User> users = new HashSet<>();
+        Set<User> users = new LinkedHashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
@@ -107,5 +108,11 @@ public class UserDbStorage implements UserStorage {
         return users.stream()
                 .sorted(User::getUserToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<User> delete(Integer id) {
+        String sql = "DELETE FROM USERS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        return getAll();
     }
 }

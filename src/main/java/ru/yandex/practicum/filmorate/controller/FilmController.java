@@ -78,4 +78,9 @@ public class FilmController {
     public List<Film> getFilmsByKeyWord(@RequestParam String query, @RequestParam String by) {
         return filmService.getFilmsByKeyWord(query, by);
     }
+
+    @DeleteMapping("/{id}")
+    public Set<Film> delete(@PathVariable("id") Integer id) {
+        return filmStorage.delete(id);
+    }
 }

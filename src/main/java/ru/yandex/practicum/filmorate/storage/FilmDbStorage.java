@@ -396,4 +396,10 @@ public class FilmDbStorage implements FilmStorage {
         films.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
         return films;
     }
+
+    public Set<Film> delete(Integer id) {
+        String sql = "DELETE FROM FILMS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        return getAll();
+    }
 }
