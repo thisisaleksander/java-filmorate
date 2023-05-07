@@ -51,12 +51,6 @@ public class FilmController {
         return filmService.deleteLike(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getTopFilms(@RequestParam(defaultValue = "10", required = false) Integer count) {
-        log.info("Received GET request: top {} popular films", count);
-        return filmService.getTopFilms(count);
-    }
-
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable("id") Integer id) {
         log.info("Received GET request: film {}", id);
@@ -77,6 +71,15 @@ public class FilmController {
     @GetMapping("/search")
     public List<Film> getFilmsByKeyWord(@RequestParam String query, @RequestParam String by) {
         return filmService.getFilmsByKeyWord(query, by);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getMostPopularFilms(@RequestParam(defaultValue = "10") Integer count,
+                                          @RequestParam(defaultValue = "1") Integer limit,
+                                          @RequestParam(defaultValue = "0") Integer genreId,
+                                          @RequestParam(defaultValue = "0") Integer year) {
+        log.info("Received GET request: top {} popular films by year and genre", limit);
+        return filmService.getMostPopularFilms(count, limit, genreId, year);
     }
 
     @DeleteMapping("/{id}")
