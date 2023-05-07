@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
