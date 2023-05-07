@@ -400,19 +400,21 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
         String param;
         String bound;
+        String groupAndOrder = " group by f.ID order by count(l.user_id) desc ";
         String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                 "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
-                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID ";
+                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                "LEFT JOIN LIKES l on f.ID = l.FILM_ID ";
         if (genreId > 0 && year > 0) {
-            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + groupAndOrder;
         } else if (genreId > 0 && year == 0) {
-            param = " WHERE fg.genre_id = " + genreId + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + groupAndOrder;
         } else if (genreId == 0 && year > 0) {
-            param =  " WHERE YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param =  " WHERE YEAR(f.release_date) = " + year + groupAndOrder;
         } else {
-            param = " ORDER BY rate DESC ";
+            param = groupAndOrder;
         }
         if (limit >= 1 && (genreId > 0 || year > 0)) {
             bound = " LIMIT " + limit;
