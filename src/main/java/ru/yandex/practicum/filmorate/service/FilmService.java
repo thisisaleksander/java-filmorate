@@ -43,37 +43,21 @@ public class FilmService {
     public Film addLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
         userStorage.get(userId);
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "SELECT * FROM likes " +
-                        "WHERE (film_id = ? AND user_id = ?) " +
-                        "AND (status_id = ?)",
+        String sqlQuery = "INSERT INTO likes (film_id, user_id, status_id) " +
+                "VALUES (?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
                 id,
                 userId,
                 STATUS_ACTIVE
         );
-        if (resultSet.next()) {
-            throw new AlreadyExistException(String.format(
-                    "Like from user id %s to film %s already exist",
-                    userId,
-                    id
-            ));
-        } else {
-            String sqlQuery = "INSERT INTO likes (film_id, user_id, status_id) " +
-                    "VALUES (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery,
-                    id,
-                    userId,
-                    STATUS_ACTIVE
-            );
-            log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
-            film.setRate(film.getRate() + 1);
-            filmStorage.update(film.getId(), film);
-            log.info("Film {} rate updated", id);
-            if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
-                log.warn("'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
-            }
-            return film;
+        log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
+        film.setRate(film.getRate() + 1);
+        filmStorage.update(film.getId(), film);
+        log.info("Film {} rate updated", id);
+        if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
+            log.warn("'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
         }
+        return film;
     }
 
     /**
