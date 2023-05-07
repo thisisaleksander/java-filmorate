@@ -9,7 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+<<<<<<<<< Temporary merge branch 1
 import ru.yandex.practicum.filmorate.model.*;
+=========
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+>>>>>>>>> Temporary merge branch 2
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;

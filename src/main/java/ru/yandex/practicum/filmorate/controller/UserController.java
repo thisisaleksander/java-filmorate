@@ -91,7 +91,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public Set<User> delete(@PathVariable("id") Integer id) {
+    public List<User> delete(@PathVariable("id") Integer id) {
         return userStorage.delete(id);
     }
 }
