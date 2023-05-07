@@ -412,7 +412,7 @@ public class FilmDbStorage implements FilmStorage {
         } else if (genreId == 0 && year > 0) {
             param =  " WHERE YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
         } else {
-            param = " ";
+            param = " ORDER BY rate DESC ";
         }
         if (limit >= 1 && (genreId > 0 || year > 0)) {
             bound = " LIMIT " + limit;
