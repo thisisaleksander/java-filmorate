@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> findAllUsers() {
+    public Set<User> findAllUsers() {
         log.info("Received GET request: all users");
         return userStorage.getAll();
     }
@@ -91,7 +91,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public List<User> delete(@PathVariable("id") Integer id) {
+    public Set<User> delete(@PathVariable("id") Integer id) {
         return userStorage.delete(id);
     }
 }
