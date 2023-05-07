@@ -24,21 +24,22 @@ import static ru.yandex.practicum.filmorate.storage.Constants.*;
 @Service
 public class UserService {
     private final UserDbStorage userStorage;
-    private final FilmDbStorage filmDbStorage;
     private final FeedDbStorage feedDbStorage;
+    private final FilmDbStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserService(UserDbStorage userStorage, FilmDbStorage filmDbStorage, FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
+    public UserService(UserDbStorage userStorage, FeedDbStorage feedDbStorage,
+                       JdbcTemplate jdbcTemplate, FilmDbStorage filmStorage) {
         this.userStorage = userStorage;
-        this.filmDbStorage = filmDbStorage;
         this.feedDbStorage = feedDbStorage;
+        this.filmStorage = filmStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
      * method to accept friend request from user (table friends, updates status_id to STATUS_ACTIVE)
-     * @param id       -> int from request string, id of user who may accept a friend request
+     * @param id -> int from request string, id of user who may accept a friend request
      * @param friendId -> int from request string, id of user who have sent a friend request
      * @return User -> user who accepts friend request
      */
@@ -74,7 +75,7 @@ public class UserService {
 
     /**
      * method to send friend request from user (table friends, sets status_id to STATUS_REQUEST)
-     * @param id       -> int from request string, id of user who sends a friend request
+     * @param id -> int from request string, id of user who sends a friend request
      * @param friendId -> int from request string, id of user who will receive a friend request
      * @return User -> user who sends friend request
      */
@@ -112,7 +113,7 @@ public class UserService {
 
     /**
      * method to remove friend (table friends, sets status_id to STATUS_DELETED)
-     * @param id       -> int from request string, id of user who deletes friend
+     * @param id -> int from request string, id of user who deletes friend
      * @param friendId -> int from request string, id of a user to delete friendship with
      * @return User -> user who sends friend request
      */
@@ -180,7 +181,7 @@ public class UserService {
 
     /**
      * method that returns all mutual friends if users with ids : @param id and @param otherId
-     * @param id      -> int from request string, id of a user
+     * @param id -> int from request string, id of a user
      * @param otherId -> int from request string, id of a user
      * @return Set<User> -> set of unique user objects who are friends of users with id and otherId
      */
@@ -255,7 +256,7 @@ public class UserService {
             List<Integer> recommendationsId = new ArrayList<>(likes.get(commonUser));
             recommendationsId.removeAll(likes.get(userId));
             for (Integer id : recommendationsId) {
-                recommendationsFilms.add(filmDbStorage.get(id));
+                recommendationsFilms.add(filmStorage.get(id));
             }
             return recommendationsFilms;
         }

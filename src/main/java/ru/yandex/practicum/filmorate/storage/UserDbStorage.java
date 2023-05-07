@@ -9,14 +9,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -94,20 +92,19 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Set<User> getAll() {
-        Set<User> users = new LinkedHashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
+    public List<User> getAll() {
+        List<User> usersTmp = jdbcTemplate.query("SELECT DISTINCT * FROM users ORDER BY id ASC ", new UserMapper());
+        Set<User> users = new HashSet<>();
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT DISTINCT * FROM users ORDER BY id ASC ");
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
         }
         log.info("Total users found: {}", users.size());
         if (users.isEmpty()) {
             log.info("No users found");
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
-        return users.stream()
-                .sorted(User::getUserToCompare)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        return usersTmp;
     }
 
     public Set<User> delete(Integer id) {

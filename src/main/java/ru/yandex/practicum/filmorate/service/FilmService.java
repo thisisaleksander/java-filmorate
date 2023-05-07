@@ -7,15 +7,13 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
@@ -25,7 +23,6 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final GenreDbStorage genreDbStorage;
     private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
@@ -33,14 +30,13 @@ public class FilmService {
                        FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.genreDbStorage = genreDbStorage;
         this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     /**
      * method that adds like from user to a film
-     * @param id     -> id of a film to add like to
+     * @param id -> id of a film to add like to
      * @param userId -> id of a user whose like was added
      * @return Film -> film object where like was added
      */
@@ -82,7 +78,7 @@ public class FilmService {
 
     /**
      * method to delete like in film from user
-     * @param id     -> id of a film to delete like form
+     * @param id -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
      * @return Film -> film object where like was removed
      */
@@ -130,32 +126,16 @@ public class FilmService {
 
     /**
      * method to get top n films by rate from films table
-     * @param count -> amount of films to get, uses in LIMIT statement
+     * @param limit -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
-    public List<Film> getTopFilms(long count) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
-                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT " + count,
-                new FilmMapper()
-        );
-        if (filmsList.isEmpty()) {
-            log.info("No films found in database");
-            return filmsList;
-        }
-        log.info("Total films found in database: " + filmsList.size());
-        filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
-        return filmsList.stream()
-                .sorted(Film::getFilmIdToCompare)
-                .collect(Collectors.toList());
+    public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
+        return filmStorage.getMostPopularFilms(count, limit, genreId, year);
     }
 
     /**
      * method to find films that was liked by users form @params
-     * @param userId   -> id of a user to get liked films
+     * @param userId -> id of a user to get liked films
      * @param friendId -> id of a user to get liked films
      * @return List<Film> -> list of films that was liked by both users
      */
