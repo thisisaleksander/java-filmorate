@@ -89,4 +89,10 @@ public class UserController {
         log.info("Received GET request: action feed of user {}", id);
         return userService.getUsersActionFeed(id);
     }
+
+    @DeleteMapping("/{id}")
+    public Set<User> delete(@PathVariable("id") Integer id) {
+        log.info("Received DELETE request: user {}", id);
+        return userStorage.delete(id);
+    }
 }

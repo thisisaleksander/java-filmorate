@@ -94,7 +94,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Set<User> getAll() {
-        Set<User> users = new HashSet<>();
+        Set<User> users = new LinkedHashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
@@ -107,5 +107,12 @@ public class UserDbStorage implements UserStorage {
         return users.stream()
                 .sorted(User::getUserToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<User> delete(Integer id) {
+        String sql = "DELETE FROM USERS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        log.info(String.format("User with id = %d was deleted", id));
+        return getAll();
     }
 }

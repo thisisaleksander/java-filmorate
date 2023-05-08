@@ -81,4 +81,10 @@ public class FilmController {
         log.info("Received GET request: top {} popular films by year and genre", limit);
         return filmService.getMostPopularFilms(count, limit, genreId, year);
     }
+
+    @DeleteMapping("/{id}")
+    public Set<Film> delete(@PathVariable("id") Integer id) {
+        log.info("Received DELETE request: film {}", id);
+        return filmStorage.delete(id);
+    }
 }
