@@ -65,11 +65,13 @@ public class FilmController {
 
     @GetMapping("/director/{id}")
     public List<Film> getSortedFilmsWithIdDirector(@PathVariable("id") Integer id, @RequestParam String sortBy) {
+        log.info("Received GET request: films of director {} sorted by {}", id, sortBy);
         return filmService.getSortedFilmsWithIdDirector(id, sortBy);
     }
 
     @GetMapping("/search")
     public List<Film> getFilmsByKeyWord(@RequestParam String query, @RequestParam String by) {
+        log.info("Received GET request: films by {} sorted by {}", query, by);
         return filmService.getFilmsByKeyWord(query, by);
     }
 

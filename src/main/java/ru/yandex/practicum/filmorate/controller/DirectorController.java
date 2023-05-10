@@ -20,11 +20,13 @@ public class DirectorController {
 
     @GetMapping
     public List<Director> getAllDirectors() {
+        log.info("All directors had been received");
         return directorService.getAllDirectors();
     }
 
     @GetMapping("/{id}")
     public Director getDirectorById(@PathVariable int id) {
+        log.info("Director {} had been received", id);
         return directorService.getDirectorById(id);
     }
 
