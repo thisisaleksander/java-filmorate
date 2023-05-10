@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.service.ValidateService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -92,18 +93,26 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<User> getAll() {
-        List<User> usersTmp = jdbcTemplate.query("SELECT DISTINCT * FROM users ORDER BY id ASC ", new UserMapper());
-        Set<User> users = new HashSet<>();
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT DISTINCT * FROM users ORDER BY id ASC ");
+    public Set<User> getAll() {
+        Set<User> users = new LinkedHashSet<>();
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
         }
         log.info("Total users found: {}", users.size());
         if (users.isEmpty()) {
             log.info("No users found");
-            return Collections.emptyList();
+            return Collections.emptySet();
         }
-        return usersTmp;
+        return users.stream()
+                .sorted(User::getUserToCompare)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<User> delete(Integer id) {
+        String sql = "DELETE FROM USERS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        log.info(String.format("User with id = %d was deleted", id));
+        return getAll();
     }
 }

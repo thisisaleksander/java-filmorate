@@ -267,7 +267,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
         if (!jdbcTemplate.queryForRowSet("SELECT id FROM directors WHERE id = ?", id).next()) {
-            throw new NotFoundException(String.format("Режиссер c id %d не найден", id));
+            throw new NotFoundException(String.format("Director with id %d not found", id));
         }
         if (sortBy.equals("year")) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
@@ -300,7 +300,7 @@ public class FilmDbStorage implements FilmStorage {
                     "ORDER BY f.rate DESC";
             return getGenresAndDirectorsForAllFilms(id, sqlQuery);
         } else {
-            throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+            throw new FilmValidationException("Request could not be proceeded");
         }
     }
 
@@ -339,8 +339,7 @@ public class FilmDbStorage implements FilmStorage {
                             "ORDER BY f.rate";
                     return getGenresAndDirectorsForAllFilms(sqlQuery);
                 } else {
-                    throw new FilmValidationException(String.format(
-                            "Запрос с данными параметрами не может быть обработан"));
+                    throw new FilmValidationException("Request could not be proceeded");
                 }
             case 2:
                 if (whereSearch[0].equals("director") && whereSearch[1].equals("title")
@@ -361,10 +360,10 @@ public class FilmDbStorage implements FilmStorage {
                             "ORDER BY f.rate";
                     return getGenresAndDirectorsForAllFilms(sqlQuery);
                 } else {
-                    throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+                    throw new FilmValidationException("Request could not be proceeded");
                 }
             default:
-                throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+                throw new FilmValidationException("Request could not be proceeded");
         }
     }
 
@@ -379,7 +378,7 @@ public class FilmDbStorage implements FilmStorage {
             directors.addAll(jdbcTemplate.query(sqlQuery, new DirectorMapper(), id));
             return directors;
         } else {
-            throw new NotFoundException(String.format("Фильм c id %d не найден", id));
+            throw new NotFoundException(String.format("Film with id %d not found", id));
         }
     }
 
@@ -400,19 +399,21 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
         String param;
         String bound;
+        String groupAndOrder = " group by f.ID order by count(l.user_id) desc ";
         String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                 "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
-                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID ";
+                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                "LEFT JOIN LIKES l on f.ID = l.FILM_ID ";
         if (genreId > 0 && year > 0) {
-            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + groupAndOrder;
         } else if (genreId > 0 && year == 0) {
-            param = " WHERE fg.genre_id = " + genreId + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + groupAndOrder;
         } else if (genreId == 0 && year > 0) {
-            param =  " WHERE YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param =  " WHERE YEAR(f.release_date) = " + year + groupAndOrder;
         } else {
-            param = " ORDER BY rate DESC ";
+            param = groupAndOrder;
         }
         if (limit >= 1 && (genreId > 0 || year > 0)) {
             bound = " LIMIT " + limit;
@@ -430,5 +431,12 @@ public class FilmDbStorage implements FilmStorage {
         filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         filmsList.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
         return filmsList;
+    }
+
+    public Set<Film> delete(Integer id) {
+        String sql = "DELETE FROM FILMS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        log.info(String.format("Film with id %d was deleted", id));
+        return getAll();
     }
 }
