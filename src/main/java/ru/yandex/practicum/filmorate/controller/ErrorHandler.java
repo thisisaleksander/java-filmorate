@@ -27,6 +27,14 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse directorNotFoundException(final DirectorNotFoundException e) {
+        return new ErrorResponse(
+                String.format("Error in director validation \"%s\".", e.getMessage())
+        );
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleUserValidationException(final UserValidationException e) {
         return new ErrorResponse(
