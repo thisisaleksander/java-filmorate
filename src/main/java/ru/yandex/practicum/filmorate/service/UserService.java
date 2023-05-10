@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -156,6 +157,10 @@ public class UserService {
      * @return List<User> -> List of user objects who have active friendship status with user (@param id)
      */
     public List<User> getFriends(Integer id) {
+        SqlRowSet sqlValidate = jdbcTemplate.queryForRowSet("select * from users where id = " + id);
+        if (!sqlValidate.next()) {
+            throw new NotFoundException("This user does not exist");
+        }
         List<User> friends = new ArrayList<>();
         Set<Integer> friendsIds = new HashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("select distinct friend_id from friends where user_id = " +

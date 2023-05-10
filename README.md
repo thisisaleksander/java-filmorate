@@ -1,10 +1,10 @@
 # java-filmorate
-Template repository for Yandex Practicum Filmorate project.
+Repository for Yandex Practicum Filmorate project.
 Rest API with kinopoisk logic
 
 Developer tasks:
 
-Ekaterina -> add-search branch
+Ekaterina -> add-search
 
 	~ GET /fimls/search
 	Возвращает список фильмов, отсортированных по популярности.
@@ -14,12 +14,12 @@ Konstantin -> add-feed
 	~ GET /users/{id}/feed
 	Возвращает ленту событий пользователя.
 
-Andrey -> add-recommendations branch
+Andrey -> add-recommendations
 
 	~ GET /users/{id}/recommendations
 	Возвращает рекомендации по фильмам для просмотра.
 
-Elena -> add-reviews branch
+Elena -> add-reviews
 
 	~ POST /reviews
 	Добавление нового отзыва.
@@ -52,3 +52,36 @@ Alexander -> add-common-films
 
 	~ GET /films/common?userId={userId}&friendId={friendId} 
 	Возвращает список фильмов, отсортированных по популярности.
+	
+Ekaterina -> add-director
+
+	~ GET /films/director/{directorId}?sortBy=[year,likes]
+	Возвращает список фильмов режиссера отсортированных по количеству лайков или году выпуска.
+	
+	~ GET /directors
+	Список всех режиссёров
+
+	~ GET /directors/{id}
+	Получение режиссёра по id
+
+	~ POST /directors
+	Создание режиссёра
+
+	~ PUT /directors
+	Изменение режиссёра
+	
+	~ DELETE /directors/{id}
+	Удаление режиссёра
+
+Alexander -> add-most-populars
+
+	~ GET /films/popular?count={limit}&genreId={genreId}&year={year}
+	Возвращает список самых популярных фильмов указанного жанра за нужный год.
+	
+Andrey -> add-remove-endpoint
+
+	~ DELETE /users/{userId}
+	Удаляет пользователя по идентификатору. 
+
+	~ DELETE /films/{filmId} 
+	Удаляет фильм по идентификатору.

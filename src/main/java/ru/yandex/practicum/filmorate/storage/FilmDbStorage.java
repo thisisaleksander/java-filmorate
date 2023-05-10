@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
@@ -28,12 +29,15 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final GenreDbStorage genreDbStorage;
+    private final DirectorDbStorage directorDbStorage;
+
     private static final String FILM_LOG = "FILM - {} : {}";
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreDbStorage = genreDbStorage;
+        this.directorDbStorage = directorDbStorage;
     }
 
     @Override
@@ -267,9 +271,9 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
         if (!jdbcTemplate.queryForRowSet("SELECT id FROM directors WHERE id = ?", id).next()) {
-            throw new NotFoundException(String.format("Режиссер c id %d не найден", id));
+            throw new DirectorNotFoundException(String.format("Director with id %d not found", id));
         }
-        if (sortBy.equals("year")) {
+        if (sortBy.equalsIgnoreCase(Criteria.YEAR.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
                     "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
                     "d.id AS director_id, d.name AS director_name " +
@@ -284,7 +288,7 @@ public class FilmDbStorage implements FilmStorage {
                     "GROUP BY f.id " +
                     "ORDER BY f.release_date";
             return getGenresAndDirectorsForAllFilms(id, sqlQuery);
-        } else if (sortBy.equals("likes")) {
+        } else if (sortBy.equalsIgnoreCase(Criteria.LIKES.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
                     "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
                     "d.id AS director_id, d.name AS director_name " +
@@ -300,72 +304,64 @@ public class FilmDbStorage implements FilmStorage {
                     "ORDER BY f.rate DESC";
             return getGenresAndDirectorsForAllFilms(id, sqlQuery);
         } else {
-            throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+            throw new FilmValidationException(String.format("Request could not be proceeded"));
         }
     }
 
     public List<Film> findFilmsByKeyWord(String query, String by) {
+        String pattern = "\'%" + query.toLowerCase() + "%\'";
         String[] whereSearch = by.split(",");
-        switch (whereSearch.length) {
-            case 1:
-                if (whereSearch[0].equals("title")) {
-                    String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                            "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
-                            "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
-                            "FROM films AS f " +
-                            "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
-                            "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
-                            "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
-                            "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
-                            "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
-                            "LEFT JOIN directors AS d ON d.id = fd.director_id " +
-                            "WHERE fm.status_id = 2 AND lower(f.name) LIKE \'%" + query.toLowerCase() + "%\' " +
-                            "GROUP BY f.id " +
-                            "ORDER BY f.rate";
-                    return getGenresAndDirectorsForAllFilms(sqlQuery);
-                } else if (whereSearch[0].equals("director")) {
-                    String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                            "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
-                            "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
-                            "FROM films AS f " +
-                            "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
-                            "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
-                            "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
-                            "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
-                            "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
-                            "LEFT JOIN directors AS d ON d.id = fd.director_id " +
-                            "WHERE fd.status_id = 2 AND lower(d.name) LIKE \'%" + query.toLowerCase() + "%\' " +
-                            "GROUP BY f.id " +
-                            "ORDER BY f.rate";
-                    return getGenresAndDirectorsForAllFilms(sqlQuery);
-                } else {
-                    throw new FilmValidationException(String.format(
-                            "Запрос с данными параметрами не может быть обработан"));
-                }
-            case 2:
-                if (whereSearch[0].equals("director") && whereSearch[1].equals("title")
-                        || whereSearch[0].equals("title") && whereSearch[1].equals("director")) {
-                    String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                            "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
-                            "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
-                            "FROM films AS f " +
-                            "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
-                            "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
-                            "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
-                            "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
-                            "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
-                            "LEFT JOIN directors AS d ON d.id = fd.director_id " +
-                            "WHERE fm.status_id = 2 AND (lower(f.name) LIKE \'" + query.toLowerCase() + "\' " +
-                            "OR lower(d.name) LIKE \'%" + query.toLowerCase() + "%\')  " +
-                            "GROUP BY f.id " +
-                            "ORDER BY f.rate";
-                    return getGenresAndDirectorsForAllFilms(sqlQuery);
-                } else {
-                    throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
-                }
-            default:
-                throw new FilmValidationException(String.format("Запрос с данными параметрами не может быть обработан"));
+        if (whereSearch.length > 1) {
+            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
+                    "FROM films AS f " +
+                    "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
+                    "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
+                    "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
+                    "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
+                    "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
+                    "LEFT JOIN directors AS d ON d.id = fd.director_id " +
+                    "WHERE fm.status_id = 2 AND (lower(f.name) LIKE " + pattern +
+                    "OR lower(d.name) LIKE " + pattern + ") " +
+                    "GROUP BY f.id " +
+                    "ORDER BY f.rate";
+            return getGenresAndDirectorsForAllFilms(sqlQuery);
         }
+        if (by.equalsIgnoreCase(Criteria.TITLE.toString())) {
+            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
+                    "FROM films AS f " +
+                    "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
+                    "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
+                    "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
+                    "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
+                    "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
+                    "LEFT JOIN directors AS d ON d.id = fd.director_id " +
+                    "WHERE fm.status_id = 2 AND lower(f.name) LIKE " + pattern +
+                    "GROUP BY f.id " +
+                    "ORDER BY f.rate";
+            return getGenresAndDirectorsForAllFilms(sqlQuery);
+        }
+        if (by.equalsIgnoreCase(Criteria.DIRECTOR.toString())) {
+            String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
+                    "FROM films AS f " +
+                    "LEFT JOIN film_genre AS fg ON fg.film_id = f.id " +
+                    "LEFT JOIN genres AS g ON g.id = fg.genre_id " +
+                    "LEFT JOIN film_mpa AS fm ON fm.film_id = f.id " +
+                    "LEFT JOIN mpa AS m ON m.id = fm.mpa_id " +
+                    "LEFT JOIN film_director AS fd ON fd.film_id = f.id " +
+                    "LEFT JOIN directors AS d ON d.id = fd.director_id " +
+                    "WHERE fd.status_id = 2 AND lower(d.name) LIKE " + pattern +
+                    "GROUP BY f.id " +
+                    "ORDER BY f.rate";
+            return getGenresAndDirectorsForAllFilms(sqlQuery);
+        }
+        throw new FilmValidationException(String.format(
+                "Request could not be proceeded"));
     }
 
     public Set<Director> findDirectorsByFilmId(Integer id) {
@@ -379,7 +375,7 @@ public class FilmDbStorage implements FilmStorage {
             directors.addAll(jdbcTemplate.query(sqlQuery, new DirectorMapper(), id));
             return directors;
         } else {
-            throw new NotFoundException(String.format("Фильм c id %d не найден", id));
+            throw new NotFoundException(String.format("Film with id %d not found", id));
         }
     }
 
@@ -400,19 +396,21 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
         String param;
         String bound;
+        String groupAndOrder = " group by f.ID order by count(l.user_id) desc ";
         String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                 "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
-                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID ";
+                "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
+                "LEFT JOIN LIKES l on f.ID = l.FILM_ID ";
         if (genreId > 0 && year > 0) {
-            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + " AND YEAR(f.release_date) = " + year + groupAndOrder;
         } else if (genreId > 0 && year == 0) {
-            param = " WHERE fg.genre_id = " + genreId + " ORDER BY rate DESC ";
+            param = " WHERE fg.genre_id = " + genreId + groupAndOrder;
         } else if (genreId == 0 && year > 0) {
-            param =  " WHERE YEAR(f.release_date) = " + year + " ORDER BY rate DESC ";
+            param =  " WHERE YEAR(f.release_date) = " + year + groupAndOrder;
         } else {
-            param = " ORDER BY rate DESC ";
+            param = groupAndOrder;
         }
         if (limit >= 1 && (genreId > 0 || year > 0)) {
             bound = " LIMIT " + limit;
@@ -430,5 +428,12 @@ public class FilmDbStorage implements FilmStorage {
         filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
         filmsList.forEach(film -> film.setDirectors(findDirectorsByFilmId(film.getId())));
         return filmsList;
+    }
+
+    public Set<Film> delete(Integer id) {
+        String sql = "DELETE FROM FILMS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        log.info(String.format("Film with id %d was deleted", id));
+        return getAll();
     }
 }
