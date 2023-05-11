@@ -74,7 +74,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getMutualFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
-        log.info("GU-5. Received GET request: common friends of users {} and {}", id, otherId);
+        log.info("GU-4. Received GET request: common friends of users {} and {}", id, otherId);
         return userService.getMutualFriends(id, otherId);
     }
 

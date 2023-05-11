@@ -62,7 +62,7 @@ public class UserService {
                     friendId,
                     id
             );
-            log.info("Accept friend {} to user {} with status {}", friendId, id, 2);
+            log.info("PU-4. Accept friend {} to user {} with status {}", friendId, id, 2);
             return user;
         } else {
             throw new DoNotExistException(String.format(
@@ -103,9 +103,9 @@ public class UserService {
                     friendId,
                     STATUS_ACTIVE
             );
-            log.info("Added friendship of user {} with user {}", friendId, id);
+            log.info("PU-3. Added friendship of user {} with user {}", friendId, id);
             if (feedDbStorage.addFriendSaveToFeed(friendId, id) == 0) {
-                log.warn("'Add Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
+                log.warn("PU-3. 'Add Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
             }
             return user;
         }
@@ -137,9 +137,9 @@ public class UserService {
                     id,
                     friendId
             );
-            log.info("Removed friendship of user {} with user {}", friendId, id);
+            log.info("DU-2. Removed friendship of user {} with user {}", friendId, id);
             if (feedDbStorage.removeFriendSaveToFeed(friendId, id) == 0) {
-                log.warn("'Remove Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
+                log.warn("DU-2. 'Remove Friend' operation from user {} to friend {} was not saved to Feed", id, friendId);
             }
             return user;
         } else {
@@ -169,12 +169,12 @@ public class UserService {
         while (resultSet.next()) {
             friendsIds.add(resultSet.getInt("friend_id"));
         }
-        log.info("Total friends of user {} found: {}", id, friendsIds.size());
+        log.info("GU-3. Total friends of user {} found: {}", id, friendsIds.size());
         friendsIds.forEach(someId -> {
             friends.add(userStorage.get(someId));
         });
         if (friends.isEmpty()) {
-            log.info("No friends found");
+            log.info("GU-3. No friends found");
         }
         return friends;
     }
@@ -209,12 +209,12 @@ public class UserService {
         }
         commonFriendsIds.remove(id);
         commonFriendsIds.remove(otherId);
-        log.info("Total common friends found of users {} and {} found: {}", id, otherId, commonFriendsIds.size());
+        log.info("GU-4. Total common friends found of users {} and {} found: {}", id, otherId, commonFriendsIds.size());
         commonFriendsIds.forEach(someId -> {
             commonFriends.add(userStorage.get(someId));
         });
         if (commonFriends.isEmpty()) {
-            log.info("No common friends found of users {} and {}", id, otherId);
+            log.info("GU-4. No common friends found of users {} and {}", id, otherId);
             return Collections.emptySet();
         }
         return commonFriends;

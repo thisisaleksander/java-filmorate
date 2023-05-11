@@ -26,7 +26,7 @@ public class ReviewService {
         userService.get(userId);
         Review createdReview = reviewStorage.addReview(review, userId, filmId);
         if (feedDbStorage.addReviewSaveToFeed(createdReview.getReviewId(), userId) == 0) {
-            log.warn("'Add Review' operation from user {} to review {} was not saved to Feed",
+            log.warn("PR-1. 'Add Review' operation from user {} to review {} was not saved to Feed",
                     userId, createdReview.getReviewId());
         }
         return createdReview;
@@ -40,7 +40,7 @@ public class ReviewService {
         reviewStorage.updateReview(review);
         Review updatedReview = reviewStorage.getReview(review.getReviewId());
         if (feedDbStorage.updateReviewSaveToFeed(updatedReview.getReviewId(), updatedReview.getUserId()) == 0) {
-            log.warn("'Update Review' operation from user {} to review {} was not saved to Feed",
+            log.warn("PR-2. 'Update Review' operation from user {} to review {} was not saved to Feed",
                     updatedReview.getUserId(), updatedReview.getReviewId());
         }
         return updatedReview;
@@ -49,7 +49,7 @@ public class ReviewService {
     public void deleteReview(int id) {
         int userId = reviewStorage.deleteReview(id);
         if (feedDbStorage.removeReviewSaveToFeed(id, userId) == 0) {
-            log.warn("'Remove Review' operation from user {} to review {} was not saved to Feed", userId, id);
+            log.warn("DR-1. 'Remove Review' operation from user {} to review {} was not saved to Feed", userId, id);
         }
     }
 

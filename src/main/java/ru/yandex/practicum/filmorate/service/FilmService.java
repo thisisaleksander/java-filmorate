@@ -48,12 +48,12 @@ public class FilmService {
                 userId,
                 STATUS_ACTIVE
         );
-        log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
+        log.info("PF-3. Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
         film.setRate(film.getRate() + 1);
         filmStorage.update(film.getId(), film);
-        log.info("Film {} rate updated", id);
+        log.info("PF-3. Film {} rate updated", id);
         if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
-            log.warn("'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            log.warn("PF-3. 'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
         }
         return film;
     }
@@ -84,17 +84,17 @@ public class FilmService {
                     id,
                     userId
             );
-            log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
+            log.info("DF-2. Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
             if (film.getRate() == 0) {
-                log.info("Film {} rate updated", id);
+                log.info("DF-2. Film {} rate updated", id);
                 return film;
             } else {
                 film.setRate(film.getRate() - 1);
                 filmStorage.update(film.getId(), film);
             }
-            log.info("Film {} rate updated", id);
+            log.info("DF-2. Film {} rate updated", id);
             if (feedDbStorage.removeLikeSaveToFeed(id, userId) == 0) {
-                log.warn("'Remove Like' operation from user {} to film {} was not saved to Feed", userId, id);
+                log.warn("DF-2. 'Remove Like' operation from user {} to film {} was not saved to Feed", userId, id);
             }
             return film;
         } else {
