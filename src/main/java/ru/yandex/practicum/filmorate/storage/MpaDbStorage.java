@@ -21,7 +21,7 @@ public class MpaDbStorage {
     }
 
     public List<Mpa> getAll() {
-        log.info("List of all MPA received");
+        log.info("GM-1. List of all MPA received");
         return jdbcTemplate.query("SELECT DISTINCT ID AS mpa_id, NAME AS mpa_name FROM MPA",
                 new MpaMapper()
         );
@@ -33,10 +33,10 @@ public class MpaDbStorage {
                 new MpaMapper()
         );
         if (mpa.isEmpty()) {
-            log.info("MPA with id {} not found", id);
+            log.info("GM-2. MPA with id {} not found", id);
             throw new DoNotExistException("MPA with id = " + id + " do not exists");
         }
-        log.info("MPA {} received", id);
+        log.info("GM-2. MPA {} received", id);
         return mpa.get(0);
     }
 }

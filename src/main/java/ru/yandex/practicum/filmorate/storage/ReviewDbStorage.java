@@ -49,10 +49,10 @@ public class ReviewDbStorage implements ReviewStorage {
             }, keyHolder);
 
             review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-            log.info("Add review id " + filmId);
+            log.info("PR-1. Add review id " + filmId);
             return review;
         } else {
-            log.info("Review to film " + filmId + " already exist");
+            log.info("PR-1. Review to film " + filmId + " already exist");
             throw new AlreadyExistException("review to film " + filmId + " already exist");
         }
     }
@@ -68,10 +68,10 @@ public class ReviewDbStorage implements ReviewStorage {
                     "LEFT JOIN (SELECT* FROM REVIEW_DISLIKES WHERE status_id = ?) rd ON rd.review_id = r.id " +
                     "WHERE r.id = ? AND r.deleted = ? " +
                     "GROUP BY r.id";
-            log.info("Found review with id = {}", id);
+            log.info("GR-2. Found review with id = {}", id);
             return jdbcTemplate.queryForObject(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, id, false);
         } catch (Exception e) {
-            log.info("Review not found, id = {}", id);
+            log.info("GR-2. Review not found, id = {}", id);
             throw new ReviewNotFoundException("Review id " + id + " not found");
         }
     }
@@ -82,10 +82,10 @@ public class ReviewDbStorage implements ReviewStorage {
         int i = jdbcTemplate.update("UPDATE reviews SET content = ?, is_positive = ? WHERE id = ? ",
                 review.getContent(), review.getIsPositive(), reviewId);
         if (i != 0) {
-            log.info("Update review id: {}", reviewId);
+            log.info("PR-2.Update review id: {}", reviewId);
             return true;
         } else {
-            log.info("Review id " + reviewId + " not found");
+            log.info("PR-2.Review id " + reviewId + " not found");
             throw new ReviewNotFoundException("Review id " + reviewId + " not found");
         }
     }
@@ -98,11 +98,11 @@ public class ReviewDbStorage implements ReviewStorage {
             int i = jdbcTemplate.update("UPDATE reviews SET deleted = ? WHERE id = ? ",
                     true, id);
             if (i != 0) {
-                log.info("Deleted review id: {}", id);
+                log.info("DR-1. Deleted review id: {}", id);
             }
             return reviewRows.getInt("user_id");
         } else {
-            log.info("Review " + id + " not found");
+            log.info("DR-1. Review " + id + " not found");
             throw new ReviewNotFoundException("Review " + id + " not found");
         }
     }
@@ -122,7 +122,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "LIMIT ?";
         listReview = jdbcTemplate.query(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, filmId,
                 false, count);
-        log.info("List of reviews of film with id {} received", filmId);
+        log.info("GR-2. List of reviews of film with id {} received", filmId);
         return listReview;
     }
 
@@ -141,9 +141,9 @@ public class ReviewDbStorage implements ReviewStorage {
                 "LIMIT ?";
         listReview = jdbcTemplate.query(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, false, count);
         if (listReview.isEmpty()) {
-            log.info("No review found in database");
+            log.info("GR-2. No review found in database");
         } else {
-            log.info("Total reviews found: {}", listReview.size());
+            log.info("GR-2. Total reviews found: {}", listReview.size());
         }
         return listReview;
     }
@@ -155,11 +155,11 @@ public class ReviewDbStorage implements ReviewStorage {
         if (!reviewRows.next()) {
             jdbcTemplate.update("MERGE INTO REVIEW_LIKES (review_id, user_id, status_id) " +
                     "VALUES (?, ?, ?)", id, userId, STATUS_ACTIVE);
-            log.info("Add new like to review " + id);
+            log.info("PR-3. Add new like to review " + id);
             return getReview(id);
         } else {
-            log.info("like to review " + id + " already exist");
-            throw new AlreadyExistException("like to review " + id + " already exist");
+            log.info("PR-3. Like to review " + id + " already exist");
+            throw new AlreadyExistException("Like to review " + id + " already exist");
         }
     }
 
@@ -170,11 +170,11 @@ public class ReviewDbStorage implements ReviewStorage {
         if (!reviewRows.next()) {
             jdbcTemplate.update("MERGE INTO REVIEW_DISLIKES (review_id, user_id, status_id) " +
                     "VALUES (?, ?, ?)", id, userId, STATUS_ACTIVE);
-            log.info("Add new dislike to review " + id);
+            log.info("PR-4. Add new dislike to review " + id);
             return getReview(id);
         } else {
-            log.info("dislike to review " + id + " already exist");
-            throw new AlreadyExistException("dislike to review " + id + " already exist");
+            log.info("PR-4. Dislike to review " + id + " already exist");
+            throw new AlreadyExistException("Dislike to review " + id + " already exist");
         }
     }
 
@@ -186,15 +186,15 @@ public class ReviewDbStorage implements ReviewStorage {
             int i = jdbcTemplate.update("UPDATE REVIEW_LIKES SET status_id = ? WHERE review_id = ? AND user_id = ?",
                     STATUS_DELETED, id, userId);
             if (i != 0) {
-                log.info("Deleted like to review " + id);
+                log.info("DR-2. Deleted like to review " + id);
                 return true;
             } else {
-                log.info("Failed to delete like to review " + id);
+                log.info("DR-2. Failed to delete like to review " + id);
                 return false;
             }
         } else {
-            log.info("like to review " + id + " not found");
-            throw new ReviewNotFoundException("like to review " + id + " not found");
+            log.info("DR-2. Like to review " + id + " not found");
+            throw new ReviewNotFoundException("Like to review " + id + " not found");
         }
     }
 
@@ -206,15 +206,15 @@ public class ReviewDbStorage implements ReviewStorage {
             int i = jdbcTemplate.update("UPDATE REVIEW_DISLIKES SET status_id = ? WHERE review_id = ? AND user_id = ?",
                     STATUS_DELETED, id, userId);
             if (i != 0) {
-                log.info("Deleted dislike to review " + id);
+                log.info("DR-3. Deleted dislike to review " + id);
                 return true;
             } else {
-                log.info("Failed to delete dislike to review " + id);
+                log.info("DR-3. Failed to delete dislike to review " + id);
                 return false;
             }
         } else {
-            log.info("dislike to review " + id + " not found");
-            throw new ReviewNotFoundException("dislike to review " + id + " not found");
+            log.info("DR-3. Dislike to review " + id + " not found");
+            throw new ReviewNotFoundException("Dislike to review " + id + " not found");
         }
     }
 }

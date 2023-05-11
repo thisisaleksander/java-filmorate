@@ -53,7 +53,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getRate()
         );
-        log.info(FILM_LOG, LocalDateTime.now(), "added");
+        log.info("PF-1. ", FILM_LOG, LocalDateTime.now(), "added");
         List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
                         "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
@@ -101,7 +101,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
             film.getDirectors().forEach(director -> addDirector(director.getId(), id));
         }
-        log.info(FILM_LOG, LocalDateTime.now(), "updated");
+        log.info("PF-2. ", FILM_LOG, LocalDateTime.now(), "updated");
         return get(id);
     }
 
@@ -114,10 +114,10 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE f.ID = ?";
         List<Film> filmsList = jdbcTemplate.query(sql, new FilmMapper(), id);
         if (filmsList.isEmpty()) {
-            log.info("Film not found, id = {}", id);
+            log.info("GF-2. Film not found, id = {}", id);
             throw new NotFoundException("Film with id = " + id + " do not exist");
         }
-        log.info("Found film with id = {}", id);
+        log.info("GF-2. Found film with id = {}", id);
         return getGenresAndDirectorsForAllFilms(filmsList).get(0);
     }
 
@@ -131,9 +131,9 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
-            log.info("No films found in database");
+            log.info("GF-1. No films found in database");
         }
-        log.info("Total films found: {}", Optional.of(filmsList.size()));
+        log.info("GF-1. Total films found: {}", Optional.of(filmsList.size()));
         return getGenresAndDirectorsForAllFilms(filmsList).stream()
                 .sorted(Film::getFilmIdToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
@@ -256,16 +256,16 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY rate DESC";
         List<Film> films = jdbcTemplate.query(sql, new FilmMapper(), userId, friendId);
         if (films.isEmpty()) {
-            log.info("No films found in database");
+            log.info("GF-3. No films found in database");
             return films;
         }
-        log.info("Total common films found: " + films.size());
+        log.info("GF-3. Total common films found: " + films.size());
         return getGenresAndDirectorsForAllFilms(films);
     }
 
     public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
         if (!jdbcTemplate.queryForRowSet("SELECT id FROM directors WHERE id = ?", id).next()) {
-            log.info("Directors with id {} not found", id);
+            log.info("GF-4. Directors with id {} not found", id);
             throw new DirectorNotFoundException(String.format("Director with id %d not found", id));
         }
         if (sortBy.equalsIgnoreCase(Criteria.YEAR.toString())) {
@@ -281,7 +281,7 @@ public class FilmDbStorage implements FilmStorage {
                     "GROUP BY f.id " +
                     "ORDER BY f.release_date";
             List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper(), id);
-            log.info("List of all films with director {} sorted by {} received", id, sortBy);
+            log.info("GF-4. List of all films with director {} sorted by {} received", id, sortBy);
             return getGenresAndDirectorsForAllFilms(films);
         } else if (sortBy.equalsIgnoreCase(Criteria.LIKES.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
@@ -296,10 +296,10 @@ public class FilmDbStorage implements FilmStorage {
                     "GROUP BY f.id " +
                     "ORDER BY f.rate DESC";
             List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper(), id);
-            log.info("List of all films with director {} sorted by {} received", id, sortBy);
+            log.info("GF-4. List of all films with director {} sorted by {} received", id, sortBy);
             return getGenresAndDirectorsForAllFilms(films);
         } else {
-            log.info("The request with these parameters cannot be processed");
+            log.info("GF-4. The request with these parameters cannot be processed");
             throw new FilmValidationException(String.format("Request could not be proceeded"));
         }
     }
@@ -321,7 +321,7 @@ public class FilmDbStorage implements FilmStorage {
                     "GROUP BY f.id " +
                     "ORDER BY f.rate";
             List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper());
-            log.info("List of all films by query {} received", query);
+            log.info("GF-6. List of all films by query {} received", query);
             return getGenresAndDirectorsForAllFilms(films);
         }
         if (by.equalsIgnoreCase(Criteria.TITLE.toString())) {
@@ -337,7 +337,7 @@ public class FilmDbStorage implements FilmStorage {
                     " GROUP BY f.id " +
                     "ORDER BY f.rate";
             List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper());
-            log.info("List of all films by query {} received", query);
+            log.info("GF-6. List of all films by query {} received", query);
             return getGenresAndDirectorsForAllFilms(films);
         }
         if (by.equalsIgnoreCase(Criteria.DIRECTOR.toString())) {
@@ -353,10 +353,10 @@ public class FilmDbStorage implements FilmStorage {
                     " GROUP BY f.id " +
                     "ORDER BY f.rate";
             List<Film> films = jdbcTemplate.query(sqlQuery, new FilmMapper());
-            log.info("List of all films by query {} received", query);
+            log.info("GF-6. List of all films by query {} received", query);
             return getGenresAndDirectorsForAllFilms(films);
         }
-        log.info("The request with these parameters cannot be processed");
+        log.info("GF-6. The request with these parameters cannot be processed");
         throw new FilmValidationException(String.format("Request could not be proceeded"));
     }
 
@@ -388,17 +388,17 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmMapper()
         );
         if (filmsList.isEmpty()) {
-            log.info("No films found in database");
+            log.info("GF-5. No films found in database");
             return filmsList;
         }
-        log.info("Total films found in database: " + filmsList.size());
+        log.info("GF-5. Total films found in database: " + filmsList.size());
         return getGenresAndDirectorsForAllFilms(filmsList);
     }
 
     public Set<Film> delete(Integer id) {
         String sql = "DELETE FROM FILMS WHERE ID = " + id;
         jdbcTemplate.update(sql);
-        log.info(String.format("Film with id %d was deleted", id));
+        log.info(String.format("DF-1. Film with id %d was deleted", id));
         return getAll();
     }
 

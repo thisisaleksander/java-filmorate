@@ -26,7 +26,7 @@ public class GenreDbStorage {
     }
 
     public List<Genre> getAll() {
-        log.info("List of all genres received");
+        log.info("GGen-1. List of all genres received");
         return jdbcTemplate.query("SELECT DISTINCT ID AS genre_id, NAME AS genre_name FROM GENRES",
                 new GenreMapper()
         );
@@ -38,10 +38,10 @@ public class GenreDbStorage {
                 new GenreMapper()
         );
         if (genres.isEmpty()) {
-            log.info("Genre with id {} not found", id);
+            log.info("GGen-2. Genre with id {} not found", id);
             throw new DoNotExistException("Genre with id = " + id + " do not exists");
         }
-        log.info("Genre {} received", id);
+        log.info("GGen-2. Genre {} received", id);
         return genres.get(0);
     }
 
@@ -50,7 +50,7 @@ public class GenreDbStorage {
         jdbcTemplate.update(sqlQuery,
                 genre.getName()
         );
-        log.info("Genre with id {} added", genre.getId());
+        log.info("PGen-1. Genre with id {} added", genre.getId());
         return genre;
     }
 
