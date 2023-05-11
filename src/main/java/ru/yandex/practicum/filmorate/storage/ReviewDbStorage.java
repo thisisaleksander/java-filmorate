@@ -8,7 +8,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.Review;
 
@@ -49,9 +49,10 @@ public class ReviewDbStorage implements ReviewStorage {
             }, keyHolder);
 
             review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).intValue());
+            log.info("Add review id " + filmId);
             return review;
         } else {
-            log.info("review to film " + filmId + " already exist");
+            log.info("Review to film " + filmId + " already exist");
             throw new AlreadyExistException("review to film " + filmId + " already exist");
         }
     }
@@ -67,9 +68,11 @@ public class ReviewDbStorage implements ReviewStorage {
                     "LEFT JOIN (SELECT* FROM REVIEW_DISLIKES WHERE status_id = ?) rd ON rd.review_id = r.id " +
                     "WHERE r.id = ? AND r.deleted = ? " +
                     "GROUP BY r.id";
+            log.info("Found review with id = {}", id);
             return jdbcTemplate.queryForObject(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, id, false);
         } catch (Exception e) {
-            throw new NotFoundException("Review id " + id + " not found");
+            log.info("Review not found, id = {}", id);
+            throw new ReviewNotFoundException("Review id " + id + " not found");
         }
     }
 
@@ -83,7 +86,7 @@ public class ReviewDbStorage implements ReviewStorage {
             return true;
         } else {
             log.info("Review id " + reviewId + " not found");
-            throw new NotFoundException("Review id " + reviewId + " not found");
+            throw new ReviewNotFoundException("Review id " + reviewId + " not found");
         }
     }
 
@@ -100,7 +103,7 @@ public class ReviewDbStorage implements ReviewStorage {
             return reviewRows.getInt("user_id");
         } else {
             log.info("Review " + id + " not found");
-            throw new NotFoundException("Review " + id + " not found");
+            throw new ReviewNotFoundException("Review " + id + " not found");
         }
     }
 
@@ -119,6 +122,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "LIMIT ?";
         listReview = jdbcTemplate.query(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, filmId,
                 false, count);
+        log.info("List of reviews of film with id {} received", filmId);
         return listReview;
     }
 
@@ -136,6 +140,11 @@ public class ReviewDbStorage implements ReviewStorage {
                 "ORDER BY useful DESC, r.id ASC " +
                 "LIMIT ?";
         listReview = jdbcTemplate.query(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, false, count);
+        if (listReview.isEmpty()) {
+            log.info("No review found in database");
+        } else {
+            log.info("Total reviews found: {}", listReview.size());
+        }
         return listReview;
     }
 
@@ -180,11 +189,12 @@ public class ReviewDbStorage implements ReviewStorage {
                 log.info("Deleted like to review " + id);
                 return true;
             } else {
+                log.info("Failed to delete like to review " + id);
                 return false;
             }
         } else {
             log.info("like to review " + id + " not found");
-            throw new NotFoundException("like to review " + id + " not found");
+            throw new ReviewNotFoundException("like to review " + id + " not found");
         }
     }
 
@@ -198,11 +208,13 @@ public class ReviewDbStorage implements ReviewStorage {
             if (i != 0) {
                 log.info("Deleted dislike to review " + id);
                 return true;
+            } else {
+                log.info("Failed to delete dislike to review " + id);
+                return false;
             }
-            return false;
         } else {
             log.info("dislike to review " + id + " not found");
-            throw new NotFoundException("dislike to review " + id + " not found");
+            throw new ReviewNotFoundException("dislike to review " + id + " not found");
         }
     }
 }
