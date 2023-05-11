@@ -42,7 +42,8 @@ public class UserDbStorage implements UserStorage {
                 user.getDeleted()
         );
         log.info("PU-1. ", USER_LOG, LocalDateTime.now(), "registered");
-        List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
+        List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1",
+                new UserMapper());
         if (usersToReturn.isEmpty()) {
             log.info("PU-1. No users found in database");
             throw new NotFoundException("New user not found and failed to return");
