@@ -26,6 +26,7 @@ public class GenreDbStorage {
     }
 
     public List<Genre> getAll() {
+        log.info("List of all genres received");
         return jdbcTemplate.query("SELECT DISTINCT ID AS genre_id, NAME AS genre_name FROM GENRES",
                 new GenreMapper()
         );
@@ -37,8 +38,10 @@ public class GenreDbStorage {
                 new GenreMapper()
         );
         if (genres.isEmpty()) {
+            log.info("Genre with id {} not found", id);
             throw new DoNotExistException("Genre with id = " + id + " do not exists");
         }
+        log.info("Genre {} received", id);
         return genres.get(0);
     }
 
@@ -47,6 +50,7 @@ public class GenreDbStorage {
         jdbcTemplate.update(sqlQuery,
                 genre.getName()
         );
+        log.info("Genre with id {} added", genre.getId());
         return genre;
     }
 
@@ -58,6 +62,7 @@ public class GenreDbStorage {
                         " ORDER BY fg.GENRE_ID",
                 new GenreMapper()
         );
+        log.info("List of all genres of film with id {} received", filmId);
         return genres.stream()
                 .sorted(Genre::getGenreIdToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
