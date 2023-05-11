@@ -23,7 +23,8 @@ public class FilmMapper implements RowMapper<Film> {
                 resultSet.getBoolean("DELETED"),
                 new Mpa(
                         resultSet.getInt("MPA_ID"),
-                        resultSet.getString("MPA_NAME")
+                        resultSet.getString("MPA_NAME"),
+                        resultSet.getBoolean("DELETED")
                 ),
                 new HashSet<>(),
                 new HashSet<>());

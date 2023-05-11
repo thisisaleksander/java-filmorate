@@ -4,6 +4,7 @@ import ru.yandex.practicum.filmorate.model.*;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
 public interface UserStorage {
     /**
@@ -30,5 +31,5 @@ public interface UserStorage {
      *
      * @return Set<User> -> all found users in table 'users'
      */
-    List<User> getAll();
+    Set<User> getAll();
 }

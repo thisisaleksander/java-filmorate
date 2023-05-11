@@ -22,13 +22,13 @@ public class MpaDbStorage {
 
     public List<Mpa> getAll() {
         log.info("List of all MPA received");
-        return jdbcTemplate.query("SELECT DISTINCT ID AS mpa_id, NAME AS mpa_name FROM MPA",
+        return jdbcTemplate.query("SELECT DISTINCT ID AS mpa_id, NAME AS mpa_name, deleted FROM MPA",
                 new MpaMapper()
         );
     }
 
     public Mpa getMpaById(Integer id) {
-        List<Mpa> mpa = jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name FROM MPA WHERE ID = "
+        List<Mpa> mpa = jdbcTemplate.query("SELECT ID AS mpa_id, NAME AS mpa_name, deleted FROM MPA WHERE ID = "
                         + id,
                 new MpaMapper()
         );

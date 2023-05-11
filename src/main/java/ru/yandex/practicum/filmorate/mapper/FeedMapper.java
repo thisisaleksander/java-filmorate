@@ -27,6 +27,7 @@ public class FeedMapper implements RowMapper<Feed> {
                 .userId(resultSet.getInt("user_id"))
                 .eventType(EventType.valueOf(resultSet.getString("event_name")))
                 .operation(OperationType.valueOf(resultSet.getString("operation_name")))
+                .deleted(resultSet.getBoolean("deleted"))
                 .build();
     }
 }

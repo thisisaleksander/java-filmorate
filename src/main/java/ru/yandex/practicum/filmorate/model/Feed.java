@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,4 +17,6 @@ public class Feed {
     private OperationType operation;
     private Integer eventId;
     private Integer entityId;
+    @JsonIgnore
+    private Boolean deleted;
 }

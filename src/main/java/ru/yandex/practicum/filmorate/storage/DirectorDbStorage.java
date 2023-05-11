@@ -19,17 +19,18 @@ public class DirectorDbStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public List<Director> findAll() {
-        String sqlQuery = "SELECT id, name FROM directors ORDER BY id";
+        String sqlQuery = "SELECT id, name, deleted FROM directors ORDER BY id";
         log.info("List of all directors received");
         return jdbcTemplate.query(sqlQuery, new DirectorMapper());
     }
 
     public Director findDirectorById(int id) {
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet(
-                "SELECT id, name FROM directors WHERE id = ?", id);
+                "SELECT id, name, deleted FROM directors WHERE id = ?", id);
         if (directorRows.next()) {
             log.info("Director {} received", id);
-            return new Director(directorRows.getInt("id"), directorRows.getString("name"));
+            return new Director(directorRows.getInt("id"), directorRows.getString("name"),
+                    directorRows.getBoolean("deleted"));
         } else {
             log.info("Director with id {} not found", id);
             throw new NotFoundException(String.format("Director with id %d not found", id));
@@ -75,7 +76,7 @@ public class DirectorDbStorage {
         Set<Director> directors = new HashSet<>();
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet("SELECT id FROM films WHERE id = ?", id);
         if (directorRows.next()) {
-            String sqlQuery = "SELECT d.id, d.name " +
+            String sqlQuery = "SELECT d.id, d.name, d.deleted " +
                     "FROM directors AS d " +
                     "JOIN film_director AS fd ON fd.director_id = d.id " +
                     "WHERE fd.film_id = ? AND fd.status_id = 2";

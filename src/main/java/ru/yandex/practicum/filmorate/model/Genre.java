@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,8 @@ public class Genre {
     private Integer id;
     @Size(max = 25)
     private String name;
+    @JsonIgnore
+    private Boolean deleted;
 
     public int getGenreIdToCompare(Genre genre) {
         return genre.id;

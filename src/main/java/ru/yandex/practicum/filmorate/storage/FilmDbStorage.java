@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.enums.Criteria;
 import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.FilmValidationException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -35,7 +36,8 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FILM_LOG = "FILM - {} : {}";
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreDbStorage, DirectorDbStorage directorDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreDbStorage genreDbStorage,
+                         DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreDbStorage = genreDbStorage;
         this.directorDbStorage = directorDbStorage;
@@ -54,8 +56,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate()
         );
         log.info(FILM_LOG, LocalDateTime.now(), "added");
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, " +
+                        "release_date, duration, rate, f.deleted, " +
+                        "fm.MPA_ID, m.NAME as mpa_name, m.deleted FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "ORDER BY f.ID DESC LIMIT 1",
@@ -107,8 +110,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(@NonNull Integer id) {
-        String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+        String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, f.deleted, " +
+                "fm.MPA_ID, m.NAME as mpa_name, m.deleted FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                 "WHERE f.ID = ?";
@@ -123,8 +126,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Set<Film> getAll() {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, " +
+                        "release_date, duration, rate, f.deleted, " +
+                        "fm.MPA_ID, m.NAME as mpa_name, m.deleted FROM films f " +
                         "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                         "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
                         "ORDER BY f.ID",
@@ -141,7 +145,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addGenre(Integer genreId, Integer filmId) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre " +
+                        "WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
                 filmId,
                 genreId,
                 STATUS_ACTIVE
@@ -162,7 +167,8 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeGenre(Integer genreId, Integer filmId) {
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
+        SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM film_genre " +
+                        "WHERE (film_id = ? AND genre_id = ?) AND status_id = ?",
                 filmId,
                 genreId,
                 STATUS_ACTIVE
@@ -246,7 +252,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         String sql = "SELECT f.ID, f.name, description, release_date, duration, " +
-                "rate, deleted, fm.MPA_ID, m.NAME as mpa_name " +
+                "rate, f.deleted, fm.MPA_ID, m.NAME as mpa_name, m.deleted " +
                 "FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
@@ -270,7 +276,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         if (sortBy.equalsIgnoreCase(Criteria.YEAR.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                    "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, m.deleted, " +
                     "d.id AS director_id, d.name AS director_name " +
                     "FROM films AS f " +
                     "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) AS fm ON fm.film_id = f.id " +
@@ -285,7 +291,7 @@ public class FilmDbStorage implements FilmStorage {
             return getGenresAndDirectorsForAllFilms(films);
         } else if (sortBy.equalsIgnoreCase(Criteria.LIKES.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                    "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, m.deleted, " +
                     "d.id AS director_id, d.name AS director_name " +
                     "FROM films AS f " +
                     "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) AS fm ON fm.film_id = f.id " +
@@ -309,7 +315,7 @@ public class FilmDbStorage implements FilmStorage {
         String[] whereSearch = by.split(",");
         if (whereSearch.length > 1) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, m.deleted, " +
                     "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
                     "FROM films AS f " +
                     "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) AS fm ON fm.film_id = f.id " +
@@ -326,7 +332,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         if (by.equalsIgnoreCase(Criteria.TITLE.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, m.deleted, " +
                     "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
                     "FROM films AS f " +
                     "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) AS fm ON fm.film_id = f.id " +
@@ -342,7 +348,7 @@ public class FilmDbStorage implements FilmStorage {
         }
         if (by.equalsIgnoreCase(Criteria.DIRECTOR.toString())) {
             String sqlQuery = "SELECT f.id, f.name, f.description, f.release_date, " +
-                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, " +
+                    "           f.duration, f.rate, f.deleted, m.id AS mpa_id, m.name AS mpa_name, m.deleted, " +
                     "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
                     "FROM films AS f " +
                     "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) AS fm ON fm.film_id = f.id " +
@@ -364,8 +370,8 @@ public class FilmDbStorage implements FilmStorage {
         String param;
         String bound;
         String groupAndOrder = " group by f.ID order by count(l.user_id) desc ";
-        String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
+        String sql = "SELECT f.ID, f.name, description, release_date, duration, rate, f.deleted, " +
+                "fm.MPA_ID, m.NAME as mpa_name, m.deleted FROM films f " +
                 "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
                 "LEFT JOIN (SELECT * FROM FILM_GENRE WHERE status_id = 2) fg ON f.ID = fg.FILM_ID " +
                 "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
