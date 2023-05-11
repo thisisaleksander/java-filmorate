@@ -122,6 +122,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 "LIMIT ?";
         listReview = jdbcTemplate.query(sqlQuery, new ReviewMapper(), STATUS_ACTIVE, STATUS_ACTIVE, filmId,
                 false, count);
+        log.info("List of reviews of film with id {} received", filmId);
         return listReview;
     }
 
