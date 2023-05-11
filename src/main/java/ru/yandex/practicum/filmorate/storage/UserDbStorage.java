@@ -41,9 +41,10 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getDeleted()
         );
-        log.info(USER_LOG, LocalDateTime.now(), "registered");
+        log.info("PU-1. ", USER_LOG, LocalDateTime.now(), "registered");
         List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
         if (usersToReturn.isEmpty()) {
+            log.info("PU-1. No users found in database");
             throw new NotFoundException("New user not found and failed to return");
         }
         return usersToReturn.get(0);
@@ -63,7 +64,7 @@ public class UserDbStorage implements UserStorage {
                 user.getDeleted(),
                 id
         );
-        log.info(USER_LOG, LocalDateTime.now(), "updated");
+        log.info("PU-2. ", USER_LOG, LocalDateTime.now(), "updated");
         return get(id);
     }
 
@@ -73,10 +74,10 @@ public class UserDbStorage implements UserStorage {
         if (resultSet.next()) {
             User user = mapRowToUser(resultSet);
             assert user != null;
-            log.info("Found user with id = {}", user.getId());
+            log.info("GU-2. Found user with id = {}", user.getId());
             return user;
         } else {
-            log.info("User with id = {} not found.", id);
+            log.info("GU-2. User with id = {} not found.", id);
             throw new NotFoundException("User with id = " + id + " do not exists");
         }
     }
@@ -99,9 +100,9 @@ public class UserDbStorage implements UserStorage {
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
         }
-        log.info("Total users found: {}", users.size());
+        log.info("GU-1. Total users found: {}", users.size());
         if (users.isEmpty()) {
-            log.info("No users found");
+            log.info("GU-1. No users found");
             return Collections.emptySet();
         }
         return users.stream()
@@ -112,7 +113,7 @@ public class UserDbStorage implements UserStorage {
     public Set<User> delete(Integer id) {
         String sql = "DELETE FROM USERS WHERE ID = " + id;
         jdbcTemplate.update(sql);
-        log.info(String.format("User with id = %d was deleted", id));
+        log.info(String.format("DU-1. User with id = %d was deleted", id));
         return getAll();
     }
 }

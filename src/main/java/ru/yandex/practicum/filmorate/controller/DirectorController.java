@@ -20,33 +20,33 @@ public class DirectorController {
 
     @GetMapping
     public List<Director> getAllDirectors() {
-        log.info("All directors had been received");
+        log.info("GDir-1. All directors had been received");
         return directorService.getAllDirectors();
     }
 
     @GetMapping("/{id}")
     public Director getDirectorById(@PathVariable int id) {
-        log.info("Director {} had been received", id);
+        log.info("GDir-2. Director {} had been received", id);
         return directorService.getDirectorById(id);
     }
 
     @PostMapping
     public Director createDirector(@RequestBody @Valid Director director) {
         directorService.save(director);
-        log.info("Director had been created: {}", director);
+        log.info("PDir-1. Director had been created: {}", director);
         return director;
     }
 
     @PutMapping()
     public Director updateDirector(@RequestBody @Valid Director director) {
         directorService.update(director);
-        log.info("Director had been updated: {}", director);
+        log.info("PDir-2. Director had been updated: {}", director);
         return director;
     }
 
     @DeleteMapping("/{id}")
     public void deleteDirector(@PathVariable int id) {
         directorService.deleteDirector(id);
-        log.info("Director {} had been deleted", id);
+        log.info("DDir-1. Director {} had been deleted", id);
     }
 }

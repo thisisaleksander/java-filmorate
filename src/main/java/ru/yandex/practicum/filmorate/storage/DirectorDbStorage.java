@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.DirectorNotFoundException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -20,7 +21,7 @@ public class DirectorDbStorage {
 
     public List<Director> findAll() {
         String sqlQuery = "SELECT id, name, deleted FROM directors ORDER BY id";
-        log.info("List of all directors received");
+        log.info("GDir-1. List of all directors received");
         return jdbcTemplate.query(sqlQuery, new DirectorMapper());
     }
 
@@ -28,12 +29,12 @@ public class DirectorDbStorage {
         SqlRowSet directorRows = jdbcTemplate.queryForRowSet(
                 "SELECT id, name, deleted FROM directors WHERE id = ?", id);
         if (directorRows.next()) {
-            log.info("Director {} received", id);
+            log.info("GDir-2. Director {} received", id);
             return new Director(directorRows.getInt("id"), directorRows.getString("name"),
                     directorRows.getBoolean("deleted"));
         } else {
-            log.info("Director with id {} not found", id);
-            throw new NotFoundException(String.format("Director with id %d not found", id));
+            log.info("DirectorNotFoundException. Director with id {} not found", id);
+            throw new DirectorNotFoundException(String.format("Director with id %d not found", id));
         }
     }
 
@@ -44,7 +45,7 @@ public class DirectorDbStorage {
         Map<String, Object> values = new HashMap<>();
         values.put("name", director.getName());
         director.setId(simpleJdbcInsert.executeAndReturnKey(values).intValue());
-        log.info("Director with id {} saved", director.getId());
+        log.info("PDir-1. Director with id {} saved", director.getId());
         return director;
     }
 
@@ -58,18 +59,18 @@ public class DirectorDbStorage {
             jdbcTemplate.update(sqlQuery,
                     director.getName(),
                     director.getId());
-            log.info("Director with id {} updated", director.getId());
+            log.info("PDir-2. Director with id {} updated", director.getId());
             return director;
         } else {
-            log.info("Director with id {} not found", director.getId());
-            throw new NotFoundException(String.format("Director with id %d not found", director.getId()));
+            log.info("DirectorNotFoundException. Director with id {} not found", director.getId());
+            throw new DirectorNotFoundException(String.format("Director with id %d not found", director.getId()));
         }
     }
 
     public void deleteDirector(int id) {
         String sqlQuery = "DELETE FROM directors WHERE id = ?";
         jdbcTemplate.update(sqlQuery, id);
-        log.info("Director {} was removed", id);
+        log.info("DDir-1. Director {} was removed", id);
     }
 
     public Set<Director> findDirectorsByFilmId(Integer id) {
