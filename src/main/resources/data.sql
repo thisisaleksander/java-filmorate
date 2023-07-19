@@ -53,3 +53,9 @@ VALUES('Документальный');
 INSERT INTO PUBLIC.GENRES
 (name)
 VALUES('Боевик');
+
+INSERT INTO PUBLIC.EVENT_TYPE (event_name)
+    VALUES ('LIKE'), ('REVIEW'), ('FRIEND');
+
+INSERT INTO PUBLIC.OPERATION_TYPE (operation_name)
+    VALUES ('REMOVE'), ('ADD'), ('UPDATE');

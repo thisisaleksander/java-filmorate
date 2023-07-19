@@ -1,19 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.DoNotExistException;
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FeedDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_ACTIVE;
 import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
@@ -23,13 +21,14 @@ import static ru.yandex.practicum.filmorate.storage.Constants.STATUS_DELETED;
 public class FilmService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
-    private final GenreDbStorage genreDbStorage;
+    private final FeedDbStorage feedDbStorage;
     private final JdbcTemplate jdbcTemplate;
 
-    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage, GenreDbStorage genreDbStorage, JdbcTemplate jdbcTemplate) {
+    public FilmService(FilmDbStorage filmStorage, UserDbStorage userStorage,
+                       FeedDbStorage feedDbStorage, JdbcTemplate jdbcTemplate) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
-        this.genreDbStorage = genreDbStorage;
+        this.feedDbStorage = feedDbStorage;
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -37,46 +36,33 @@ public class FilmService {
      * method that adds like from user to a film
      * @param id -> id of a film to add like to
      * @param userId -> id of a user whose like was added
-     * @return Optional<Film> -> film object where like was added
+     * @return Film -> film object where like was added
      */
     public Film addLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
         userStorage.get(userId);
-        SqlRowSet resultSet = jdbcTemplate.queryForRowSet(
-                "SELECT * FROM likes " +
-                        "WHERE (film_id = ? AND user_id = ?) " +
-                        "AND (status_id = ?)",
+        String sqlQuery = "INSERT INTO likes (film_id, user_id, status_id) " +
+                "VALUES (?, ?, ?)";
+        jdbcTemplate.update(sqlQuery,
                 id,
                 userId,
                 STATUS_ACTIVE
         );
-        if (resultSet.next()) {
-            throw new AlreadyExistException(String.format(
-                    "Like from user id %s to film %s already exist",
-                    userId,
-                    id
-            ));
-        } else {
-            String sqlQuery = "INSERT INTO likes (film_id, user_id, status_id) " +
-                    "VALUES (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery,
-                    id,
-                    userId,
-                    STATUS_ACTIVE
-            );
-            log.info("Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
-            film.setRate(film.getRate() + 1);
-            filmStorage.update(film.getId(), film);
-            log.info("Film {} rate updated", id);
-            return film;
+        log.info("PF-3. Add like request from user {} to film {} with status {}", userId, id, STATUS_ACTIVE);
+        film.setRate(film.getRate() + 1);
+        filmStorage.update(film.getId(), film);
+        log.info("PF-3. Film {} rate updated", id);
+        if (feedDbStorage.addLikeSaveToFeed(id, userId) == 0) {
+            log.warn("PF-3. 'Add Like' operation from user {} to film {} was not saved to Feed", userId, id);
         }
+        return film;
     }
 
     /**
      * method to delete like in film from user
      * @param id -> id of a film to delete like form
      * @param userId -> id of a user whose like needs to be removed
-     * @return Optional<Film> -> film object where like was removed
+     * @return Film -> film object where like was removed
      */
     public Film deleteLike(Integer id, Integer userId) {
         Film film = filmStorage.get(id);
@@ -98,15 +84,18 @@ public class FilmService {
                     id,
                     userId
             );
-            log.info("Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
+            log.info("DF-2. Delete like from user {} to film {} with status {}", userId, id, STATUS_DELETED);
             if (film.getRate() == 0) {
-                log.info("Film {} rate updated", id);
+                log.info("DF-2. Film {} rate updated", id);
                 return film;
             } else {
                 film.setRate(film.getRate() - 1);
                 filmStorage.update(film.getId(), film);
             }
-            log.info("Film {} rate updated", id);
+            log.info("DF-2. Film {} rate updated", id);
+            if (feedDbStorage.removeLikeSaveToFeed(id, userId) == 0) {
+                log.warn("DF-2. 'Remove Like' operation from user {} to film {} was not saved to Feed", userId, id);
+            }
             return film;
         } else {
             throw new DoNotExistException(String.format(
@@ -119,26 +108,34 @@ public class FilmService {
 
     /**
      * method to get top n films by rate from films table
-     * @param count -> amount of films to get, uses in LIMIT statement
+     * @param limit -> amount of films to get, uses in LIMIT statement
      * @return List<Film> -> list of top n films
      */
-    public List<Film> getTopFilms(long count) {
-        List<Film> filmsList = jdbcTemplate.query("SELECT f.ID, f.name, description, release_date, duration, rate, deleted, " +
-                        "fm.MPA_ID, m.NAME as mpa_name FROM films f " +
-                        "LEFT JOIN (SELECT * FROM FILM_MPA WHERE status_id = 2) fm ON f.ID = fm.FILM_ID " +
-                        "LEFT JOIN MPA m ON m.ID = fm.MPA_ID " +
-                        "ORDER BY rate DESC " +
-                        "LIMIT " + count,
-                new FilmMapper()
-        );
-        if (filmsList.isEmpty()) {
-            log.info("No films found in database");
-            return filmsList;
-        }
-        log.info("Total films found in database: " + filmsList.size());
-        filmsList.forEach(film -> film.setGenres(genreDbStorage.getGenresOfFilm(film.getId())));
-        return filmsList.stream()
-                .sorted(Film::getFilmIdToCompare)
-                .collect(Collectors.toList());
+    public List<Film> getMostPopularFilms(Integer count, Integer limit, Integer genreId, Integer year) {
+        return filmStorage.getMostPopularFilms(count, limit, genreId, year);
+    }
+
+    /**
+     * method to find films that was liked by users form @params
+     * @param userId -> id of a user to get liked films
+     * @param friendId -> id of a user to get liked films
+     * @return List<Film> -> list of films that was liked by both users
+     */
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userStorage.get(userId);
+        userStorage.get(friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getSortedFilmsWithIdDirector(Integer id, String sortBy) {
+        return filmStorage.getSortedFilmsWithIdDirector(id, sortBy);
+    }
+
+    public List<Film> getFilmsByKeyWord(String query, String by) {
+        return filmStorage.findFilmsByKeyWord(query, by);
+    }
+
+    public Film get(@NonNull Integer id) {
+        return filmStorage.get(id);
     }
 }

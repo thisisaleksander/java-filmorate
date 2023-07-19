@@ -1,27 +1,28 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 
 public interface FilmStorage {
     /**
      * @param film -> film object from json
-     * @return Optional<Film> -> created film object if exists
+     * @return Film -> created film object if exists
      */
     Film add(Film film);
 
     /**
-     * @param id -> id gets from film object
+     * @param id   -> id gets from film object
      * @param film -> film object from json
-     * @return Optional<Film> -> updated film object if exists
+     * @return Film -> updated film object if exists
      */
     Film update(Integer id, Film film);
 
     /**
      * @param id -> parameter from request
-     * @return Optional<Film> -> found film with @param id if exists
+     * @return Film -> found film with @param id if exists
      */
     Film get(Integer id) throws SQLException;
 
@@ -32,15 +33,17 @@ public interface FilmStorage {
 
     /**
      * method that adds new link to genre, uses table filmGenre
+     *
      * @param genreId -> id of genre to add
-     * @param filmId -> id of a film to add genre to
+     * @param filmId  -> id of a film to add genre to
      */
     void addGenre(Integer genreId, Integer filmId);
 
     /**
      * method removes link to genre with genre_id = genreId, uses table filmGenre
+     *
      * @param genreId -> id of a genre to remove from film
-     * @param filmId -> id of a film to remove genre from
+     * @param filmId  -> id of a film to remove genre from
      */
     void removeGenre(Integer genreId, Integer filmId);
 
@@ -49,4 +52,6 @@ public interface FilmStorage {
     void addMpa(Integer mpaId, Integer filmId);
 
     void removeMpa(Integer filmId);
+
+    List<Film> getCommonFilms(Integer userId, Integer friendId);
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.ValidateService;
 
 import java.time.LocalDate;
@@ -41,9 +41,11 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getDeleted()
         );
-        log.info(USER_LOG, LocalDateTime.now(), "registered");
-        List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1", new UserMapper());
+        log.info("PU-1. ", USER_LOG, LocalDateTime.now(), "registered");
+        List<User> usersToReturn = jdbcTemplate.query("SELECT * FROM users ORDER BY id DESC LIMIT 1",
+                new UserMapper());
         if (usersToReturn.isEmpty()) {
+            log.info("PU-1. No users found in database");
             throw new NotFoundException("New user not found and failed to return");
         }
         return usersToReturn.get(0);
@@ -51,20 +53,20 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User update(@NonNull Integer id, @NonNull User user) {
-            ValidateService.validateUser(user);
-            String sqlQuery = "UPDATE users SET " +
-                    "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
-                    "WHERE id = ?";
-            jdbcTemplate.update(sqlQuery,
-                    user.getEmail(),
-                    user.getLogin(),
-                    user.getName(),
-                    user.getBirthday(),
-                    user.getDeleted(),
-                    id
-            );
-            log.info(USER_LOG, LocalDateTime.now(), "updated");
-            return get(id);
+        ValidateService.validateUser(user);
+        String sqlQuery = "UPDATE users SET " +
+                "email = ?, login = ?, name = ?, birthday = ?, deleted = ? " +
+                "WHERE id = ?";
+        jdbcTemplate.update(sqlQuery,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday(),
+                user.getDeleted(),
+                id
+        );
+        log.info("PU-2. ", USER_LOG, LocalDateTime.now(), "updated");
+        return get(id);
     }
 
     @Override
@@ -73,10 +75,10 @@ public class UserDbStorage implements UserStorage {
         if (resultSet.next()) {
             User user = mapRowToUser(resultSet);
             assert user != null;
-            log.info("Found user with id = {}", user.getId());
+            log.info("GU-2. Found user with id = {}", user.getId());
             return user;
         } else {
-            log.info("User with id = {} not found.", id);
+            log.info("GU-2. User with id = {} not found.", id);
             throw new NotFoundException("User with id = " + id + " do not exists");
         }
     }
@@ -94,18 +96,25 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Set<User> getAll() {
-        Set<User> users = new HashSet<>();
+        Set<User> users = new LinkedHashSet<>();
         SqlRowSet resultSet = jdbcTemplate.queryForRowSet("SELECT * FROM users");
         while (resultSet.next()) {
             users.add(mapRowToUser(resultSet));
         }
-        log.info("Total users found: {}", users.size());
+        log.info("GU-1. Total users found: {}", users.size());
         if (users.isEmpty()) {
-            log.info("No users found");
+            log.info("GU-1. No users found");
             return Collections.emptySet();
         }
         return users.stream()
                 .sorted(User::getUserToCompare)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    public Set<User> delete(Integer id) {
+        String sql = "DELETE FROM USERS WHERE ID = " + id;
+        jdbcTemplate.update(sql);
+        log.info(String.format("DU-1. User with id = %d was deleted", id));
+        return getAll();
     }
 }
